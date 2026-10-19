@@ -728,18 +728,20 @@ bool RaidRosterCommand::HandleLogout(ChatHandler* handler)
 }
 
 // Unbind every saved instance for `guid` except the one on `skipMapId` (you cannot unbind the
-// instance you are standing in). `online` is the live Player* if the character is logged in
-// (the master, or an online bot) so its client gets the lockout-cleared update; pass nullptr
-// for an offline bot — the DB row is deleted regardless (deleteFromDB=true). Returns the count.
+// instance you are standing in) and, for an online character, the map it is itself standing in.
+// `online` is the live Player* if the character is logged in (the master, or an online bot) so
+// its client gets the lockout-cleared update; pass nullptr for an offline bot — the DB row is
+// deleted regardless (deleteFromDB=true). Returns the count.
 static uint32 UnbindAll(ObjectGuid guid, Player* online, uint32 skipMapId)
 {
+    uint32 const ownMapId = online ? online->GetMapId() : skipMapId;
     uint32 count = 0;
     for (uint8 i = 0; i < MAX_DIFFICULTY; ++i)
     {
         BoundInstancesMap const& binds = sInstanceSaveMgr->PlayerGetBoundInstances(guid, Difficulty(i));
         for (BoundInstancesMap::const_iterator itr = binds.begin(); itr != binds.end();)
         {
-            if (itr->first != skipMapId)
+            if (itr->first != skipMapId && itr->first != ownMapId)
             {
                 sInstanceSaveMgr->PlayerUnbindInstance(guid, itr->first, Difficulty(i), true, online);
                 itr = binds.begin();   // PlayerUnbindInstance mutated `binds`; restart iteration
@@ -769,16 +771,36 @@ bool RaidRosterCommand::HandleReset(ChatHandler* handler)
 
     // Then every roster bot — online ones get their live Player*, offline ones unbind DB-only.
     PlayerbotMgr* mgr = GET_PLAYERBOT_MGR(master);
+    std::unordered_set<ObjectGuid> done;
     uint32 bots = 0;
     for (RaidRosterRow const& r : rows)
     {
         ObjectGuid g = ObjectGuid::Create<HighGuid::Player>(r.botGuid);
         Player* online = mgr ? mgr->GetPlayerBot(g) : nullptr;
         total += UnbindAll(g, online, skipMapId);
+        done.insert(g);
         ++bots;
     }
 
-    handler->PSendSysMessage("Reset {} instance lock(s) across you + {} roster bot(s).", total, bots);
+    // Plus every other bot the master currently controls — chiefly the player's own alts logged
+    // in via `.playerbots bot add`, which are not roster rows but raid alongside the roster and
+    // would otherwise keep their locks and be refused entry to the reset instance.
+    uint32 others = 0;
+    if (mgr)
+    {
+        for (auto itr = mgr->GetPlayerBotsBegin(); itr != mgr->GetPlayerBotsEnd(); ++itr)
+        {
+            if (!itr->second || done.count(itr->first)) continue;
+            total += UnbindAll(itr->first, itr->second, skipMapId);
+            ++others;
+        }
+    }
+
+    if (others)
+        handler->PSendSysMessage("Reset {} instance lock(s) across you + {} roster bot(s) + {} other bot(s).",
+                                 total, bots, others);
+    else
+        handler->PSendSysMessage("Reset {} instance lock(s) across you + {} roster bot(s).", total, bots);
     return true;
 }
 

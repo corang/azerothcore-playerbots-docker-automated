@@ -662,10 +662,10 @@ index 0000000..21a0b49
 +}
 diff --git a/modules/mod-playerbots/src/Ai/Raid/Aq40/Aq40CthunHelpers.h b/modules/mod-playerbots/src/Ai/Raid/Aq40/Aq40CthunHelpers.h
 new file mode 100644
-index 0000000..885aac6
+index 0000000..dccad2b
 --- /dev/null
 +++ b/modules/mod-playerbots/src/Ai/Raid/Aq40/Aq40CthunHelpers.h
-@@ -0,0 +1,223 @@
+@@ -0,0 +1,227 @@
 +/*
 + * This file is part of the mod-playerbots module for AzerothCore. See AUTHORS file for Copyright
 + * information; released under GNU GPL v2 license, redistribute/modify under version 2 of the License,
@@ -729,6 +729,10 @@ index 0000000..885aac6
 +constexpr float CTHUN_EXIT_REACHED = 3.0f;       // inside the 5y trigger
 +constexpr uint32 CTHUN_EXIT_HOLD_MS = 4000;      // script re-checks our position 3s after the trigger
 +constexpr float CTHUN_STOMACH_RADIUS = 100.0f;   // "near the stomach", 2D from the exit point
++// The stomach sits directly UNDER an ordinary trash hall (Vekniss/Brainwasher packs, floor z ~-3 to 0)
++// that is inside CTHUN_STOMACH_RADIUS, so "z < 0" alone matched it and the landing-hover teleport
++// dropped bots ~95y onto the stomach floor. Swallowed players arrive at z -70; the hall is above -3.
++constexpr float CTHUN_STOMACH_CEILING_Z = -40.0f;
 +// Server-side bots get no client gravity: the swallow teleport lands at z ~-70 over a floor near
 +// -97; that landing is the only hover we correct (see GetCthunAirborneState).
 +// Stomach landing hover: swallowed players arrive at z -70 over a floor near -97.
@@ -1715,10 +1719,10 @@ index 0000000..c1e92b3
 +#endif
 diff --git a/modules/mod-playerbots/src/Ai/Raid/Aq40/Aq40Helpers_Cthun.cpp b/modules/mod-playerbots/src/Ai/Raid/Aq40/Aq40Helpers_Cthun.cpp
 new file mode 100644
-index 0000000..7f24f51
+index 0000000..22e15e4
 --- /dev/null
 +++ b/modules/mod-playerbots/src/Ai/Raid/Aq40/Aq40Helpers_Cthun.cpp
-@@ -0,0 +1,1204 @@
+@@ -0,0 +1,1205 @@
 +/*
 + * This file is part of the mod-playerbots module for AzerothCore. See AUTHORS file for Copyright
 + * information; released under GNU GPL v2 license, redistribute/modify under version 2 of the License,
@@ -2355,9 +2359,10 @@ index 0000000..7f24f51
 +        return false;
 +    if (bot->HasAura(SPELL_CTHUN_DIGESTIVE_ACID))
 +        return true;
-+    // The script's own "not in stomach" test is z > 0. The Twins room is also below 0, ~900y away,
-+    // hence the proximity term.
-+    return bot->GetPositionZ() < 0.0f &&
++    // The script's own "not in stomach" test is z > 0, but a trash hall at z ~-3 to 0 lies right above
++    // the stomach, so the height test is the stomach ceiling. The Twins room is also deep below 0,
++    // ~900y away, hence the proximity term.
++    return bot->GetPositionZ() < CTHUN_STOMACH_CEILING_Z &&
 +           bot->GetExactDist2d(CTHUN_STOMACH_EXIT_X, CTHUN_STOMACH_EXIT_Y) < CTHUN_STOMACH_RADIUS;
 +}
 +

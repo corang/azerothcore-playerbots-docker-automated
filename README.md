@@ -708,7 +708,7 @@ restart also generates the addclass pool the first time).
 | `.raidroster login [5\|10\|25\|40] [tank\|heal\|dps]` | Log in that many bots (role-balanced subset, you + N bots = raid size). Omit size for 40. Picks a **random assortment** of your reserved bots for each role — keeping any already online, so re-running `login` doesn't reshuffle your current group, while a fresh session brings different faces. **Fills your own slot from your spec** — if you're tank/heal-specced it drops a bot of that role so you're not redundant; add an explicit `tank`/`heal`/`dps` to override. Auto-forms the raid; trims extras already online. |
 | `.raidroster sync` | Level + gear every online roster bot to match you, then force each slot's pinned tank/heal/dps spec. Fixes any overgear. |
 | `.raidroster logout` | Log out all online roster bots (roster stays pinned). |
-| `.raidroster reset` | Clear all saved instance lockouts (raids + heroic dungeons) for you and every roster bot at once — online **or** offline. A multi-character, non-GM stand-in for `.instance unbind all` (skips whatever instance you're standing in). |
+| `.raidroster reset` | Clear all saved instance lockouts (raids + heroic dungeons) for you and every roster bot at once — online **or** offline — plus any other bot you currently have logged in (e.g. your own alts added with `.playerbots bot add`). A multi-character, non-GM stand-in for `.instance unbind all` (skips whatever instance you, or that bot, are standing in). |
 | `.raidroster remove confirm` | Delete your roster (characters return to the shared addclass pool). |
 | `.raidroster status` | Show roster size, role counts, and how many bots are currently online. |
 

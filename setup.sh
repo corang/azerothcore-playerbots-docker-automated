@@ -30,7 +30,7 @@ MODULES=(
 )
 
 # Modules we author and ship from THIS repo (copied in, not git-cloned). Kept by the reconcile.
-LOCAL_MODULES=( "mod-playerbot-chatter" "mod-raid-roster" "mod-ahbot-price" "mod-wintergrasp-bots" "mod-arena-roster" "mod-battleground-bots" "mod-enchanter-npc" "mod-ah-bot-plus" )
+LOCAL_MODULES=( "mod-playerbot-chatter" "mod-raid-roster" "mod-ahbot-price" "mod-wintergrasp-bots" "mod-arena-roster" "mod-battleground-bots" "mod-enchanter-npc" "mod-ah-bot-plus" "mod-console-tools" )
 
 # Optional commit pins (repo-pins.txt): freeze the fork and/or a module at a known-good commit
 # instead of its branch tip — used to hold a stable upstream when the latest HEAD is broken.
@@ -1162,6 +1162,24 @@ UPDATE creature SET spawntimesecs=600 WHERE id IN (14527,14528,14531,14536);
 UPDATE creature SET spawntimesecs=900 WHERE id=14529;
 SQL
 fi
+
+# AQ War Effort turn-in signet count (.env AQ_WAR_EFFORT_SIGNETS). IP's custom
+# "Complete the War Effort" quests (108850 Alliance / 108855 Horde) require 1000
+# Commendation Signets (21436 / 21438) and gate both the Scepter chain (8286) and
+# IP's "Simply Bang a Gong!" (108743). A no-op without IP (the rows don't exist).
+# Idempotent + reversible: set 1000 and re-run to restore IP's default. NB: if a
+# later IP update changes aq_war_effort.sql, db-import re-applies it (back to 1000)
+# until this runs again.
+AQ_SIGNETS="${AQ_WAR_EFFORT_SIGNETS:-100}"
+if [[ ! "$AQ_SIGNETS" =~ ^[1-9][0-9]*$ ]]; then
+  echo "    WARN: AQ_WAR_EFFORT_SIGNETS='${AQ_SIGNETS}' is not a positive integer; using 100." >&2
+  AQ_SIGNETS=100
+fi
+echo "    AQ War Effort turn-in requires ${AQ_SIGNETS} Commendation Signets."
+docker compose exec -T ac-database \
+  mysql -uroot -p"${DOCKER_DB_ROOT_PASSWORD}" \
+  -e "UPDATE acore_world.quest_template SET RequiredItemCount1=${AQ_SIGNETS}
+        WHERE (ID=108850 AND RequiredItemId1=21436) OR (ID=108855 AND RequiredItemId1=21438);"
 
 # --- Registration website (ac-webreg) ----------------------------------------
 # Opt-in: only wired up when WEBREG_ADMIN_PASS is set in .env. Adds a container

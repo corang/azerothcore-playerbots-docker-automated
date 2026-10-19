@@ -1,0 +1,3882 @@
+diff --git a/modules/mod-playerbots/src/Ai/Raid/BWL/BWLActionContext.h b/modules/mod-playerbots/src/Ai/Raid/BWL/BWLActionContext.h
+index b9973bb..c366629 100644
+--- a/modules/mod-playerbots/src/Ai/Raid/BWL/BWLActionContext.h
++++ b/modules/mod-playerbots/src/Ai/Raid/BWL/BWLActionContext.h
+@@ -34,8 +34,26 @@ public:
+ 
+         creators["bwl use hourglass sand"] = &RaidBwlActionContext::bwl_use_hourglass_sand;
+         creators["bwl nefarian fear ward"] = &RaidBwlActionContext::bwl_nefarian_fear_ward;
++        creators["bwl nefarian mt station"] = &RaidBwlActionContext::bwl_nefarian_mt_station;
++        creators["bwl nefarian position"] = &RaidBwlActionContext::bwl_nefarian_position;
++        creators["bwl nefarian dps target"] = &RaidBwlActionContext::bwl_nefarian_dps_target;
++        creators["bwl nefarian ot target"] = &RaidBwlActionContext::bwl_nefarian_ot_target;
++        creators["bwl nefarian tremor"] = &RaidBwlActionContext::bwl_nefarian_tremor;
++        creators["bwl nefarian decurse tank"] = &RaidBwlActionContext::bwl_nefarian_decurse_tank;
++        creators["bwl nefarian dispel polymorph"] = &RaidBwlActionContext::bwl_nefarian_dispel_polymorph;
++        creators["bwl nefarian priest tank only"] = &RaidBwlActionContext::bwl_nefarian_priest_tank_only;
++        creators["bwl nefarian hunter rearm"] = &RaidBwlActionContext::bwl_nefarian_hunter_rearm;
++        creators["bwl nefarian rogue survive"] = &RaidBwlActionContext::bwl_nefarian_rogue_survive;
++        creators["bwl nefarian mt sunder"] = &RaidBwlActionContext::bwl_nefarian_mt_sunder;
+         creators["bwl death talon wyrmguard tank move away"] = &RaidBwlActionContext::bwl_death_talon_wyrmguard_tank_move_away;
+         creators["bwl death talon wyrmguard ranged move away"] = &RaidBwlActionContext::bwl_death_talon_wyrmguard_ranged_move_away;
++        creators["bwl wyrmguard tank"] = &RaidBwlActionContext::bwl_wyrmguard_tank;
++        creators["bwl wyrmguard mark skull"] = &RaidBwlActionContext::bwl_wyrmguard_mark_skull;
++        creators["bwl wyrmguard dps target"] = &RaidBwlActionContext::bwl_wyrmguard_dps_target;
++        creators["bwl wyrmguard melee position"] = &RaidBwlActionContext::bwl_wyrmguard_melee_position;
++        creators["bwl wyrmguard ebonroc keep out"] = &RaidBwlActionContext::bwl_wyrmguard_ebonroc_keep_out;
++        creators["bwl wyrmguard healer position"] = &RaidBwlActionContext::bwl_wyrmguard_healer_position;
++        creators["bwl threat hold"] = &RaidBwlActionContext::bwl_threat_hold;
+     }
+ 
+ private:
+@@ -51,8 +69,26 @@ private:
+     static Action* bwl_flamegor_fire_resistance_action(PlayerbotAI* ai) { return new BossFireResistanceAction(ai, "flamegor"); }
+     static Action* bwl_use_hourglass_sand(PlayerbotAI* ai) { return new BwlUseHourglassSandAction(ai); }
+     static Action* bwl_nefarian_fear_ward(PlayerbotAI* ai) { return new BwlNefarianFearWardAction(ai); }
++    static Action* bwl_nefarian_mt_station(PlayerbotAI* ai) { return new BwlNefarianMtStationAction(ai); }
++    static Action* bwl_nefarian_position(PlayerbotAI* ai) { return new BwlNefarianPositionAction(ai); }
++    static Action* bwl_nefarian_dps_target(PlayerbotAI* ai) { return new BwlNefarianDpsTargetAction(ai); }
++    static Action* bwl_nefarian_ot_target(PlayerbotAI* ai) { return new BwlNefarianOtTargetAction(ai); }
++    static Action* bwl_nefarian_tremor(PlayerbotAI* ai) { return new BwlNefarianTremorAction(ai); }
++    static Action* bwl_nefarian_decurse_tank(PlayerbotAI* ai) { return new BwlNefarianDecurseTankAction(ai); }
++    static Action* bwl_nefarian_dispel_polymorph(PlayerbotAI* ai) { return new BwlNefarianDispelPolymorphAction(ai); }
++    static Action* bwl_nefarian_priest_tank_only(PlayerbotAI* ai) { return new BwlNefarianPriestTankOnlyAction(ai); }
++    static Action* bwl_nefarian_hunter_rearm(PlayerbotAI* ai) { return new BwlNefarianHunterRearmAction(ai); }
++    static Action* bwl_nefarian_rogue_survive(PlayerbotAI* ai) { return new BwlNefarianRogueSurviveAction(ai); }
++    static Action* bwl_nefarian_mt_sunder(PlayerbotAI* ai) { return new BwlNefarianMtSunderAction(ai); }
+     static Action* bwl_death_talon_wyrmguard_tank_move_away(PlayerbotAI* ai) { return new BwlDeathTalonWyrmguardTankMoveAwayAction(ai); }
+     static Action* bwl_death_talon_wyrmguard_ranged_move_away(PlayerbotAI* ai) { return new BwlDeathTalonWyrmguardRangedMoveAwayAction(ai); }
++    static Action* bwl_wyrmguard_tank(PlayerbotAI* ai) { return new BwlWyrmguardTankAction(ai); }
++    static Action* bwl_wyrmguard_mark_skull(PlayerbotAI* ai) { return new BwlWyrmguardMarkSkullAction(ai); }
++    static Action* bwl_wyrmguard_dps_target(PlayerbotAI* ai) { return new BwlWyrmguardDpsTargetAction(ai); }
++    static Action* bwl_wyrmguard_melee_position(PlayerbotAI* ai) { return new BwlWyrmguardMeleePositionAction(ai); }
++    static Action* bwl_wyrmguard_ebonroc_keep_out(PlayerbotAI* ai) { return new BwlWyrmguardEbonrocKeepOutAction(ai); }
++    static Action* bwl_wyrmguard_healer_position(PlayerbotAI* ai) { return new BwlWyrmguardHealerPositionAction(ai); }
++    static Action* bwl_threat_hold(PlayerbotAI* ai) { return new BwlThreatHoldAction(ai); }
+ };
+ 
+ #endif
+diff --git a/modules/mod-playerbots/src/Ai/Raid/BWL/BWLActions.cpp b/modules/mod-playerbots/src/Ai/Raid/BWL/BWLActions.cpp
+index 8702397..8464154 100644
+--- a/modules/mod-playerbots/src/Ai/Raid/BWL/BWLActions.cpp
++++ b/modules/mod-playerbots/src/Ai/Raid/BWL/BWLActions.cpp
+@@ -7,8 +7,13 @@
+ #include "BWLActions.h"
+ #include "BWLHelpers.h"
+ #include "EncounterHelpers.h"
++#include "EquipAction.h"
++#include "PathGenerator.h"
+ #include "Playerbots.h"
+ #include "RtiTargetValue.h"
++#include <algorithm>
++#include <cmath>
++#include <vector>
+ 
+ using namespace BlackwingLairHelpers;
+ using namespace EncounterHelpers;
+@@ -284,6 +289,289 @@ bool BwlNefarianFearWardAction::Execute(Event /*event*/)
+     return botAI->CastSpell("fear ward", victim);
+ }
+ 
++// Nefarian phases 2 and 3 (overlay patch 0020, spec 2026-10-07)
++
++namespace
++{
++    constexpr float NEF_MT_BACK_STEP_MIN = 2.0f;     // path step: at least this far along the route...
++    constexpr float NEF_MT_BACK_STEP_MAX = 3.5f;     // ...and clipped to this, so aggro/facing re-check often
++    constexpr float NEF_MT_STUCK_MOVE = 1.0f;        // moved less than this...
++    constexpr uint32 NEF_MT_STUCK_MS = 3000;         // ...for this long in the Back step = stuck
++    constexpr uint32 NEF_MT_BACK_GAP_MS = 1000;      // no Back tick for this long = a new Back episode
++
++    // Fix round 3 (G1): the next step toward T along a navmesh route (PathGenerator::CalculatePath), not a
++    // straight line - a pillar on the line made every straight step unreachable. The step is the route
++    // point NEF_MT_BACK_STEP_MAX along the path (interpolated on its segment, so it stays on the mesh), or
++    // the first corner past NEF_MT_BACK_STEP_MIN when that comes first, or the path end. False = no usable
++    // route (caller falls back to the straight-line step).
++    bool GetNefMtPathStep(Player* bot, Position const& t, float& stepX, float& stepY, float& stepZ)
++    {
++        PathGenerator path(bot);
++        path.CalculatePath(t.GetPositionX(), t.GetPositionY(), t.GetPositionZ(), false);
++        if (!(path.GetPathType() & (PATHFIND_NORMAL | PATHFIND_INCOMPLETE)))
++            return false;
++        Movement::PointsArray const& points = path.GetPath();
++        if (points.size() < 2)
++            return false;
++        float travelled = 0.0f;
++        G3D::Vector3 prev(bot->GetPositionX(), bot->GetPositionY(), bot->GetPositionZ());
++        for (size_t i = 1; i < points.size(); ++i)
++        {
++            G3D::Vector3 const& p = points[i];
++            float const seg = std::hypot(p.x - prev.x, p.y - prev.y);
++            if (travelled + seg >= NEF_MT_BACK_STEP_MAX && seg > 0.01f)
++            {
++                float const f = (NEF_MT_BACK_STEP_MAX - travelled) / seg;
++                stepX = prev.x + (p.x - prev.x) * f;
++                stepY = prev.y + (p.y - prev.y) * f;
++                stepZ = prev.z + (p.z - prev.z) * f;
++                return true;
++            }
++            travelled += seg;
++            if (travelled >= NEF_MT_BACK_STEP_MIN || i + 1 == points.size())
++            {
++                stepX = p.x;
++                stepY = p.y;
++                stepZ = p.z;
++                return true;
++            }
++            prev = p;
++        }
++        return false;
++    }
++}
++
++// Spec §9 #1. Close to melee and LOS first (pathfinding, MOVEMENT_COMBAT - this also runs on the
++// non-combat engine, where the MT sits at landing), take Nefarian as the target (Attack also switches
++// the engine to combat), and only while he is on the MT and in melee back him to T, then face him
++// (Nefarian then faces T, i.e. the empty throne dais). Returns false when idle so the tank rotation runs.
++bool BwlNefarianMtStationAction::Execute(Event /*event*/)
++{
++    NefarianView view;
++    if (!GetNefarianView(bot, view) || view.mainTank != bot)
++        return false;
++    Creature* const nef = view.nefarian;
++    Unit* const current = AI_VALUE(Unit*, "current target");
++    switch (GetNefMtStep(bot, view, current))
++    {
++        case NefMtStep::Close:
++        {
++            bool const los = bot->IsWithinLOSInMap(nef);
++            // Attack first where it can succeed: it sets the target and the combat engine, and its
++            // facing/stop is overridden by the combat-priority move launched right after it.
++            bool const attacked = los && current != nef && Attack(nef);
++            bool moved = los && MoveTo(nef, NEF_MT_APPROACH_DIST, MovementPriority::MOVEMENT_COMBAT);
++            if (!moved && !bot->isMoving())
++                // No LOS, or the straight-line point was refused (duplicate after a short path): path to
++                // his own position instead - a different point, always reachable on the floor.
++                moved = MoveTo(BWL_MAP_ID, nef->GetPositionX(), nef->GetPositionY(), nef->GetPositionZ(), false,
++                               false, false, false, MovementPriority::MOVEMENT_COMBAT);
++            // Still out of melee and walking: claim the tick so nothing else cancels the approach.
++            return attacked || moved || bot->isMoving();
++        }
++        case NefMtStep::Attack:
++            return Attack(nef);
++        case NefMtStep::Back:
++        {
++            Position const& t = NEF_STATIONS.mt;
++            uint32 const now = getMSTime();
++            // Stuck fallback: in the Back step for NEF_MT_STUCK_MS without moving NEF_MT_STUCK_MOVE - turn and
++            // run to T on a plain pathfinding move (he follows his victim), then resume backing.
++            if (!backAnchorMs || getMSTimeDiff(backLastMs, now) > NEF_MT_BACK_GAP_MS ||
++                bot->GetExactDist2d(backAnchorX, backAnchorY) >= NEF_MT_STUCK_MOVE)
++            {
++                backAnchorMs = now ? now : 1;
++                backAnchorX = bot->GetPositionX();
++                backAnchorY = bot->GetPositionY();
++            }
++            backLastMs = now;
++            if (getMSTimeDiff(backAnchorMs, now) >= NEF_MT_STUCK_MS)
++            {
++                if (MoveTo(BWL_MAP_ID, t.GetPositionX(), t.GetPositionY(), t.GetPositionZ(), false, false, false,
++                           false, MovementPriority::MOVEMENT_COMBAT, true, false))
++                {
++                    backAnchorMs = 0;   // restart the timer from the next Back tick
++                    return true;
++                }
++            }
++
++            float moveX;
++            float moveY;
++            float moveZ;
++            if (GetNefMtPathStep(bot, t, moveX, moveY, moveZ))
++            {
++                // Walk backwards when the step leads away from him (the same rule as GetStepToPosition;
++                // the Back step already requires aggro and melee range).
++                float const toStepX = moveX - bot->GetPositionX();
++                float const toStepY = moveY - bot->GetPositionY();
++                float const toNefX = nef->GetPositionX() - bot->GetPositionX();
++                float const toNefY = nef->GetPositionY() - bot->GetPositionY();
++                bool const backwards = toStepX * toNefX + toStepY * toNefY < 0.0f;
++                return MoveTo(BWL_MAP_ID, moveX, moveY, moveZ, false, false, false, false,
++                              MovementPriority::MOVEMENT_COMBAT, true, backwards);
++            }
++            // No usable route: the old straight-line step.
++            bool backwards;
++            if (GetStepToPosition(bot, t, BwlNefarianRules::STATION_ARRIVE, nef, moveX, moveY, backwards))
++                return MoveTo(BWL_MAP_ID, moveX, moveY, t.GetPositionZ(), false, false, false, false,
++                              MovementPriority::MOVEMENT_COMBAT, true, backwards);
++            return false;
++        }
++        case NefMtStep::Face:
++            bot->SetFacingToObject(nef);
++            return false;
++        default:
++            return false;
++    }
++}
++
++// Cone escape (dynamic, always) or the authored flank station (once Nefarian is parked) - spec §4.2.
++bool BwlNefarianPositionAction::Execute(Event /*event*/)
++{
++    NefarianView view;
++    if (!GetNefarianView(bot, view))
++        return false;
++    Position dest;
++    if (!GetNefPositionTarget(bot, botAI, view, dest))
++        return false;
++    return MoveTo(BWL_MAP_ID, dest.GetPositionX(), dest.GetPositionY(), dest.GetPositionZ(), false, false, false,
++                  false, MovementPriority::MOVEMENT_COMBAT, true);
++}
++
++// The ONLY target chooser for non-tanks while Nefarian is landed (the generic ones are vetoed by
++// BwlNefarianMultiplier). nullptr = hold fire (spec §4.2/§4.3).
++bool BwlNefarianDpsTargetAction::Execute(Event /*event*/)
++{
++    NefarianView view;
++    if (!GetNefarianView(bot, view))
++        return false;
++    Unit* const target = GetNefDpsTarget(bot, botAI, view);
++    Unit* const current = AI_VALUE(Unit*, "current target");
++    if (target == current)
++        return false;
++    if (target && Attack(target))
++        return true;
++    if (target)
++        return false;
++
++    LOG_DEBUG("playerbots", "[BWLNefarian] {} holds fire (victim {}, ratio {:.2f}, {} ms since landing)",
++              bot->GetName(), view.nefarian->GetVictim() ? view.nefarian->GetVictim()->GetName() : "none",
++              NefThreatRatio(bot, view), view.msSinceLanded);
++    bot->AttackStop();
++    bot->InterruptSpell(CURRENT_AUTOREPEAT_SPELL);
++    context->GetValue<Unit*>("current target")->Set(nullptr);
++    return true;
++}
++
++// Off-tanks: infernals (taunted - they are not taunt-immune), then constructs (Hate to Zero: attack
++// only), then leftover drakonids (spec §4.3). With no add, Nefarian (spec §9 #2): attacked, never
++// taunted (immune), held at 0.90 of the MT's threat so a backup tank is already built when the MT dies.
++bool BwlNefarianOtTargetAction::Execute(Event event)
++{
++    NefarianView view;
++    if (!GetNefarianView(bot, view) || GetNefRole(bot, view) != NefRole::OffTank)
++        return false;
++    Unit* const current = AI_VALUE(Unit*, "current target");
++    if (Unit* const add = GetNefOffTankTarget(bot, view))
++    {
++        if (current != add)
++            return Attack(add);
++        if (add->GetEntry() == BwlNefarianRules::NPC_CORRUPTED_INFERNAL && add->GetVictim() != bot)
++            return botAI->DoSpecificAction("taunt spell", event, true);
++        return false;
++    }
++    if (!OffTankHoldsFireOnNefarian(bot, view))
++        return current != view.nefarian && Attack(view.nefarian);
++    if (current != view.nefarian && bot->GetVictim() != view.nefarian)
++        return false;
++    LOG_DEBUG("playerbots", "[BWLNefarian] off-tank {} holds fire (victim {}, ratio {:.2f})", bot->GetName(),
++              view.nefarian->GetVictim() ? view.nefarian->GetVictim()->GetName() : "none",
++              NefThreatRatio(bot, view));
++    bot->AttackStop();
++    bot->InterruptSpell(CURRENT_AUTOREPEAT_SPELL);
++    context->GetValue<Unit*>("current target")->Set(nullptr);
++    return true;
++}
++
++// The playerbots "co +tremor" tip, applied only while Nefarian is landed (Archimonde precedent). By
++// name, so an era-talents clone (Vanilla 931080 / TBC 947070) resolves, not stock 8143 (spec §9 #3).
++bool BwlNefarianTremorAction::Execute(Event /*event*/)
++{
++    if (AI_VALUE2(bool, "has totem", "tremor totem"))
++        return false;
++    return botAI->CanCastSpell("tremor totem", bot) && botAI->CastSpell("tremor totem", bot);
++}
++
++bool BwlNefarianDecurseTankAction::Execute(Event /*event*/)
++{
++    NefarianView view;
++    if (!GetNefarianView(bot, view) || !view.mainTank ||
++        !view.mainTank->HasAura(BwlNefarianRules::SPELL_VEIL_OF_SHADOW))
++        return false;
++    return botAI->CastSpell("remove curse", view.mainTank);
++}
++
++bool BwlNefarianDispelPolymorphAction::Execute(Event /*event*/)
++{
++    NefarianView view;
++    if (!GetNefarianView(bot, view))
++        return false;
++    Player* const target = GetNefPolymorphDispelTarget(bot, view);
++    if (!target)
++        return false;
++    return botAI->CastSpell(bot->getClass() == CLASS_PRIEST ? "dispel magic" : "cleanse", target);
++}
++
++// Corrupted Healing: direct Holy heals are vetoed by the multiplier; PW:S / Renew go to TANKS ONLY
++// (owner, 2026-10-07) so the priest never burns its mana on the raid (spec §4.5).
++bool BwlNefarianPriestTankOnlyAction::Execute(Event /*event*/)
++{
++    NefarianView view;
++    if (!GetNefarianView(bot, view) || !bot->HasAura(BwlNefarianRules::SPELL_CALL_PRIEST))
++        return false;
++    Player* tank = nullptr;
++    BwlNefarianRules::TankHeal spell = BwlNefarianRules::TankHeal::None;
++    if (!GetNefTankHeal(bot, botAI, view, tank, spell))
++        return false;
++    return botAI->CastSpell(NefTankHealSpellName(spell), tank);
++}
++
++bool BwlNefarianHunterRearmAction::Execute(Event /*event*/)
++{
++    uint32 const now = getMSTime();
++    if (lastTryMs && getMSTimeDiff(lastTryMs, now) < 5000)
++        return false;   // one try per 5 s: a refused equip must not spin every tick
++    lastTryMs = now ? now : 1;
++    uint32 const entry = FindSpareRangedWeapon(bot);
++    if (!entry)
++        return false;
++    EquipAction* equip = dynamic_cast<EquipAction*>(botAI->GetAiObjectContext()->GetAction("equip"));
++    if (!equip)
++        return false;
++    ItemIds ids;
++    ids.insert(entry);
++    equip->EquipItems(ids);
++    LOG_DEBUG("playerbots", "[BWLNefarian] {} re-armed with item {}", bot->GetName(), entry);
++    return true;
++}
++
++bool BwlNefarianRogueSurviveAction::Execute(Event /*event*/)
++{
++    if (botAI->CanCastSpell("cloak of shadows", bot))
++        return botAI->CastSpell("cloak of shadows", bot);
++    if (botAI->CanCastSpell("evasion", bot))
++        return botAI->CastSpell("evasion", bot);
++    return false;
++}
++
++bool BwlNefarianMtSunderAction::Execute(Event /*event*/)
++{
++    NefarianView view;
++    if (!GetNefarianView(bot, view) || view.mainTank != bot)
++        return false;
++    return botAI->CastSpell("sunder armor", view.nefarian);
++}
++
+ // Trash
+ 
+ static constexpr float WYRMGUARD_SAFE_DISTANCE = 16.0f;
+@@ -336,6 +624,27 @@ bool BwlDeathTalonWyrmguardTankMoveAwayAction::Execute(Event /*event*/)
+ 
+ Unit* BwlDeathTalonWyrmguardRangedMoveAwayAction::GetTarget()
+ {
++    // Patch 0020: for the two keyed packs, avoid every living pack guard, not only the ones on this
++    // bot's threat list.
++    WyrmguardPackView view;
++    if (GetActiveWyrmguardPack(bot, view))
++    {
++        Unit* closest = nullptr;
++        float closestDist = WYRMGUARD_SAFE_DISTANCE;
++        for (Creature* guard : view.guards)
++        {
++            if (!guard)
++                continue;
++            float const dist = bot->GetDistance2d(guard);
++            if (dist < closestDist)
++            {
++                closestDist = dist;
++                closest = guard;
++            }
++        }
++        return closest;
++    }
++
+     // Find the closest wyrmguard within 16 yards
+     Unit* closest = nullptr;
+     float closestDist = WYRMGUARD_SAFE_DISTANCE;
+@@ -366,3 +675,253 @@ bool BwlDeathTalonWyrmguardRangedMoveAwayAction::Execute(Event /*event*/)
+ 
+     return MoveAway(target, distToTravel);
+ }
++
++// Death Talon Wyrmguard packs (overlay patch 0020)
++
++// Pick up every guard this tank's role holds (taunt when it is on someone else), then back the
++// first one to its station facing it. Returns false on the station so the normal rotation runs.
++bool BwlWyrmguardTankAction::Execute(Event event)
++{
++    WyrmguardPackView view;
++    if (!GetActiveWyrmguardPack(bot, view))
++        return false;
++
++    int const role = GetTankRole(bot);
++    if (role == BwlWyrmguardRules::NONE)
++        return false;
++
++    Unit* const currentTarget = AI_VALUE(Unit*, "current target");
++    Creature* anchor = nullptr;
++    int station = BwlWyrmguardRules::NONE;
++    for (int s = 0; s < BwlWyrmguardRules::SLOTS; ++s)
++    {
++        Creature* guard = view.guards[s];
++        if (!guard || view.assign.holderRole[s] != role)
++            continue;
++
++        station = view.assign.station[s];
++        if (guard->GetVictim() != bot)
++        {
++            // Never re-Attack the current target: Attack() cancels movement (per-tick freeze).
++            if (currentTarget != guard)
++                return Attack(guard);
++            return botAI->DoSpecificAction("taunt spell", event, true);
++        }
++        if (!anchor)
++            anchor = guard;
++    }
++    if (!anchor || station == BwlWyrmguardRules::NONE)
++        return false;
++
++    if (currentTarget != anchor)
++        return Attack(anchor);
++
++    Position const& pos = WYRMGUARD_PACKS[view.packIndex].stations[station];
++    float moveX;
++    float moveY;
++    bool backwards;
++    if (!GetStepToPosition(bot, pos, BwlWyrmguardRules::STATION_ARRIVE, anchor, moveX, moveY, backwards))
++        return false;
++
++    return MoveTo(BWL_MAP_ID, moveX, moveY, bot->GetPositionZ(), false, false, false, false,
++                  MovementPriority::MOVEMENT_COMBAT, true, backwards);
++}
++
++// Skull only ever goes on a SETTLED guard: skull is force-added to every bot's attackers
++// (AttackersValue.cpp:40-44), so an early mark would pull DPS into a stacked pack.
++bool BwlWyrmguardMarkSkullAction::Execute(Event /*event*/)
++{
++    WyrmguardPackView view;
++    if (!GetActiveWyrmguardPack(bot, view))
++        return false;
++
++    int const next = BwlWyrmguardRules::NextSkull(view.state, view.assign, view.skull, view.settledMs);
++    if (next == BwlWyrmguardRules::NONE || next == view.skull)
++        return false;
++
++    return MarkTargetWithSkull(bot, view.guards[next]);
++}
++
++// The ONLY target chooser for non-tanks while a pack is active (the generic ones are vetoed by
++// BwlWyrmguardMultiplier). nullptr from the helper means hold fire.
++bool BwlWyrmguardDpsTargetAction::Execute(Event /*event*/)
++{
++    WyrmguardPackView view;
++    if (!GetActiveWyrmguardPack(bot, view))
++        return false;
++
++    Unit* const target = GetWyrmguardDpsTarget(bot, botAI, view);
++    Unit* const current = AI_VALUE(Unit*, "current target");
++    if (target == current)
++        return false;
++    if (target && Attack(target))
++        return true;
++    // Attack() failed (LOS / invalid target): never keep hitting an unmarked pack guard (review I2).
++    if (target && SlotOfGuard(view, current) == BwlWyrmguardRules::NONE)
++        return false;
++
++    bot->AttackStop();
++    bot->InterruptSpell(CURRENT_AUTOREPEAT_SPELL);
++    context->GetValue<Unit*>("current target")->Set(nullptr);
++    return true;
++}
++
++static constexpr float WYRMGUARD_MIN_STEP_AWAY = 3.0f;
++
++// Held melee keep KEEP_AWAY from every pack guard; released melee from every guard but skull's
++// station. A minimum step stops sub-yard jitter moves that MoveTo's duplicate guard refuses.
++bool BwlWyrmguardMeleePositionAction::Execute(Event /*event*/)
++{
++    WyrmguardPackView view;
++    if (!GetActiveWyrmguardPack(bot, view))
++        return false;
++
++    int const s = WyrmguardStompThreat(bot, view);
++    if (s == BwlWyrmguardRules::NONE)
++        return false;
++
++    float const dist = bot->GetExactDist2d(view.guards[s]);
++    return MoveAway(view.guards[s], std::max(BwlWyrmguardRules::KEEP_AWAY - dist, WYRMGUARD_MIN_STEP_AWAY));
++}
++
++// Spec §4.9: step along the line bot -> pack-1 centroid until EBONROC_KEEPOUT_EXIT from his path.
++// The centroid is south-west of the ramp, so that line leads away from the path from anywhere
++// near it. MOVEMENT_FORCED so follow cannot drag the bot straight back in.
++bool BwlWyrmguardEbonrocKeepOutAction::Execute(Event /*event*/)
++{
++    if (!EbonrocKeepOutActive(bot))
++        return false;
++
++    float const d = EbonrocPathDistance(bot);
++    if (d >= BwlWyrmguardRules::EBONROC_KEEPOUT_ENTER)
++        return false;
++
++    Position const& c = PACK1_STATION_CENTROID;
++    float const toCentroid = bot->GetExactDist2d(c.GetPositionX(), c.GetPositionY());
++    float const step = std::min(toCentroid, BwlWyrmguardRules::EBONROC_KEEPOUT_EXIT - d + 3.0f);
++    if (toCentroid < 0.1f || step <= 0.0f)
++        return false;
++
++    float const t = step / toCentroid;
++    float const x = bot->GetPositionX() + (c.GetPositionX() - bot->GetPositionX()) * t;
++    float const y = bot->GetPositionY() + (c.GetPositionY() - bot->GetPositionY()) * t;
++    return MoveTo(BWL_MAP_ID, x, y, bot->GetPositionZ(), false, false, false, false,
++                  MovementPriority::MOVEMENT_FORCED);
++}
++
++// Spec §4.8a healer positioning: score a fan of ground-snapped candidates around the healer (rings of
++// 5-30 y, 16 bearings) with the pure rules and walk to the best one, only when it strictly beats
++// staying. Candidates are pre-ranked on their range-only score (an upper bound: LoS only removes
++// tanks), so the collision snap and the LoS probes run on the few that can still win.
++static constexpr float WYRMGUARD_HEALER_RING_STEP = 5.0f;
++static constexpr int WYRMGUARD_HEALER_RINGS = 6;
++static constexpr int WYRMGUARD_HEALER_BEARINGS = 16;
++static constexpr uint32 WYRMGUARD_HEALER_RETRY_MS = 1000;   // a fruitless sweep is not repeated every tick
++static constexpr uint32 WYRMGUARD_HEALER_COMMIT_MS = 4000;  // finish a chosen walk before re-planning
++
++bool BwlWyrmguardHealerPositionAction::Execute(Event /*event*/)
++{
++    using namespace BwlWyrmguardRules;
++
++    uint32 const now = getMSTime();
++    if (noSpotMs && getMSTimeDiff(noSpotMs, now) < WYRMGUARD_HEALER_RETRY_MS)
++        return false;
++    // Commit to a chosen spot: re-planning every tick mid-walk would re-target the move each tick and
++    // jitter. Finish the walk (bounded) unless it has stopped.
++    if (movingSinceMs && bot->isMoving() && getMSTimeDiff(movingSinceMs, now) < WYRMGUARD_HEALER_COMMIT_MS)
++        return false;
++    movingSinceMs = 0;
++
++    WyrmguardPackView view;
++    if (!GetActiveWyrmguardPack(bot, view))
++        return false;
++    Map* map = bot->GetMap();
++    if (!map)
++        return false;
++
++    Player* tanks[SLOTS];
++    int const n = GetWyrmguardHolderTanks(bot, view, tanks);
++    Pt tankPt[SLOTS];
++    for (int i = 0; i < n; ++i)
++        tankPt[i] = {tanks[i]->GetPositionX(), tanks[i]->GetPositionY()};
++
++    float const bx = bot->GetPositionX();
++    float const by = bot->GetPositionY();
++    float const bz = bot->GetPositionZ();
++    Pt const here{bx, by};
++
++    SpotScore best = ScoreSpot(here, here, tankPt, n, view.state);
++    best.tanks = 0;
++    for (int i = 0; i < n; ++i)
++        if (Dist2d(here, tankPt[i]) <= HEALER_RANGE && bot->IsWithinLOSInMap(tanks[i]))
++            ++best.tanks;
++
++    struct Candidate
++    {
++        Pt p;
++        SpotScore bound;
++    };
++    std::vector<Candidate> candidates;
++    candidates.reserve(WYRMGUARD_HEALER_RINGS * WYRMGUARD_HEALER_BEARINGS);
++    for (int ring = 1; ring <= WYRMGUARD_HEALER_RINGS; ++ring)
++    {
++        float const radius = ring * WYRMGUARD_HEALER_RING_STEP;
++        for (int b = 0; b < WYRMGUARD_HEALER_BEARINGS; ++b)
++        {
++            float const angle = b * (2.0f * float(M_PI) / WYRMGUARD_HEALER_BEARINGS);
++            Pt const p{bx + radius * std::cos(angle), by + radius * std::sin(angle)};
++            SpotScore const bound = ScoreSpot(here, p, tankPt, n, view.state);
++            if (BetterSpot(bound, best))
++                candidates.push_back({p, bound});
++        }
++    }
++    std::sort(candidates.begin(), candidates.end(),
++              [](Candidate const& a, Candidate const& b) { return BetterSpot(a.bound, b.bound); });
++
++    bool found = false;
++    float mx = 0.0f, my = 0.0f, mz = 0.0f;
++    for (Candidate const& c : candidates)
++    {
++        if (!BetterSpot(c.bound, best))
++            break;   // sorted by upper bound: nothing after this can win
++        float x = c.p.x, y = c.p.y, z = bz;
++        if (!map->CheckCollisionAndGetValidCoords(bot, bx, by, bz, x, y, z))
++            continue;
++        Pt const snapped{x, y};
++        SpotScore s = ScoreSpot(here, snapped, tankPt, n, view.state);
++        if (!s.walkClear)
++            continue;
++        s.tanks = 0;
++        for (int i = 0; i < n; ++i)
++            if (Dist2d(snapped, tankPt[i]) <= HEALER_RANGE && WyrmguardSpotInLos(bot, x, y, z, tanks[i]))
++                ++s.tanks;
++        if (BetterSpot(s, best))
++        {
++            best = s;
++            mx = x;
++            my = y;
++            mz = z;
++            found = true;
++        }
++    }
++
++    if (!found)
++    {
++        noSpotMs = now ? now : 1;
++        return false;
++    }
++    noSpotMs = 0;
++    movingSinceMs = now ? now : 1;
++    return MoveTo(BWL_MAP_ID, mx, my, mz, false, false, false, true, MovementPriority::MOVEMENT_COMBAT);
++}
++
++// BWL-wide DPS threat discipline (overlay patch 0020, spec 2026-10-08)
++//
++// Stop the running auto-attack / auto-shot but keep the current target: once the ratio falls under
++// BWL_THREAT_LIMIT the vetoes lift and the stock rotation and melee restart the attack on it.
++bool BwlThreatHoldAction::Execute(Event /*event*/)
++{
++    bot->AttackStop();
++    bot->InterruptSpell(CURRENT_AUTOREPEAT_SPELL);
++    return true;
++}
+diff --git a/modules/mod-playerbots/src/Ai/Raid/BWL/BWLActions.h b/modules/mod-playerbots/src/Ai/Raid/BWL/BWLActions.h
+index 30f169d..e232dfa 100644
+--- a/modules/mod-playerbots/src/Ai/Raid/BWL/BWLActions.h
++++ b/modules/mod-playerbots/src/Ai/Raid/BWL/BWLActions.h
+@@ -74,6 +74,95 @@ public:
+     bool Execute(Event event) override;
+ };
+ 
++// Nefarian phases 2 and 3 (overlay patch 0020, spec 2026-10-07)
++
++class BwlNefarianMtStationAction : public AttackAction
++{
++public:
++    BwlNefarianMtStationAction(PlayerbotAI* botAI) : AttackAction(botAI, "bwl nefarian mt station") {}
++    bool Execute(Event event) override;
++
++private:
++    // Stuck fallback for the Back step (fix round 3, G1); per bot (one action object per bot context).
++    uint32 backAnchorMs = 0;   // 0 = not tracking; when the MT was last at backAnchorX/Y
++    uint32 backLastMs = 0;     // last Back tick (a gap restarts the tracking)
++    float backAnchorX = 0.0f;
++    float backAnchorY = 0.0f;
++};
++
++class BwlNefarianPositionAction : public MovementAction
++{
++public:
++    BwlNefarianPositionAction(PlayerbotAI* botAI) : MovementAction(botAI, "bwl nefarian position") {}
++    bool Execute(Event event) override;
++};
++
++class BwlNefarianDpsTargetAction : public AttackAction
++{
++public:
++    BwlNefarianDpsTargetAction(PlayerbotAI* botAI) : AttackAction(botAI, "bwl nefarian dps target") {}
++    bool Execute(Event event) override;
++};
++
++class BwlNefarianOtTargetAction : public AttackAction
++{
++public:
++    BwlNefarianOtTargetAction(PlayerbotAI* botAI) : AttackAction(botAI, "bwl nefarian ot target") {}
++    bool Execute(Event event) override;
++};
++
++class BwlNefarianTremorAction : public Action
++{
++public:
++    BwlNefarianTremorAction(PlayerbotAI* botAI) : Action(botAI, "bwl nefarian tremor") {}
++    bool Execute(Event event) override;
++};
++
++class BwlNefarianDecurseTankAction : public Action
++{
++public:
++    BwlNefarianDecurseTankAction(PlayerbotAI* botAI) : Action(botAI, "bwl nefarian decurse tank") {}
++    bool Execute(Event event) override;
++};
++
++class BwlNefarianDispelPolymorphAction : public Action
++{
++public:
++    BwlNefarianDispelPolymorphAction(PlayerbotAI* botAI) : Action(botAI, "bwl nefarian dispel polymorph") {}
++    bool Execute(Event event) override;
++};
++
++class BwlNefarianPriestTankOnlyAction : public Action
++{
++public:
++    BwlNefarianPriestTankOnlyAction(PlayerbotAI* botAI) : Action(botAI, "bwl nefarian priest tank only") {}
++    bool Execute(Event event) override;
++};
++
++class BwlNefarianHunterRearmAction : public Action
++{
++public:
++    BwlNefarianHunterRearmAction(PlayerbotAI* botAI) : Action(botAI, "bwl nefarian hunter rearm") {}
++    bool Execute(Event event) override;
++
++private:
++    uint32 lastTryMs = 0;
++};
++
++class BwlNefarianRogueSurviveAction : public Action
++{
++public:
++    BwlNefarianRogueSurviveAction(PlayerbotAI* botAI) : Action(botAI, "bwl nefarian rogue survive") {}
++    bool Execute(Event event) override;
++};
++
++class BwlNefarianMtSunderAction : public Action
++{
++public:
++    BwlNefarianMtSunderAction(PlayerbotAI* botAI) : Action(botAI, "bwl nefarian mt sunder") {}
++    bool Execute(Event event) override;
++};
++
+ // Trash
+ 
+ class BwlDeathTalonWyrmguardTankMoveAwayAction : public MovementAction
+@@ -93,4 +182,60 @@ public:
+     bool Execute(Event event) override;
+ };
+ 
++// Death Talon Wyrmguard packs (overlay patch 0020)
++
++class BwlWyrmguardTankAction : public AttackAction
++{
++public:
++    BwlWyrmguardTankAction(PlayerbotAI* botAI) : AttackAction(botAI, "bwl wyrmguard tank") {}
++    bool Execute(Event event) override;
++};
++
++class BwlWyrmguardMarkSkullAction : public Action
++{
++public:
++    BwlWyrmguardMarkSkullAction(PlayerbotAI* botAI) : Action(botAI, "bwl wyrmguard mark skull") {}
++    bool Execute(Event event) override;
++};
++
++class BwlWyrmguardDpsTargetAction : public AttackAction
++{
++public:
++    BwlWyrmguardDpsTargetAction(PlayerbotAI* botAI) : AttackAction(botAI, "bwl wyrmguard dps target") {}
++    bool Execute(Event event) override;
++};
++
++class BwlWyrmguardMeleePositionAction : public MovementAction
++{
++public:
++    BwlWyrmguardMeleePositionAction(PlayerbotAI* botAI) : MovementAction(botAI, "bwl wyrmguard melee position") {}
++    bool Execute(Event event) override;
++};
++
++class BwlWyrmguardEbonrocKeepOutAction : public MovementAction
++{
++public:
++    BwlWyrmguardEbonrocKeepOutAction(PlayerbotAI* botAI) : MovementAction(botAI, "bwl wyrmguard ebonroc keep out") {}
++    bool Execute(Event event) override;
++};
++
++class BwlWyrmguardHealerPositionAction : public MovementAction
++{
++public:
++    BwlWyrmguardHealerPositionAction(PlayerbotAI* botAI) : MovementAction(botAI, "bwl wyrmguard healer position") {}
++    bool Execute(Event event) override;
++
++private:
++    uint32 noSpotMs = 0;   // when a full candidate sweep last found nothing better; 0 = none
++    uint32 movingSinceMs = 0;   // when the current walk to a chosen spot started; 0 = none
++};
++
++// BWL-wide DPS threat discipline (overlay patch 0020, spec 2026-10-08)
++class BwlThreatHoldAction : public Action
++{
++public:
++    BwlThreatHoldAction(PlayerbotAI* botAI) : Action(botAI, "bwl threat hold") {}
++    bool Execute(Event event) override;
++};
++
+ #endif
+diff --git a/modules/mod-playerbots/src/Ai/Raid/BWL/BWLHelpers.cpp b/modules/mod-playerbots/src/Ai/Raid/BWL/BWLHelpers.cpp
+index 808a5ec..b793d3a 100644
+--- a/modules/mod-playerbots/src/Ai/Raid/BWL/BWLHelpers.cpp
++++ b/modules/mod-playerbots/src/Ai/Raid/BWL/BWLHelpers.cpp
+@@ -5,8 +5,29 @@
+  */
+ 
+ #include "BWLHelpers.h"
++#include "AiFactory.h"
+ #include "AiObjectContext.h"
++#include "Bag.h"
++#include "Creature.h"
+ #include "Group.h"
++#include "InstanceScript.h"
++#include "Item.h"
++#include "Log.h"
++#include "Map.h"
++#include "Pet.h"
++#include "Playerbots.h"
++#include "RtiTargetValue.h"
++#include "SpellInfo.h"
++#include "SpellMgr.h"
++#include "ThreatManager.h"
++#include "Timer.h"
++
++#include <algorithm>
++#include <cstring>
++#include <mutex>
++#include <unordered_map>
++#include <unordered_set>
++#include <vector>
+ 
+ namespace BlackwingLairHelpers
+ {
+@@ -57,4 +78,1051 @@ namespace BlackwingLairHelpers
+ 
+         return false;
+     }
++
++    // ---- Death Talon Wyrmguard packs (overlay patch 0020) ----
++    // Generated by tools/bwl-wyrmguard-stations.py pick; spec §4.3a. Pack 2 slot 1 is owner-placed
++    // in game (2026-10-06) so melee can reach slot 0 without crossing it.
++    WyrmguardPack const WYRMGUARD_PACKS[WYRMGUARD_PACK_COUNT] = {
++        { { 84634, 84628, 84635 }, Position(-7394.91f, -956.35f, 465.15f),
++          { Position(-7419.90f, -916.30f, 465.00f), Position(-7454.90f, -931.30f, 465.00f), Position(-7449.90f, -896.30f, 465.00f) } },
++        { { 84648, 84639, 84650 }, Position(-7443.73f, -1044.83f, 477.02f),
++          { Position(-7433.70f, -1039.80f, 477.20f), Position(-7424.41f, -1010.11f, 477.17f), Position(-7383.70f, -1039.80f, 477.10f) } },
++    };
++
++    // Ebonroc's ramp patrol (creature guid 85780, path 857800); spec §2.3 / §4.9. Same points as
++    // tools/bwl-wyrmguard-stations.py EBONROC_PATH.
++    BwlWyrmguardRules::Pt const EBONROC_PATH[EBONROC_PATH_POINTS] = {
++        {-7358.2f, -994.3f}, {-7368.8f, -983.1f}, {-7378.3f, -977.8f}, {-7392.4f, -983.4f},
++        {-7405.9f, -987.8f}, {-7418.1f, -976.6f}, {-7414.4f, -963.3f},
++    };
++    Position const PACK1_STATION_CENTROID(-7441.57f, -914.63f, 465.0f);
++
++    namespace
++    {
++        constexpr float PACK_ACTIVE_RANGE = 120.0f;
++        constexpr uint32 PACK_ACTIVE_GAP_MS = 5000;
++        constexpr float MELEE_SIDE_TARGET_CLEARANCE = BwlWyrmguardRules::KEEP_AWAY + 5.0f;
++
++        Creature* FindSpawn(Map* map, uint32 spawnId)
++        {
++            auto const& store = map->GetCreatureBySpawnIdStore();
++            auto it = store.find(spawnId);
++            return it == store.end() ? nullptr : it->second;
++        }
++
++        // Per (instance, pack) activation clock + per-slot settled-since times (spec §4.8a skull
++        // lead). Map threads of different BWL instances call this concurrently, so it is locked. A
++        // PACK_ACTIVE_GAP_MS gap with nobody seeing the pack active (wipe, reset) starts a fresh
++        // clock, so a stale entry never pre-expires the melee timeout or the skull lead.
++        std::mutex g_packClockMutex;
++        struct PackClock
++        {
++            uint32 firstMs;
++            uint32 lastMs;
++            uint32 settledSince[BwlWyrmguardRules::SLOTS];  // 0 = not settled
++            bool held[BwlWyrmguardRules::SLOTS];            // settled and on its holder at the last call
++        };
++        std::unordered_map<uint64, PackClock> g_packClock;
++
++        // Updates the clock from this call's observation. settledMs[s] = how long slot s has been
++        // continuously settled; lost[s] = it was settled on its holder at the last call and now has
++        // a living victim that is not its holder (reported once: held drops with onHolder).
++        uint32 UpdatePackClock(Map const* map, int packIndex, bool const settled[BwlWyrmguardRules::SLOTS],
++                               bool const onHolder[BwlWyrmguardRules::SLOTS],
++                               bool const victimElsewhere[BwlWyrmguardRules::SLOTS],
++                               uint32 settledMs[BwlWyrmguardRules::SLOTS], bool lost[BwlWyrmguardRules::SLOTS],
++                               bool& firstSighting)
++        {
++            uint64 const key = (uint64(map->GetInstanceId()) << 1) | uint64(packIndex);
++            uint32 now = getMSTime();
++            if (!now)
++                now = 1;  // 0 means "not settled"
++            std::lock_guard<std::mutex> lock(g_packClockMutex);
++            auto [it, inserted] = g_packClock.try_emplace(key, PackClock{now, now, {}, {}});
++            PackClock& clock = it->second;
++            firstSighting = inserted || getMSTimeDiff(clock.lastMs, now) > PACK_ACTIVE_GAP_MS;
++            if (firstSighting)
++            {
++                clock.firstMs = now;
++                for (int s = 0; s < BwlWyrmguardRules::SLOTS; ++s)
++                {
++                    clock.settledSince[s] = 0;
++                    clock.held[s] = false;
++                }
++            }
++            clock.lastMs = now;
++            for (int s = 0; s < BwlWyrmguardRules::SLOTS; ++s)
++            {
++                lost[s] = clock.held[s] && victimElsewhere[s];
++                clock.held[s] = settled[s] && onHolder[s];
++                if (!settled[s])
++                    clock.settledSince[s] = 0;
++                else if (!clock.settledSince[s])
++                    clock.settledSince[s] = now;
++                settledMs[s] = clock.settledSince[s] ? getMSTimeDiff(clock.settledSince[s], now) : 0;
++            }
++            return getMSTimeDiff(clock.firstMs, now);
++        }
++
++        // The highest threat on `unit` of a living group tank other than `who` (0 = none has any).
++        float MaxLivingTankThreat(Player* groupRef, Unit* who, Unit* unit)
++        {
++            float maxTank = 0.0f;
++            if (Group* group = groupRef->GetGroup())
++            {
++                for (GroupReference* ref = group->GetFirstMember(); ref; ref = ref->next())
++                {
++                    Player* member = ref->GetSource();
++                    if (!member || member == who || !member->IsAlive() || !PlayerbotAI::IsTank(member))
++                        continue;
++                    float const t = unit->GetThreatMgr().GetThreat(member);
++                    if (t > maxTank)
++                        maxTank = t;
++                }
++            }
++            return maxTank;
++        }
++
++        // Threat of `who` on `unit` over the highest threat of a living group tank other than `who`.
++        float ThreatRatioOf(Player* groupRef, Unit* who, Unit* unit)
++        {
++            if (!groupRef || !who || !unit)
++                return 0.0f;
++            float const own = unit->GetThreatMgr().GetThreat(who);
++            float const maxTank = MaxLivingTankThreat(groupRef, who, unit);
++            // No living tank has threat: the guard is loose (every tank holding it died). There is no
++            // tank to protect, so no cap - burning it down beats DPS trickling at it and freezing.
++            if (maxTank <= 0.0f)
++                return 0.0f;
++            return own / maxTank;
++        }
++    }
++
++    // Stable role order (spec §4.2), so roles never shuffle when a tank dies: role 0 is the
++    // MEMBER_FLAG_MAINTANK holder, else the FIRST tank in member order alive or dead (upstream's
++    // GetMainTankGuid falls back to the first LIVING tank, which reshuffles every role on a death).
++    // Assist roles mirror IsAssistTankOfIndex(index, indexLivingOnly=false): group assistants first,
++    // then the other tanks, in member order, dead included.
++    void GetTankRolePlayers(Player* bot, Player* out[BwlWyrmguardRules::ROLES])
++    {
++        for (int r = 0; r < BwlWyrmguardRules::ROLES; ++r)
++            out[r] = nullptr;
++
++        Group* group = bot->GetGroup();
++        if (!group)
++            return;
++
++        ObjectGuid mainTank;
++        for (Group::MemberSlot const& slot : group->GetMemberSlots())
++        {
++            if (slot.flags & MEMBER_FLAG_MAINTANK)
++            {
++                mainTank = slot.guid;
++                break;
++            }
++        }
++        if (mainTank.IsEmpty())
++        {
++            for (GroupReference* ref = group->GetFirstMember(); ref; ref = ref->next())
++            {
++                Player* member = ref->GetSource();
++                if (member && PlayerbotAI::IsTank(member))
++                {
++                    mainTank = member->GetGUID();
++                    break;
++                }
++            }
++        }
++
++        std::vector<Player*> assistants;
++        std::vector<Player*> others;
++        for (GroupReference* ref = group->GetFirstMember(); ref; ref = ref->next())
++        {
++            Player* member = ref->GetSource();
++            if (!member)
++                continue;
++            if (member->GetGUID() == mainTank)
++            {
++                out[0] = member;
++                continue;
++            }
++            if (!PlayerbotAI::IsTank(member))
++                continue;
++            (group->IsAssistant(member->GetGUID()) ? assistants : others).push_back(member);
++        }
++        assistants.insert(assistants.end(), others.begin(), others.end());
++        for (size_t i = 0; i < assistants.size() && i + 1 < size_t(BwlWyrmguardRules::ROLES); ++i)
++            out[i + 1] = assistants[i];
++    }
++
++    int GetTankRole(Player* bot)
++    {
++        Player* byRole[BwlWyrmguardRules::ROLES];
++        GetTankRolePlayers(bot, byRole);
++        for (int r = 0; r < BwlWyrmguardRules::ROLES; ++r)
++            if (byRole[r] == bot)
++                return r;
++        return BwlWyrmguardRules::NONE;
++    }
++
++    bool IsWyrmguardMarker(Player* bot)
++    {
++        Player* byRole[BwlWyrmguardRules::ROLES];
++        GetTankRolePlayers(bot, byRole);
++        for (int r = 0; r < BwlWyrmguardRules::ROLES; ++r)
++        {
++            Player* const p = byRole[r];
++            // Bots only: a human tank (or a selfbot) is never expected to mark, so skip them.
++            if (p && p->IsInWorld() && p->GetMap() == bot->GetMap() && p->IsAlive() &&
++                GET_PLAYERBOT_AI(p) && !IsSelfBot(p))
++                return p == bot;
++        }
++        return false;
++    }
++
++    int SlotOfGuard(WyrmguardPackView const& view, Unit const* unit)
++    {
++        if (!unit)
++            return BwlWyrmguardRules::NONE;
++        for (int s = 0; s < BwlWyrmguardRules::SLOTS; ++s)
++            if (view.guards[s] == unit)
++                return s;
++        return BwlWyrmguardRules::NONE;
++    }
++
++    bool IsWyrmguardMelee(Player* bot)
++    {
++        return !PlayerbotAI::IsTank(bot) && !PlayerbotAI::IsRanged(bot);
++    }
++
++    bool GetActiveWyrmguardPack(Player* bot, WyrmguardPackView& view)
++    {
++        using namespace BwlWyrmguardRules;
++
++        if (bot->GetMapId() != BWL_MAP_ID)
++            return false;
++        Map* map = bot->GetMap();
++        if (!map)
++            return false;
++
++        int best = NONE;
++        float bestDist = PACK_ACTIVE_RANGE;
++        for (int i = 0; i < WYRMGUARD_PACK_COUNT; ++i)
++        {
++            float const d = bot->GetExactDist2d(WYRMGUARD_PACKS[i].center);
++            if (d >= bestDist)
++                continue;
++            for (uint32 spawnId : WYRMGUARD_PACKS[i].spawnIds)
++            {
++                Creature* c = FindSpawn(map, spawnId);
++                if (c && c->IsAlive() && c->IsInCombat())
++                {
++                    best = i;
++                    bestDist = d;
++                    break;
++                }
++            }
++        }
++        if (best == NONE)
++            return false;
++
++        WyrmguardPack const& pack = WYRMGUARD_PACKS[best];
++        view = WyrmguardPackView{};
++        view.packIndex = best;
++
++        bool guardAlive[SLOTS];
++        int resolved = 0;
++        for (int s = 0; s < SLOTS; ++s)
++        {
++            Creature* c = FindSpawn(map, pack.spawnIds[s]);
++            if (c)
++                ++resolved;
++            bool const alive = c && c->IsAlive();
++            view.guards[s] = alive ? c : nullptr;
++            guardAlive[s] = alive;
++            view.state.alive[s] = alive;
++            view.state.station[s] = {pack.stations[s].GetPositionX(), pack.stations[s].GetPositionY()};
++            view.state.guard[s] = alive ? Pt{c->GetPositionX(), c->GetPositionY()} : Pt{0.0f, 0.0f};
++        }
++
++        Player* byRole[ROLES];
++        GetTankRolePlayers(bot, byRole);
++        bool tankAlive[ROLES];
++        for (int r = 0; r < ROLES; ++r)
++            tankAlive[r] = byRole[r] && byRole[r]->IsInWorld() && byRole[r]->GetMap() == map &&
++                           byRole[r]->IsAlive();
++        view.assign = Assign(tankAlive, guardAlive);
++
++        // Ownership follows aggro: a present role tank holding a guard it was not assigned adopts it.
++        int victimRole[SLOTS];
++        for (int s = 0; s < SLOTS; ++s)
++        {
++            victimRole[s] = NONE;
++            Unit* const victim = view.guards[s] ? view.guards[s]->GetVictim() : nullptr;
++            if (!victim)
++                continue;
++            for (int r = 0; r < ROLES; ++r)
++                if (tankAlive[r] && byRole[r] == victim)
++                {
++                    victimRole[s] = r;
++                    break;
++                }
++        }
++        AdoptByVictim(view.assign, view.state, victimRole);
++
++        for (int s = 0; s < SLOTS; ++s)
++        {
++            int const role = view.assign.holderRole[s];
++            view.state.onHolder[s] = view.guards[s] && role != NONE && byRole[role] &&
++                                     view.guards[s]->GetVictim() == byRole[role];
++        }
++
++        if (Group* group = bot->GetGroup())
++        {
++            ObjectGuid const skull = group->GetTargetIcon(RtiTargetValue::skullIndex);
++            for (int s = 0; s < SLOTS; ++s)
++                if (view.guards[s] && view.guards[s]->GetGUID() == skull)
++                    view.skull = s;
++        }
++
++        bool settled[SLOTS];
++        bool victimElsewhere[SLOTS];
++        for (int s = 0; s < SLOTS; ++s)
++        {
++            settled[s] = IsSettled(view.state, view.assign, s);
++            Unit* const victim = view.guards[s] ? view.guards[s]->GetVictim() : nullptr;
++            victimElsewhere[s] = victim && victim->IsAlive() && !view.state.onHolder[s];
++        }
++        bool lost[SLOTS];
++        bool firstSighting = false;
++        view.msSinceActive = UpdatePackClock(map, best, settled, view.state.onHolder, victimElsewhere,
++                                             view.settledMs, lost, firstSighting);
++        if (firstSighting)
++            LOG_INFO("playerbots", "[BWLWyrmguard] pack {} active in instance {}: {}/3 spawn ids resolved",
++                     best + 1, map->GetInstanceId(), resolved);
++
++        // Spec §4.8a: who pulls a settled guard off its holder, and at what threat ratio.
++        if (sLog->ShouldLog("playerbots", LogLevel::LOG_LEVEL_DEBUG))
++        {
++            for (int s = 0; s < SLOTS; ++s)
++            {
++                if (!lost[s] || !view.guards[s])
++                    continue;
++                Unit* const victim = view.guards[s]->GetVictim();
++                if (!victim)
++                    continue;
++                LOG_DEBUG("playerbots", "[BWLWyrmguard] aggro lost: pack {} slot {} -> {} (ratio {:.2f})", best + 1, s,
++                          victim->GetName(), ThreatRatioOf(bot, victim, view.guards[s]));
++            }
++        }
++        return true;
++    }
++
++    Unit* GetWyrmguardDpsTarget(Player* bot, PlayerbotAI* botAI, WyrmguardPackView const& view)
++    {
++        using namespace BwlWyrmguardRules;
++
++        bool const melee = !PlayerbotAI::IsRanged(bot);
++        bool const held = melee && MeleeHeld(view.state, view.assign, view.skull, view.msSinceActive);
++        if (view.skull != NONE && !held)
++        {
++            // Hard stop (spec §4.8a): auto-attack/auto-shot are no engine actions, so the multiplier
++            // cannot stop them. nullptr = hold fire; the bot re-attacks once below the stop ratio.
++            if (WyrmguardThreatRatio(bot, view.guards[view.skull]) >= BWL_THREAT_STOP)
++                return nullptr;
++            return view.guards[view.skull];
++        }
++
++        // Otherwise only a non-Wyrmguard is allowed - and for melee only one far enough from every
++        // living pack guard that walking to it cannot put the bot inside a Stomp (Krixix fails this).
++        auto allowed = [&](Unit* u)
++        {
++            if (!u || !u->IsAlive() || u->GetEntry() == uint32(BlackwingLairNPCs::NPC_DEATH_TALON_WYRMGUARD))
++                return false;
++            if (!melee)
++                return true;
++            for (Creature* guard : view.guards)
++                if (guard && u->GetExactDist2d(guard) < MELEE_SIDE_TARGET_CLEARANCE)
++                    return false;
++            return true;
++        };
++
++        AiObjectContext* ctx = botAI->GetAiObjectContext();
++        Unit* current = ctx->GetValue<Unit*>("current target")->Get();
++        if (allowed(current))
++            return current;
++
++        Unit* best = nullptr;
++        float bestDist = 0.0f;
++        for (ObjectGuid const& guid : ctx->GetValue<GuidVector>("attackers")->Get())
++        {
++            Unit* u = botAI->GetUnit(guid);
++            if (!allowed(u))
++                continue;
++            float const d = bot->GetExactDist2d(u);
++            if (!best || d < bestDist)
++            {
++                best = u;
++                bestDist = d;
++            }
++        }
++        return best;
++    }
++
++    float WyrmguardThreatRatio(Player* bot, Unit* unit)
++    {
++        return ThreatRatioOf(bot, bot, unit);
++    }
++
++    bool BwlThreatBlocked(Player* bot, Unit* unit, float limit)
++    {
++        if (!bot || !unit)
++            return false;
++        float const tankMax = MaxLivingTankThreat(bot, bot, unit);
++        if (tankMax <= 0.0f)
++            return false;
++        return unit->GetThreatMgr().GetThreat(bot) + BWL_THREAT_HEADROOM >= limit * tankMax;
++    }
++
++    // ---- BWL-wide DPS threat discipline (spec 2026-10-08) ----
++
++    bool IsBwlThreatDisciplined(Player* bot)
++    {
++        return bot->GetMapId() == BWL_MAP_ID && !PlayerbotAI::IsTank(bot) && !PlayerbotAI::IsHeal(bot);
++    }
++
++    bool IsBwlThreatDisciplineTarget(Player* bot, Unit* unit)
++    {
++        if (!unit || !unit->IsAlive() || !unit->IsInCombat() || !unit->ToCreature())
++            return false;
++        return MaxLivingTankThreat(bot, bot, unit) > 0.0f;
++    }
++
++    bool BwlFightHasOwnThreatRules(Player* bot)
++    {
++        WyrmguardPackView wyrmguard;
++        if (GetActiveWyrmguardPack(bot, wyrmguard))
++            return true;
++        NefarianView nefarian;
++        return GetNefarianView(bot, nefarian);
++    }
++
++    bool EbonrocKeepOutActive(Player* bot)
++    {
++        if (bot->GetMapId() != BWL_MAP_ID)
++            return false;
++        Map* map = bot->GetMap();
++        if (!map)
++            return false;
++
++        Creature* ebonroc = FindSpawn(map, EBONROC_SPAWN_ID);
++        if (!ebonroc || !ebonroc->IsAlive() || ebonroc->IsInCombat())
++            return false;
++
++        for (uint32 spawnId : WYRMGUARD_PACKS[0].spawnIds)
++        {
++            Creature* c = FindSpawn(map, spawnId);
++            if (c && c->IsAlive())
++                return true;
++        }
++        return false;
++    }
++
++    float EbonrocPathDistance(Player* bot)
++    {
++        return BwlWyrmguardRules::DistToPath(BwlWyrmguardRules::Pt{bot->GetPositionX(), bot->GetPositionY()},
++                                             EBONROC_PATH, EBONROC_PATH_POINTS);
++    }
++
++    int WyrmguardStompThreat(Player* bot, WyrmguardPackView const& view)
++    {
++        using namespace BwlWyrmguardRules;
++
++        bool const held = MeleeHeld(view.state, view.assign, view.skull, view.msSinceActive);
++        int const exempt = (held || view.skull == NONE) ? NONE : view.assign.station[view.skull];
++        return StompThreat(view.state, view.assign, Pt{bot->GetPositionX(), bot->GetPositionY()}, exempt);
++    }
++
++    int GetWyrmguardHolderTanks(Player* bot, WyrmguardPackView const& view, Player* out[BwlWyrmguardRules::SLOTS])
++    {
++        using namespace BwlWyrmguardRules;
++
++        Player* byRole[ROLES];
++        GetTankRolePlayers(bot, byRole);
++        int n = 0;
++        for (int s = 0; s < SLOTS; ++s)
++        {
++            int const r = view.assign.holderRole[s];
++            if (!view.state.alive[s] || r == NONE)
++                continue;
++            Player* const tank = byRole[r];
++            // Same presence test as tankAlive in GetActiveWyrmguardPack: a fold onto a dead main tank
++            // leaves holderRole 0 pointing at a corpse.
++            if (!tank || !tank->IsInWorld() || tank->GetMap() != bot->GetMap() || !tank->IsAlive())
++                continue;
++            bool dup = false;
++            for (int i = 0; i < n; ++i)
++                if (out[i] == tank)
++                    dup = true;
++            if (!dup)
++                out[n++] = tank;
++        }
++        return n;
++    }
++
++    bool WyrmguardSpotInLos(Player* bot, float x, float y, float z, Player* target)
++    {
++        return bot->GetMap()->isInLineOfSight(x, y, z + bot->GetCollisionHeight(), target->GetPositionX(),
++                                              target->GetPositionY(),
++                                              target->GetPositionZ() + target->GetCollisionHeight(),
++                                              bot->GetPhaseMask(), LINEOFSIGHT_ALL_CHECKS,
++                                              VMAP::ModelIgnoreFlags::Nothing);
++    }
++
++    // ---- Nefarian, phases 2 and 3 (overlay patch 0020, spec 2026-10-07) ----
++    // Generated by tools/bwl-nefarian-stations.py pick; spec §4.2a.
++    NefarianStations const NEF_STATIONS = {
++        Position(-7563.35f, -1245.78f, 476.80f),
++        Position(-7559.14f, -1243.08f, 476.80f),
++        { { Position(-7556.08f, -1247.04f, 476.80f), Position(-7555.75f, -1246.76f, 476.80f), Position(-7555.44f, -1246.45f, 476.80f), Position(-7555.16f, -1246.11f, 476.80f), Position(-7554.91f, -1245.76f, 476.80f) }, { Position(-7561.46f, -1238.65f, 476.80f), Position(-7561.06f, -1238.47f, 476.80f), Position(-7560.65f, -1238.32f, 476.80f), Position(-7560.23f, -1238.20f, 476.80f), Position(-7559.80f, -1238.13f, 476.80f) } },
++        { { Position(-7557.54f, -1254.97f, 476.80f), Position(-7554.51f, -1254.15f, 476.80f), Position(-7551.80f, -1252.58f, 476.80f), Position(-7549.60f, -1250.36f, 476.80f), Position(-7556.87f, -1259.93f, 476.80f), Position(-7552.59f, -1258.77f, 476.80f), Position(-7548.75f, -1256.54f, 476.80f), Position(-7545.62f, -1253.39f, 476.80f) }, { Position(-7569.28f, -1236.66f, 476.80f), Position(-7567.27f, -1234.26f, 476.80f), Position(-7564.71f, -1232.45f, 476.80f), Position(-7561.77f, -1231.37f, 476.80f), Position(-7573.50f, -1233.99f, 476.80f), Position(-7570.66f, -1230.58f, 476.80f), Position(-7567.03f, -1228.02f, 476.80f), Position(-7562.86f, -1226.49f, 476.80f) } },
++        { { Position(-7557.80f, -1252.99f, 476.80f), Position(-7556.10f, -1252.61f, 476.80f), Position(-7554.49f, -1251.94f, 476.80f), Position(-7556.07f, -1256.74f, 476.80f), Position(-7553.74f, -1256.00f, 476.80f) }, { Position(-7567.59f, -1237.73f, 476.80f), Position(-7566.53f, -1236.35f, 476.80f), Position(-7565.25f, -1235.16f, 476.80f), Position(-7570.27f, -1234.59f, 476.80f), Position(-7568.62f, -1232.79f, 476.80f) } },
++        Position(-7553.74f, -1251.50f, 476.80f),
++    };
++
++    namespace
++    {
++        constexpr float NEF_SEARCH_RANGE = 250.0f;       // the room is ~110 y across; under the 533 y clamp
++        constexpr float NEF_ADD_RANGE = 60.0f;
++        constexpr float NEF_CONSTRUCT_RANGE = 120.0f;
++        constexpr float NEF_SPELL_RANGE = 40.0f;
++        constexpr uint32 NEF_CLOCK_GAP_MS = 10000;        // unseen this long = new attempt
++        constexpr uint32 NEF_SCAN_INTERVAL_MS = 500;      // grid-scan reuse window (per instance)
++        constexpr uint32 NEF_DIAG_INTERVAL_MS = 5000;     // "[BWLNefarian] diag" line (per instance)
++        constexpr float NEF_DIAG_FAR_RANGE = 40.0f;       // diag "far N": living members beyond this
++        constexpr uint32 NEF_MANA_REFILL_WINDOW_MS = 5000; // one-time refill only this soon after landing
++
++        // Per-instance landing clock, last logged phase and the cached Nefarian / Bone Construct scan.
++        // Map threads of different instances call this concurrently, so it is locked (memory: module
++        // globals need locking). The scan cache keeps the two grid searches off the per-action hot path:
++        // the boss state is already IN_PROGRESS through phase 1, when Nefarian does not exist yet, and the
++        // "not found" result is cached too.
++        std::mutex g_nefClockMutex;
++        struct NefClock
++        {
++            uint32 firstMs = 0;   // 0 = landing clock not started
++            uint32 lastMs = 0;
++            BwlNefarianRules::Phase phase = BwlNefarianRules::Phase::None;
++            ObjectGuid nefGuid;   // empty = no Nefarian found by the last scan
++            bool constructAlive = false;
++            uint32 scanMs = 0;    // 0 = never scanned
++            uint32 diagMs = 0;    // last "[BWLNefarian] diag" line; 0 = never
++            std::unordered_set<ObjectGuid> manaRefilled;   // bots refilled this attempt (cleared on a new one)
++        };
++        std::unordered_map<uint32, NefClock> g_nefClock;
++
++        uint32 NowMs()
++        {
++            uint32 const now = getMSTime();
++            return now ? now : 1;
++        }
++
++        // Cached scan for the instance, or false when it is missing or older than NEF_SCAN_INTERVAL_MS.
++        bool GetCachedNefScan(uint32 instanceId, uint32 now, ObjectGuid& nefGuid, bool& constructAlive)
++        {
++            std::lock_guard<std::mutex> lock(g_nefClockMutex);
++            auto it = g_nefClock.find(instanceId);
++            if (it == g_nefClock.end() || !it->second.scanMs ||
++                getMSTimeDiff(it->second.scanMs, now) >= NEF_SCAN_INTERVAL_MS)
++                return false;
++            nefGuid = it->second.nefGuid;
++            constructAlive = it->second.constructAlive;
++            return true;
++        }
++
++        void StoreNefScan(uint32 instanceId, uint32 now, ObjectGuid nefGuid, bool constructAlive)
++        {
++            std::lock_guard<std::mutex> lock(g_nefClockMutex);
++            NefClock& clock = g_nefClock[instanceId];
++            clock.nefGuid = nefGuid;
++            clock.constructAlive = constructAlive;
++            clock.scanMs = now;
++        }
++
++        // Called only once the view gate has passed (Nefarian found and selectable).
++        uint32 UpdateNefClock(Map const* map, BwlNefarianRules::Phase phase)
++        {
++            uint32 const now = NowMs();
++            std::lock_guard<std::mutex> lock(g_nefClockMutex);
++            NefClock& clock = g_nefClock[map->GetInstanceId()];
++            if (!clock.firstMs || getMSTimeDiff(clock.lastMs, now) > NEF_CLOCK_GAP_MS)
++            {
++                clock.firstMs = now;
++                clock.phase = BwlNefarianRules::Phase::None;
++                clock.manaRefilled.clear();
++            }
++            clock.lastMs = now;
++            if (clock.phase != phase)
++            {
++                LOG_DEBUG("playerbots", "[BWLNefarian] instance {}: phase {}", map->GetInstanceId(),
++                          phase == BwlNefarianRules::Phase::P3 ? "P3" : "P2");
++                clock.phase = phase;
++            }
++            return getMSTimeDiff(clock.firstMs, now);
++        }
++
++        // True the first time `guid` asks this attempt (claims it). Each bot asks only for itself.
++        bool ClaimNefManaRefill(uint32 instanceId, ObjectGuid guid)
++        {
++            std::lock_guard<std::mutex> lock(g_nefClockMutex);
++            return g_nefClock[instanceId].manaRefilled.insert(guid).second;
++        }
++
++        // True at most once per NEF_DIAG_INTERVAL_MS per instance (claims the slot when it returns true).
++        bool NefDiagDue(uint32 instanceId, uint32 now)
++        {
++            std::lock_guard<std::mutex> lock(g_nefClockMutex);
++            NefClock& clock = g_nefClock[instanceId];
++            if (clock.diagMs && getMSTimeDiff(clock.diagMs, now) < NEF_DIAG_INTERVAL_MS)
++                return false;
++            clock.diagMs = now;
++            return true;
++        }
++
++        // Spec §9 #1 / §4.8 item 5: why the MT is (not) on Nefarian, one line per instance every 5 s.
++        void LogNefDiag(Player* bot, NefarianView const& view)
++        {
++            Creature* const nef = view.nefarian;
++            // Living group members farther than NEF_DIAG_FAR_RANGE from him (fix round 3, G2).
++            int far = 0;
++            if (Group* group = bot->GetGroup())
++                for (GroupReference* ref = group->GetFirstMember(); ref; ref = ref->next())
++                    if (Player* member = ref->GetSource())
++                        if (member->IsInWorld() && member->GetMap() == bot->GetMap() && member->IsAlive() &&
++                            member->GetExactDist2d(nef) > NEF_DIAG_FAR_RANGE)
++                            ++far;
++            Position const& p = NEF_STATIONS.park;
++            Position const& t = NEF_STATIONS.mt;
++            Unit* const victim = nef->GetVictim();
++            Player* const mt = view.mainTank;
++            LOG_DEBUG("playerbots",
++                      "[BWLNefarian] diag nef ({:.1f}, {:.1f}) distP {:.1f} parked {} | victim {} dist {:.1f} | "
++                      "MT {} distT {:.1f} melee {} los {} combat {} | far {}",
++                      nef->GetPositionX(), nef->GetPositionY(),
++                      nef->GetExactDist2d(p.GetPositionX(), p.GetPositionY()), view.parked,
++                      victim ? victim->GetName() : "none", victim ? victim->GetExactDist2d(nef) : -1.0f,
++                      mt ? mt->GetName() : "none",
++                      mt ? mt->GetExactDist2d(t.GetPositionX(), t.GetPositionY()) : -1.0f,
++                      mt ? mt->IsWithinMeleeRange(nef) : false, mt ? mt->IsWithinLOSInMap(nef) : false,
++                      mt ? mt->IsInCombat() : false, far);
++        }
++
++        std::vector<uint32> const NEF_ADD_ENTRIES = {14662, 14663, 14664, 14666, 14668, 14261, 14262,
++                                                     14263, 14264, 14265, 14302, 14605};
++
++        // Live, attackable adds near the bot, as rules candidates (Nefarian appended by the caller).
++        void CollectAdds(Player* bot, std::vector<Creature*>& units, std::vector<BwlNefarianRules::Cand>& cands)
++        {
++            std::list<Creature*> found;
++            bot->GetCreatureListWithEntryInGrid(found, NEF_ADD_ENTRIES, NEF_ADD_RANGE);
++            for (Creature* c : found)
++            {
++                if (!c || !c->IsAlive() || !bot->IsValidAttackTarget(c))
++                    continue;
++                units.push_back(c);
++                cands.push_back({BwlNefarianRules::KindOfEntry(c->GetEntry()), bot->GetExactDist2d(c)});
++            }
++        }
++    }
++
++    Player* GetNefarianMainTank(Player* bot, Creature* nefarian)
++    {
++        // Aggro decides (spec fix round 2): after a tank death the next tank holds him, and a resurrected
++        // lower role must not reclaim "MT" while he is on someone else - the tank he is hitting is the MT.
++        if (nefarian)
++            if (Unit* const victim = nefarian->GetVictim())
++                if (Player* const v = victim->ToPlayer())
++                    if (v->IsInWorld() && v->GetMap() == bot->GetMap() && v->IsAlive() &&
++                        (v == bot || bot->IsInSameRaidWith(v)) && PlayerbotAI::IsTank(v))
++                        return v;
++        Player* byRole[BwlWyrmguardRules::ROLES];
++        GetTankRolePlayers(bot, byRole);
++        for (Player* p : byRole)
++            if (p && p->IsInWorld() && p->GetMap() == bot->GetMap() && p->IsAlive())
++                return p;
++        return nullptr;
++    }
++
++    bool GetNefarianView(Player* bot, NefarianView& view)
++    {
++        using namespace BwlNefarianRules;
++
++        if (bot->GetMapId() != BWL_MAP_ID)
++            return false;
++        InstanceScript* instance = bot->GetInstanceScript();
++        if (!instance || instance->GetBossState(BWL_DATA_NEFARIAN) != IN_PROGRESS)
++            return false;
++        Map* const map = bot->GetMap();
++        uint32 const instanceId = map->GetInstanceId();
++        uint32 const now = NowMs();
++        ObjectGuid nefGuid;
++        bool constructAlive = false;
++        Creature* nef = nullptr;
++        bool fresh = GetCachedNefScan(instanceId, now, nefGuid, constructAlive);
++        if (fresh && !nefGuid.IsEmpty())
++        {
++            nef = map->GetCreature(nefGuid);
++            if (!nef)
++                fresh = false;   // despawned since the scan: rescan now
++        }
++        if (!fresh)
++        {
++            // Scan outside the lock: one instance's bots share one map thread, so no two scans of the same
++            // entry race; other instances only touch their own entries.
++            nef = bot->FindNearestCreature(NPC_NEFARIAN, NEF_SEARCH_RANGE, true);
++            constructAlive = nef && bot->FindNearestCreature(NPC_BONE_CONSTRUCT, NEF_CONSTRUCT_RANGE, true);
++            StoreNefScan(instanceId, now, nef ? nef->GetGUID() : ObjectGuid::Empty, constructAlive);
++        }
++        if (!nef || !nef->IsAlive() || nef->HasUnitFlag(UNIT_FLAG_NOT_SELECTABLE))
++            return false;
++
++        view = NefarianView{};
++        view.nefarian = nef;
++        view.phase = GetPhase(true, nef->GetHealthPct(), constructAlive);
++        view.mainTank = GetNefarianMainTank(bot, nef);
++        view.parked = Parked(ToNefPt(nef), Pt{NEF_STATIONS.park.GetPositionX(), NEF_STATIONS.park.GetPositionY()});
++        view.siphon = nef->HasAura(SPELL_IMPROVED_BOP);
++        view.msSinceLanded = UpdateNefClock(bot->GetMap(), view.phase);
++        // Owner-approved raid cheat: phase 1 ends -> every living mana-using BOT starts the landing at full
++        // mana, once per attempt (keyed by bot GUID in the instance's landing clock, cleared when the clock
++        // resets). Only in the first NEF_MANA_REFILL_WINDOW_MS after landing, never for humans/selfbots.
++        if (view.msSinceLanded <= NEF_MANA_REFILL_WINDOW_MS && bot->IsAlive() && bot->GetMaxPower(POWER_MANA) > 0 &&
++            !IsSelfBot(bot))
++            if (PlayerbotAI* botAI = GET_PLAYERBOT_AI(bot))
++                if (botAI->HasCheat(BotCheatMask::raid) && ClaimNefManaRefill(instanceId, bot->GetGUID()))
++                {
++                    LOG_DEBUG("playerbots", "[BWLNefarian] mana refill {} {}/{}", bot->GetName(),
++                              bot->GetPower(POWER_MANA), bot->GetMaxPower(POWER_MANA));
++                    bot->SetPower(POWER_MANA, bot->GetMaxPower(POWER_MANA));
++                }
++        if (sLog->ShouldLog("playerbots", LogLevel::LOG_LEVEL_DEBUG))
++        {
++            if (NefDiagDue(instanceId, now))
++                LogNefDiag(bot, view);
++            static uint32 const calls[] = {SPELL_CALL_WARRIOR, SPELL_CALL_DRUID, SPELL_CALL_PRIEST, SPELL_CALL_MAGE,
++                                           SPELL_CALL_ROGUE, SPELL_CALL_PALADIN, SPELL_CALL_SHAMAN, SPELL_CALL_WARLOCK};
++            for (uint32 call : calls)
++                if (Aura* aura = bot->GetAura(call))
++                    if (aura->GetDuration() > aura->GetMaxDuration() - 1000)   // first second only
++                        LOG_DEBUG("playerbots", "[BWLNefarian] {} class call {} (role {})", bot->GetName(), call,
++                                  static_cast<int>(GetNefRole(bot, view)));
++        }
++        return true;
++    }
++
++    bool HasBrokenRangedWeapon(Player* bot)
++    {
++        if (bot->getClass() != CLASS_HUNTER)
++            return false;
++        Item* item = bot->GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_RANGED);
++        if (!item)
++            return true;
++        return item->GetUInt32Value(ITEM_FIELD_MAXDURABILITY) > 0 && item->GetUInt32Value(ITEM_FIELD_DURABILITY) == 0;
++    }
++
++    uint32 FindSpareRangedWeapon(Player* bot)
++    {
++        auto usable = [bot](Item* item) -> bool
++        {
++            if (!item)
++                return false;
++            ItemTemplate const* proto = item->GetTemplate();
++            if (!proto || (proto->InventoryType != INVTYPE_RANGED && proto->InventoryType != INVTYPE_RANGEDRIGHT &&
++                           proto->InventoryType != INVTYPE_THROWN))
++                return false;
++            if (item->GetUInt32Value(ITEM_FIELD_MAXDURABILITY) > 0 && item->GetUInt32Value(ITEM_FIELD_DURABILITY) == 0)
++                return false;
++            return bot->CanUseItem(proto) == EQUIP_ERR_OK;
++        };
++        for (uint8 slot = INVENTORY_SLOT_ITEM_START; slot < INVENTORY_SLOT_ITEM_END; ++slot)
++            if (Item* item = bot->GetItemByPos(INVENTORY_SLOT_BAG_0, slot); usable(item))
++                return item->GetEntry();
++        for (uint8 bag = INVENTORY_SLOT_BAG_START; bag < INVENTORY_SLOT_BAG_END; ++bag)
++            if (Bag* b = bot->GetBagByPos(bag))
++                for (uint32 slot = 0; slot < b->GetBagSize(); ++slot)
++                    if (Item* item = b->GetItemByPos(slot); usable(item))
++                        return item->GetEntry();
++        return 0;
++    }
++
++    bool IsPhysicalDps(Player* bot)
++    {
++        switch (bot->getClass())
++        {
++            case CLASS_WARRIOR:
++            case CLASS_ROGUE:
++            case CLASS_HUNTER:
++            case CLASS_DEATH_KNIGHT:
++                return true;
++            case CLASS_DRUID:
++                return AiFactory::GetPlayerSpecTab(bot) == DRUID_TAB_FERAL;
++            case CLASS_SHAMAN:
++                return AiFactory::GetPlayerSpecTab(bot) == SHAMAN_TAB_ENHANCEMENT;
++            case CLASS_PALADIN:
++                return AiFactory::GetPlayerSpecTab(bot) == PALADIN_TAB_RETRIBUTION;
++            default:
++                return false;
++        }
++    }
++
++    NefMtStep GetNefMtStep(Player* bot, NefarianView const& view, Unit* currentTarget)
++    {
++        Creature* const nef = view.nefarian;
++        bool const victim = nef->GetVictim() == bot;
++        bool const melee = bot->IsWithinMeleeRange(nef);
++        if (!bot->IsWithinLOSInMap(nef))
++            return NefMtStep::Close;
++        // Out of melee: close in - unless he is already on the MT and nearly there (he walks to his
++        // victim; running at him would undo every backing step toward T).
++        if (!melee && !(victim && bot->GetDistance(nef) <= NEF_MT_CHASE_SLACK))
++            return NefMtStep::Close;
++        if (currentTarget != nef)
++            return NefMtStep::Attack;
++        if (!victim || !melee)
++            return NefMtStep::None;   // taunt-immune: earn aggro with the normal rotation first (spec §4.2)
++        Position const& t = NEF_STATIONS.mt;
++        if (bot->GetExactDist2d(t.GetPositionX(), t.GetPositionY()) > BwlNefarianRules::STATION_ARRIVE)
++            return NefMtStep::Back;
++        if (!bot->HasInArc(NEF_MT_FACE_ARC, nef))
++            return NefMtStep::Face;
++        return NefMtStep::None;
++    }
++
++    NefRole GetNefRole(Player* bot, NefarianView const& view)
++    {
++        if (bot == view.mainTank)
++            return NefRole::MainTank;
++        if (PlayerbotAI::IsTank(bot))
++            return NefRole::OffTank;
++        // Forced cat form and a broken bow both turn the bot into melee for the call / the fight.
++        if ((bot->getClass() == CLASS_DRUID && bot->HasAura(BwlNefarianRules::SPELL_CALL_DRUID)) ||
++            HasBrokenRangedWeapon(bot))
++            return NefRole::Melee;
++        if (PlayerbotAI::IsHeal(bot))
++            return NefRole::Healer;
++        return PlayerbotAI::IsRanged(bot) ? NefRole::Ranged : NefRole::Melee;
++    }
++
++    int NefRoleOrdinal(Player* bot, NefRole role, NefarianView const& view)
++    {
++        Group* group = bot->GetGroup();
++        if (!group)
++            return 0;
++        int ordinal = 0;
++        for (GroupReference* ref = group->GetFirstMember(); ref; ref = ref->next())
++        {
++            Player* member = ref->GetSource();
++            if (!member || member == bot || member->GetMap() != bot->GetMap())
++                continue;
++            if (member->GetGUID() < bot->GetGUID() && GetNefRole(member, view) == role)
++                ++ordinal;
++        }
++        return ordinal;
++    }
++
++    bool GetNefPositionTarget(Player* bot, PlayerbotAI* botAI, NefarianView const& view, Position& dest)
++    {
++        using namespace BwlNefarianRules;
++
++        // His current victim never moves: he always faces it, so it is always in his front cone, and an
++        // escape step only makes him turn after it (tanks ran in circles until they died).
++        if (view.nefarian->GetVictim() == bot)
++            return false;
++        NefRole const role = GetNefRole(bot, view);
++        if (role == NefRole::MainTank)
++            return false;
++        int const ordinal = NefRoleOrdinal(bot, role, view);
++        Pt const nef = ToNefPt(view.nefarian);
++        float const facing = view.nefarian->GetOrientation();
++        bool const melee = role == NefRole::Melee || role == NefRole::OffTank;
++
++        if (InDanger(nef, facing, ToNefPt(bot)))
++        {
++            Pt const e = EscapePoint(nef, facing, FlankSide(ordinal), melee ? MELEE_ESCAPE_RADIUS : RANGED_ESCAPE_RADIUS);
++            dest = Position(e.x, e.y, bot->GetPositionZ());
++            return true;
++        }
++        // Station keeping (and the "come in" rule below) only for bots fighting Nefarian (or with nothing to
++        // fight); healers always. An off-tank fighting Nefarian takes a melee flank slot (spec §9 #2) - unless
++        // he is on it, when it stays put rather than drag him; with nothing to do it waits at OT staging.
++        Unit* const current = botAI->GetAiObjectContext()->GetValue<Unit*>("current target")->Get();
++        bool const busyElsewhere = current && current->IsAlive() && current != view.nefarian;
++        bool const onNefarian = current == view.nefarian;
++        if (role == NefRole::OffTank &&
++            (busyElsewhere || (onNefarian ? view.nefarian->GetVictim() == bot : !bot->getAttackers().empty())))
++            return false;
++        if ((role == NefRole::Melee || role == NefRole::Ranged) && busyElsewhere)
++            return false;
++
++        if (view.parked)
++        {
++            Position station;
++            if (role == NefRole::OffTank && !onNefarian)
++                station = NEF_STATIONS.otStaging;
++            else
++            {
++                bool const meleeSlot = role == NefRole::Melee || role == NefRole::OffTank;
++                int const perSide = meleeSlot ? NEF_MELEE_PER_SIDE
++                                  : role == NefRole::Ranged ? NEF_RANGED_PER_SIDE : NEF_HEALER_PER_SIDE;
++                Slot const slot = SlotFor(ordinal, perSide);
++                int const s = slot.side == 1 ? 0 : 1;
++                station = meleeSlot ? NEF_STATIONS.melee[s][slot.index]
++                        : role == NefRole::Ranged ? NEF_STATIONS.ranged[s][slot.index]
++                                                  : NEF_STATIONS.healer[s][slot.index];
++            }
++            // The bot is out of both cones here (the escape above returned otherwise); a station that his
++            // live position/facing puts inside a cone is skipped, and the "come in" rule decides instead.
++            if (StationUsable(nef, facing, Pt{station.GetPositionX(), station.GetPositionY()}))
++            {
++                if (bot->GetExactDist2d(station.GetPositionX(), station.GetPositionY()) <= STATION_ARRIVE)
++                    return false;
++                dest = station;
++                return true;
++            }
++        }
++
++        // Fix round 3 (G2): not parked, or no usable station - a bot far from him (or without LOS) comes in
++        // to its role radius, on the line toward itself, or its own side's escape point when that line
++        // point is in a cone. Nefarian's z: a far bot's own z can be off the dais level.
++        float const radius = melee ? APPROACH_RADIUS_MELEE
++                           : role == NefRole::Healer ? APPROACH_RADIUS_HEALER : APPROACH_RADIUS_RANGED;
++        Pt const self = ToNefPt(bot);
++        float const dist = Dist(nef, self);
++        // LOS only matters (and is only paid for) inside the slack ring.
++        if (!NeedsApproach(dist, radius, dist > radius + APPROACH_SLACK || bot->IsWithinLOSInMap(view.nefarian)))
++            return false;
++        Pt const a = ApproachPoint(nef, facing, self, radius, SideOf(nef, facing, self));
++        if (Dist(a, self) <= STATION_ARRIVE)
++            return false;
++        dest = Position(a.x, a.y, view.nefarian->GetPositionZ());
++        return true;
++    }
++
++    Unit* GetNefDpsTarget(Player* bot, PlayerbotAI* /*botAI*/, NefarianView const& view)
++    {
++        using namespace BwlNefarianRules;
++
++        std::vector<Creature*> units;
++        std::vector<Cand> cands;
++        CollectAdds(bot, units, cands);
++        units.push_back(view.nefarian);
++        cands.push_back({Kind::Nefarian, bot->GetExactDist2d(view.nefarian)});
++
++        int const pick = PickTarget(view.phase, view.siphon && IsPhysicalDps(bot), cands.data(),
++                                    static_cast<int>(cands.size()));
++        if (pick == NONE)
++            return nullptr;
++        Creature* const target = units[pick];
++        if (target != view.nefarian)
++            return target;
++
++        bool const mtIsVictim = view.mainTank && view.nefarian->GetVictim() == view.mainTank;
++        if (HoldFireOnNefarian(mtIsVictim, view.msSinceLanded, NefThreatRatio(bot, view)))
++            return nullptr;
++        return target;
++    }
++
++    float NefThreatRatio(Player* bot, NefarianView const& view)
++    {
++        using namespace BwlNefarianRules;
++
++        Creature* const nef = view.nefarian;
++        if (!nef || bot == view.mainTank)
++            return 0.0f;
++        ThreatManager& mgr = nef->GetThreatMgr();
++        ThreatRole const role = PlayerbotAI::IsTank(bot) ? ThreatRole::OffTank : ThreatRole::Other;
++        float const mtThreat = view.mainTank ? mgr.GetThreat(view.mainTank) : 0.0f;
++        float backup = 0.0f;
++        if (role == ThreatRole::Other)
++        {
++            if (Group* group = bot->GetGroup())
++            {
++                for (GroupReference* ref = group->GetFirstMember(); ref; ref = ref->next())
++                {
++                    Player* const m = ref->GetSource();
++                    if (!m || m == view.mainTank || m->GetMap() != bot->GetMap() || !m->IsAlive() ||
++                        !PlayerbotAI::IsTank(m))
++                        continue;
++                    float const t = mgr.GetThreat(m);
++                    if (t > backup)
++                        backup = t;
++                }
++            }
++        }
++        return ThreatRatio(role, mgr.GetThreat(bot), mtThreat, backup);
++    }
++
++    bool OffTankHoldsFireOnNefarian(Player* bot, NefarianView const& view)
++    {
++        bool const mtIsVictim = view.mainTank && view.nefarian->GetVictim() == view.mainTank;
++        return BwlNefarianRules::HoldFireOnNefarian(mtIsVictim, view.msSinceLanded, NefThreatRatio(bot, view));
++    }
++
++    Unit* GetNefOffTankTarget(Player* bot, NefarianView const& /*view*/)
++    {
++        std::vector<Creature*> units;
++        std::vector<BwlNefarianRules::Cand> cands;
++        CollectAdds(bot, units, cands);
++        int const pick = BwlNefarianRules::PickOtTarget(cands.data(), static_cast<int>(cands.size()));
++        return pick == BwlNefarianRules::NONE ? nullptr : units[pick];
++    }
++
++    Player* GetNefPolymorphDispelTarget(Player* bot, NefarianView const& view)
++    {
++        Group* group = bot->GetGroup();
++        if (!group)
++            return nullptr;
++        std::vector<Player*> players;
++        std::vector<BwlNefarianRules::DispelInfo> infos;
++        for (GroupReference* ref = group->GetFirstMember(); ref; ref = ref->next())
++        {
++            Player* m = ref->GetSource();
++            if (!m || !m->IsAlive() || m->GetMap() != bot->GetMap() ||
++                !m->HasAura(BwlNefarianRules::SPELL_WILD_POLYMORPH) || bot->GetDistance(m) > NEF_SPELL_RANGE)
++                continue;
++            players.push_back(m);
++            infos.push_back({m == view.mainTank, PlayerbotAI::IsHeal(m), m->GetHealthPct()});
++        }
++        int const pick = BwlNefarianRules::PickDispel(infos.data(), static_cast<int>(infos.size()));
++        return pick == BwlNefarianRules::NONE ? nullptr : players[pick];
++    }
++
++    bool GetNefTankHeal(Player* bot, PlayerbotAI* botAI, NefarianView const& view, Player*& tank,
++                        BwlNefarianRules::TankHeal& spell)
++    {
++        Group* group = bot->GetGroup();
++        if (!group)
++            return false;
++        std::vector<Player*> players;
++        std::vector<BwlNefarianRules::TankInfo> infos;
++        for (GroupReference* ref = group->GetFirstMember(); ref; ref = ref->next())
++        {
++            Player* m = ref->GetSource();
++            if (!m || !m->IsAlive() || m->GetMap() != bot->GetMap() || !PlayerbotAI::IsTank(m) ||
++                bot->GetDistance(m) > NEF_SPELL_RANGE)
++                continue;
++            bool const isMt = m == view.mainTank;
++            players.push_back(m);
++            infos.push_back({isMt || !m->getAttackers().empty(), isMt,
++                             m->HasAura(BwlNefarianRules::SPELL_WEAKENED_SOUL),
++                             botAI->HasAura("renew", m, false, true), m->GetHealthPct()});
++        }
++        BwlNefarianRules::TankHealPick const pick =
++            BwlNefarianRules::PickTankHeal(infos.data(), static_cast<int>(infos.size()));
++        if (pick.index == BwlNefarianRules::NONE)
++            return false;
++        tank = players[pick.index];
++        spell = pick.spell;
++        return true;
++    }
+ }
+diff --git a/modules/mod-playerbots/src/Ai/Raid/BWL/BWLHelpers.h b/modules/mod-playerbots/src/Ai/Raid/BWL/BWLHelpers.h
+index f993c4d..5f4ba30 100644
+--- a/modules/mod-playerbots/src/Ai/Raid/BWL/BWLHelpers.h
++++ b/modules/mod-playerbots/src/Ai/Raid/BWL/BWLHelpers.h
+@@ -9,6 +9,11 @@
+ 
+ #include "Player.h"
+ #include "PlayerbotAI.h"
++#include "BwlWyrmguardRules.h"
++#include "BwlNefarianRules.h"
++
++class Creature;
++class Unit;
+ 
+ namespace BlackwingLairHelpers
+ {
+@@ -50,6 +55,178 @@ namespace BlackwingLairHelpers
+     bool AreRazorgoreEggsAlive(PlayerbotAI* botAI);
+     bool IsRazorgoreOffTank(Player* bot);
+     bool IsNonBABotNearPosition(Player const* bot, Position const& position, float distance);
++
++    // ---- Death Talon Wyrmguard packs (overlay patch 0020) ----
++    constexpr uint32 BWL_MAP_ID = 469;
++    constexpr int WYRMGUARD_PACK_COUNT = 2;
++
++    struct WyrmguardPack
++    {
++        uint32 spawnIds[BwlWyrmguardRules::SLOTS];         // slot order; slot 0 = formation leader
++        Position center;                                   // mean of the three spawns
++        Position stations[BwlWyrmguardRules::SLOTS];       // authored, probe-verified (spec §4.3a)
++    };
++
++    extern WyrmguardPack const WYRMGUARD_PACKS[WYRMGUARD_PACK_COUNT];
++
++    // One snapshot of an ACTIVE pack, as every Wyrmguard trigger/action/multiplier sees it.
++    struct WyrmguardPackView
++    {
++        int packIndex = BwlWyrmguardRules::NONE;
++        Creature* guards[BwlWyrmguardRules::SLOTS] = {};   // nullptr = dead or not loaded
++        BwlWyrmguardRules::PackState state{};
++        BwlWyrmguardRules::Assignment assign{};
++        int skull = BwlWyrmguardRules::NONE;               // slot carrying the group's skull
++        uint32 msSinceActive = 0;
++        uint32 settledMs[BwlWyrmguardRules::SLOTS] = {};   // how long each slot has been continuously settled
++    };
++
++    // True (and fills view) when a keyed pack within 120 y of the bot is alive and in combat.
++    // Guards are resolved by SPAWN ID, never via "find target"/threat lists (spec §3).
++    bool GetActiveWyrmguardPack(Player* bot, WyrmguardPackView& view);
++    // out[r] = the group member in tank role r (0 main, 1..3 assist 0..2), dead members included.
++    void GetTankRolePlayers(Player* bot, Player* out[BwlWyrmguardRules::ROLES]);
++    int GetTankRole(Player* bot);                                    // NONE when not a role tank
++    // The skull marker: bot is the lowest-numbered role tank (0..3) that is alive, in world and on the
++    // bot's map. Not upstream IsMainTank - that returns the flagged member even when dead, so a
++    // dead main tank would leave nobody marking.
++    bool IsWyrmguardMarker(Player* bot);
++    int SlotOfGuard(WyrmguardPackView const& view, Unit const* unit);  // NONE when not a pack guard
++    bool IsWyrmguardMelee(Player* bot);                              // !tank && !ranged
++    // The DPS target a non-tank should have: skull (ranged, or released melee), else a safe
++    // non-Wyrmguard attacker, else nullptr = hold fire (spec §4.6).
++    Unit* GetWyrmguardDpsTarget(Player* bot, PlayerbotAI* botAI, WyrmguardPackView const& view);
++    // Spec §4.8a: bot's threat on unit / the highest threat of a living group tank on it, in float
++    // (upstream's uint8 "threat" value wraps at 256). No living tank has threat: 0 (no cap).
++    float WyrmguardThreatRatio(Player* bot, Unit* unit);
++    // DPS threat caps shared by the Wyrmguard packs (spec §4.8a) and the BWL-wide discipline (spec
++    // 2026-10-08). The 0.80-0.90 gap is the hysteresis: the stop fires above it, the vetoes lift below it.
++    constexpr float BWL_THREAT_LIMIT = 0.80f;   // multiplier vetoes threat actions at/above this
++    constexpr float BWL_THREAT_STOP = 0.90f;    // hold fire (stops auto-attack/auto-shot) at/above this
++    // ~one big level-60 crit with threat mods: a ratio checked before a cast does not bound the cast's
++    // own threat (a moonkin at 79 % lands a Starfire at ~190 % while tank threat is still small).
++    constexpr float BWL_THREAT_HEADROOM = 1500.0f;
++    // The 0.80 veto gate: bot threat + BWL_THREAT_HEADROOM >= limit x the top living tank's threat on unit.
++    // False when no living tank has threat (loose/untanked: no cap). The 0.90 hard stops use the plain
++    // ratio - they only stop autos that are already running.
++    bool BwlThreatBlocked(Player* bot, Unit* unit, float limit);
++
++    // ---- BWL-wide DPS threat discipline (spec 2026-10-08) ----
++    // Every BWL fight without its own threat rules (Chromaggus is taunt-immune: a tank that loses him
++    // can only win him back on raw threat).
++    bool IsBwlThreatDisciplined(Player* bot);                 // map 469, not a tank, not a healer
++    // A living creature in combat that a living group tank has threat on. Otherwise there is no cap:
++    // the unit is loose, or it is trash nobody tanks.
++    bool IsBwlThreatDisciplineTarget(Player* bot, Unit* unit);
++    // The Wyrmguard pack view or the Nefarian view is active: those fights keep their own rules.
++    bool BwlFightHasOwnThreatRules(Player* bot);
++    // The pack slot a melee bot must step away from right now, or NONE (spec §4.7).
++    int WyrmguardStompThreat(Player* bot, WyrmguardPackView const& view);
++    // Spec §4.8a healer positioning: the distinct present, living players holding a living pack guard
++    // (view.assign.holderRole). Returns the count written to out.
++    int GetWyrmguardHolderTanks(Player* bot, WyrmguardPackView const& view, Player* out[BwlWyrmguardRules::SLOTS]);
++    // Line of sight from a spot (ground z) to a player, as WorldObject::IsWithinLOSInMap measures it
++    // between two players: each end raised by its own collision height.
++    bool WyrmguardSpotInLos(Player* bot, float x, float y, float z, Player* target);
++
++    // ---- Ebonroc keep-out zone (spec §4.9) ----
++    constexpr uint32 EBONROC_SPAWN_ID = 85780;
++    constexpr int EBONROC_PATH_POINTS = 7;
++    extern BwlWyrmguardRules::Pt const EBONROC_PATH[EBONROC_PATH_POINTS];
++    extern Position const PACK1_STATION_CENTROID;   // spec §4.3a: the step-out heads here
++    // On map 469 while Ebonroc (by spawn id) is alive and NOT in combat and any pack-1 guard lives.
++    bool EbonrocKeepOutActive(Player* bot);
++    float EbonrocPathDistance(Player* bot);         // 2D distance to his patrol polyline
++
++    // ---- Nefarian, phases 2 and 3 (overlay patch 0020, spec 2026-10-07) ----
++    // blackwing_lair.h DATA_NEFARIAN. Hardcoded because a module cannot include a script-local header.
++    constexpr uint32 BWL_DATA_NEFARIAN = 7;
++    constexpr int NEF_MELEE_PER_SIDE = 5;
++    constexpr int NEF_RANGED_PER_SIDE = 8;
++    constexpr int NEF_HEALER_PER_SIDE = 5;
++
++    // Authored by tools/bwl-nefarian-stations.py (spec §4.2a). [0] = side +1, [1] = side -1
++    // (BwlNefarianRules::FlankSide / EscapePoint convention).
++    struct NefarianStations
++    {
++        Position mt;                                  // T: foot of the throne steps
++        Position park;                                // P: where Nefarian stands, facing T
++        Position melee[2][NEF_MELEE_PER_SIDE];
++        Position ranged[2][NEF_RANGED_PER_SIDE];
++        Position healer[2][NEF_HEALER_PER_SIDE];
++        Position otStaging;
++    };
++    extern NefarianStations const NEF_STATIONS;
++
++    enum class NefRole
++    {
++        MainTank,
++        OffTank,
++        Melee,
++        Ranged,
++        Healer
++    };
++
++    struct NefarianView
++    {
++        Creature* nefarian = nullptr;
++        BwlNefarianRules::Phase phase = BwlNefarianRules::Phase::None;
++        Player* mainTank = nullptr;     // his victim if a living group tank, else lowest living tank role
++        bool parked = false;            // Nefarian within PARKED_RADIUS of P
++        bool siphon = false;            // Improved BoP (23415) on Nefarian
++        uint32 msSinceLanded = 0;
++    };
++
++    // Gate (spec §4.1): map 469, boss state IN_PROGRESS, Nefarian alive + selectable (landed).
++    bool GetNefarianView(Player* bot, NefarianView& view);
++    // Nefarian's current victim when it is a living group member with a tank strategy, else the lowest
++    // living 0020 tank role. `nefarian` may be null (role rule only).
++    Player* GetNefarianMainTank(Player* bot, Creature* nefarian);
++    NefRole GetNefRole(Player* bot, NefarianView const& view);
++    int NefRoleOrdinal(Player* bot, NefRole role, NefarianView const& view);   // GUID order within the role
++    bool IsPhysicalDps(Player* bot);
++    bool HasBrokenRangedWeapon(Player* bot);                                   // hunters only
++    uint32 FindSpareRangedWeapon(Player* bot);                                 // 0 = none in the bags
++    // Spec §9 #1, the MT's order of business each tick: close to melee/LOS (Close), take Nefarian as
++    // the target (Attack), back him to T while he is on the MT and in melee (Back), face him at T (Face).
++    enum class NefMtStep
++    {
++        None,
++        Close,
++        Attack,
++        Back,
++        Face
++    };
++    constexpr float NEF_MT_FACE_ARC = static_cast<float>(M_PI) / 6.0f;
++    constexpr float NEF_MT_CHASE_SLACK = 5.0f;    // he is on the MT and this close: he walks to it
++    constexpr float NEF_MT_APPROACH_DIST = 1.0f;  // MoveTo(WorldObject*) edge distance; melee is 4/3 y
++    NefMtStep GetNefMtStep(Player* bot, NefarianView const& view, Unit* currentTarget);
++    inline bool NefMtStationHasWork(Player* bot, NefarianView const& view, Unit* currentTarget)
++    {
++        return GetNefMtStep(bot, view, currentTarget) != NefMtStep::None;
++    }
++    // Where a non-MT bot should move right now (cone escape, else its station when parked). False = stay.
++    bool GetNefPositionTarget(Player* bot, PlayerbotAI* botAI, NefarianView const& view, Position& dest);
++    Unit* GetNefDpsTarget(Player* bot, PlayerbotAI* botAI, NefarianView const& view);  // nullptr = hold fire
++    Unit* GetNefOffTankTarget(Player* bot, NefarianView const& view);   // an add to hold; nullptr = none
++    // Spec §9 #2: bot's threat on Nefarian over its role's denominator (BwlNefarianRules::ThreatRatio):
++    // OTs against the MT, everyone else against the backup tank (else the MT). 0 = no cap; the MT is 0.
++    float NefThreatRatio(Player* bot, NefarianView const& view);
++    // An idle off-tank's Nefarian hold: the DPS rule (MT not yet his victim, fail-open 20 s) at its own
++    // MT-denominated ratio.
++    bool OffTankHoldsFireOnNefarian(Player* bot, NefarianView const& view);
++    inline char const* NefTankHealSpellName(BwlNefarianRules::TankHeal spell)
++    {
++        return spell == BwlNefarianRules::TankHeal::Shield ? "power word: shield" : "renew";
++    }
++    Player* GetNefPolymorphDispelTarget(Player* bot, NefarianView const& view);
++    // Tank-only PW:S / Renew pick for a priest under Corrupted Healing. False = nothing to cast.
++    bool GetNefTankHeal(Player* bot, PlayerbotAI* botAI, NefarianView const& view, Player*& tank,
++                        BwlNefarianRules::TankHeal& spell);
++    inline BwlNefarianRules::Pt ToNefPt(WorldObject const* o)
++    {
++        return BwlNefarianRules::Pt{o->GetPositionX(), o->GetPositionY()};
++    }
+ }
+ 
+ #endif
+diff --git a/modules/mod-playerbots/src/Ai/Raid/BWL/BWLMultipliers.cpp b/modules/mod-playerbots/src/Ai/Raid/BWL/BWLMultipliers.cpp
+index 148dafd..b9300de 100644
+--- a/modules/mod-playerbots/src/Ai/Raid/BWL/BWLMultipliers.cpp
++++ b/modules/mod-playerbots/src/Ai/Raid/BWL/BWLMultipliers.cpp
+@@ -5,12 +5,21 @@
+  */
+ 
+ #include "BWLMultipliers.h"
++#include "AttackAction.h"
+ #include "BWLActions.h"
+ #include "BWLHelpers.h"
+ #include "ChooseTargetActions.h"
++#include "DKActions.h"
++#include "DruidBearActions.h"
++#include "EncounterHelpers.h"
++#include "FollowActions.h"
++#include "GenericSpellActions.h"
+ #include "HunterActions.h"
++#include "MovementActions.h"
++#include "PaladinActions.h"
+ #include "Playerbots.h"
+ #include "ReachTargetActions.h"
++#include "WarriorActions.h"
+ 
+ using namespace BlackwingLairHelpers;
+ 
+@@ -87,3 +96,237 @@ float VaelastraszBurningAdrenalineMultiplier::GetValue(Action* action)
+ 
+     return 1.0f;
+ }
++
++// Death Talon Wyrmguard packs (overlay patch 0020)
++//
++// EXACT-class matches only: MeleeAction derives from AttackAction and AttackAction from
++// MovementAction, so a base-class veto would silence auto-attack. The cheap type tests run before
++// the pack lookup - this is evaluated for every queued action of every bot on every tick.
++// No IsInCombat gate (review C1): a bot holding fire has neither dealt nor taken damage, so it is
++// out of combat - exactly the bot these vetoes exist for. Pack activation is the gate.
++float BwlWyrmguardMultiplier::GetValue(Action* action)
++{
++    if (!action || bot->GetMapId() != BWL_MAP_ID)
++        return 1.0f;
++
++    std::string const& name = action->getName();
++    if (name.rfind("bwl wyrmguard", 0) == 0 || name.rfind("bwl death talon wyrmguard", 0) == 0)
++        return 1.0f;
++
++    bool const isTargetChooser = dynamic_cast<DpsAssistAction*>(action) ||
++                                 dynamic_cast<DpsAoeAction*>(action) ||
++                                 dynamic_cast<TankAssistAction*>(action) ||
++                                 dynamic_cast<AggressiveTargetAction*>(action) ||
++                                 dynamic_cast<AttackAnythingAction*>(action) ||
++                                 dynamic_cast<AttackLeastHpTargetAction*>(action) ||
++                                 dynamic_cast<AttackRtiTargetAction*>(action);
++    bool const isFormationMover = dynamic_cast<CombatFormationMoveAction*>(action) ||
++                                  dynamic_cast<FollowAction*>(action);
++    bool const isTaunt = EncounterHelpers::IsTauntAction(bot, action);
++    // Threat limit (spec §4.8a): DPS only. Healing spells are Aoe-typed (CastHealingSpellAction), so
++    // healers and any non-healer's heal are exempt - the limit must never stop a heal.
++    bool const isThreatLimited = action->getThreatType() != Action::ActionThreatType::None &&
++                                 !PlayerbotAI::IsTank(bot) && !PlayerbotAI::IsHeal(bot) &&
++                                 !dynamic_cast<CastHealingSpellAction*>(action);
++    if (!isTargetChooser && !isFormationMover && !isTaunt && !isThreatLimited)
++        return 1.0f;
++
++    WyrmguardPackView view;
++    if (!GetActiveWyrmguardPack(bot, view))
++        return 1.0f;
++
++    if (PlayerbotAI::IsTank(bot))
++    {
++        int const role = GetTankRole(bot);
++        if (role == BwlWyrmguardRules::NONE)
++            return 1.0f;
++
++        // AoE / ally taunts are never right during a pack: a Challenging Shout at the pull grabs
++        // all three guards for 6 s (review I1).
++        if (dynamic_cast<CastChallengingShoutAction*>(action) ||
++            dynamic_cast<CastChallengingRoarAction*>(action) ||
++            dynamic_cast<CastRighteousDefenseAction*>(action) ||
++            dynamic_cast<CastDeathGripAction*>(action))
++            return 0.0f;
++
++        // Single-target taunts fire at the current target: never at a guard another role holds -
++        // even after this tank's own guard is dead.
++        if (isTaunt)
++        {
++            int const s = SlotOfGuard(view, AI_VALUE(Unit*, "current target"));
++            return (s != BwlWyrmguardRules::NONE && view.assign.holderRole[s] != role) ? 0.0f : 1.0f;
++        }
++
++        bool holds = false;
++        for (int s = 0; s < BwlWyrmguardRules::SLOTS; ++s)
++            holds = holds || view.assign.holderRole[s] == role;
++        if (!holds)
++            return 1.0f;
++
++        // A holding tank keeps its own guard and its station.
++        if (dynamic_cast<TankAssistAction*>(action) || isFormationMover)
++            return 0.0f;
++        return 1.0f;
++    }
++
++    // Non-tanks: "bwl wyrmguard dps target" is the only target chooser.
++    if (isTargetChooser)
++        return 0.0f;
++
++    // Held melee are not walked back into the pack by follow/formation movement.
++    if (isFormationMover && IsWyrmguardMelee(bot) &&
++        BwlWyrmguardRules::MeleeHeld(view.state, view.assign, view.skull, view.msSinceActive))
++        return 0.0f;
++
++    // Healers position themselves (spec 4.8a "healer position"): follow/formation movement would drag
++    // them off their spot, and a moving healer cannot cast (prod 2026-10-08).
++    if (isFormationMover && PlayerbotAI::IsHeal(bot))
++        return 0.0f;
++
++    // mod-playerbots never enables the "threat" strategy for DPS, so without this they pull the
++    // guards off their tanks (dev pull 2026-10-06). Same rule as upstream ThreatMultiplier.
++    if (isThreatLimited && !AI_VALUE(bool, "neglect threat"))
++    {
++        if (action->getThreatType() == Action::ActionThreatType::Aoe && AI_VALUE2(uint8, "threat", "aoe") >= 50)
++            return 0.0f;
++        // Single-target limit only on a pack Wyrmguard: an add no tank holds (e.g. Krixix) would read
++        // at the cap and stay un-attacked for the whole pack. Own float ratio, not upstream's uint8
++        // "threat" value, which wraps at 256 (a bot at 300 % read 44 %) - spec §4.8a. The gate carries
++        // absolute headroom (BwlThreatBlocked, spec 2026-10-08), shared with the BWL-wide discipline.
++        Unit* const current = AI_VALUE(Unit*, "current target");
++        if (SlotOfGuard(view, current) != BwlWyrmguardRules::NONE &&
++            BwlThreatBlocked(bot, current, BWL_THREAT_LIMIT))
++            return 0.0f;
++    }
++
++    return 1.0f;
++}
++
++// Nefarian phases 2 and 3 (overlay patch 0020, spec 2026-10-07 §4.6)
++//
++// Mover / chooser / taunt matching is EXACT dynamic_cast (MeleeAction derives from AttackAction).
++// Per-call vetoes match CastSpellAction::getSpell() against BwlNefarianRules' lists, so self, party and
++// macro-generated variants are all caught. Cheap type tests run before the view lookup.
++float BwlNefarianMultiplier::GetValue(Action* action)
++{
++    if (!action || bot->GetMapId() != BWL_MAP_ID)
++        return 1.0f;
++    if (action->getName().rfind("bwl nefarian", 0) == 0)
++        return 1.0f;
++
++    bool const isTargetChooser = dynamic_cast<DpsAssistAction*>(action) ||
++                                 dynamic_cast<DpsAoeAction*>(action) ||
++                                 dynamic_cast<TankAssistAction*>(action) ||
++                                 dynamic_cast<AggressiveTargetAction*>(action) ||
++                                 dynamic_cast<AttackAnythingAction*>(action) ||
++                                 dynamic_cast<AttackLeastHpTargetAction*>(action) ||
++                                 dynamic_cast<AttackRtiTargetAction*>(action);
++    bool const isMover = dynamic_cast<CombatFormationMoveAction*>(action) ||
++                         dynamic_cast<FollowAction*>(action) ||
++                         dynamic_cast<RearFlankAction*>(action);
++    bool const isAoeTaunt = dynamic_cast<CastChallengingShoutAction*>(action) ||
++                            dynamic_cast<CastChallengingRoarAction*>(action) ||
++                            dynamic_cast<CastRighteousDefenseAction*>(action) ||
++                            dynamic_cast<CastDeathGripAction*>(action);
++    bool const isTank = PlayerbotAI::IsTank(bot);
++    bool const threatAction = action->getThreatType() != Action::ActionThreatType::None &&
++                              !dynamic_cast<CastHealingSpellAction*>(action);
++    bool const isThreatLimited = threatAction && !isTank && !PlayerbotAI::IsHeal(bot);
++    bool const isTankThreat = threatAction && isTank;   // the MT is exempted below, once the view is known
++    bool const isTaunt = EncounterHelpers::IsTauntAction(bot, action);
++    CastSpellAction* const spellAction = dynamic_cast<CastSpellAction*>(action);
++    if (!isTargetChooser && !isMover && !isAoeTaunt && !isThreatLimited && !isTankThreat && !isTaunt &&
++        !spellAction)
++        return 1.0f;
++
++    NefarianView view;
++    if (!GetNefarianView(bot, view))
++        return 1.0f;
++
++    if (isMover)
++        return 0.0f;   // positions are "bwl nefarian mt station" / "bwl nefarian position"
++    if (isTargetChooser)
++        return 0.0f;   // MT: the "co -tank assist" tip; OTs and DPS: our own choosers
++    if (isAoeTaunt && bot == view.mainTank)
++        return 0.0f;
++    Unit* const current = (isTaunt || isThreatLimited || isTankThreat) ? AI_VALUE(Unit*, "current target") : nullptr;
++    if (isTaunt && current == view.nefarian)
++        return 0.0f;   // taunt-immune: a wasted GCD for any tank
++
++    // DPS against the backup tank, off-tanks against the MT (spec §9 #2; NefThreatRatio). The MT reads 0.
++    if ((isThreatLimited || (isTankThreat && bot != view.mainTank)) && !AI_VALUE(bool, "neglect threat"))
++    {
++        float const ratio = NefThreatRatio(bot, view);
++        if (ratio >= BwlNefarianRules::THREAT_LIMIT &&
++            (action->getThreatType() == Action::ActionThreatType::Aoe || current == view.nefarian))
++            return 0.0f;
++    }
++
++    if (!spellAction)
++        return 1.0f;
++    std::string const spell = spellAction->getSpell();
++    switch (bot->getClass())
++    {
++        case CLASS_PRIEST:
++            if (bot->HasAura(BwlNefarianRules::SPELL_CALL_PRIEST) && BwlNefarianRules::IsCorruptedHealingSpell(spell))
++                return 0.0f;
++            break;
++        case CLASS_DRUID:
++            if (bot->HasAura(BwlNefarianRules::SPELL_CALL_DRUID) && !BwlNefarianRules::IsCatAbility(spell))
++                return 0.0f;
++            break;
++        case CLASS_WARRIOR:
++            if (bot->HasAura(BwlNefarianRules::SPELL_CALL_WARRIOR) && BwlNefarianRules::IsStanceSpell(spell))
++                return 0.0f;
++            break;
++        case CLASS_HUNTER:
++            if (HasBrokenRangedWeapon(bot) && BwlNefarianRules::IsHunterShot(spell))
++                return 0.0f;
++            break;
++        case CLASS_SHAMAN:
++            if (BwlNefarianRules::IsNonTremorEarthTotem(spell))
++                return 0.0f;
++            break;
++        default:
++            break;
++    }
++    return 1.0f;
++}
++
++// BWL-wide DPS threat discipline (overlay patch 0020, spec 2026-10-08)
++//
++// mod-playerbots never enables the "threat" strategy for DPS, and Chromaggus is taunt-immune: a boomkin
++// pulled him first and he bounced between DPS (prod 2026-10-08). The Wyrmguard rule, generalized to every
++// BWL fight without its own threat rules. Cheap type and role tests run before any value or view lookup:
++// this is evaluated for every queued action of every bot on every tick.
++float BwlThreatDisciplineMultiplier::GetValue(Action* action)
++{
++    if (!action || bot->GetMapId() != BWL_MAP_ID)
++        return 1.0f;
++
++    Action::ActionThreatType const threatType = action->getThreatType();
++    // Exact classes (none has a subclass): no threat type, but they are what restart auto-attack,
++    // auto-shot and the wand. Without them the hard stop at BWL_THREAT_STOP would be undone next tick.
++    bool const isAutoAttack = dynamic_cast<MeleeAction*>(action) || dynamic_cast<CastAutoShotAction*>(action) ||
++                              dynamic_cast<CastShootAction*>(action);
++    if (threatType == Action::ActionThreatType::None && !isAutoAttack)
++        return 1.0f;
++    // Heals are Aoe-typed (CastHealingSpellAction) and must never be limited, whoever casts them.
++    if (dynamic_cast<CastHealingSpellAction*>(action) || !IsBwlThreatDisciplined(bot))
++        return 1.0f;
++    if (AI_VALUE(bool, "neglect threat"))
++        return 1.0f;
++
++    Unit* const current = AI_VALUE(Unit*, "current target");
++    if (!IsBwlThreatDisciplineTarget(bot, current))
++        return 1.0f;
++
++    // Same AoE rule as upstream ThreatMultiplier. The single target uses the shared float gate with
++    // absolute headroom (BwlThreatBlocked), not upstream's uint8 "threat" value, which wraps at 256.
++    bool const veto =
++        (threatType == Action::ActionThreatType::Aoe && AI_VALUE2(uint8, "threat", "aoe") >= 50) ||
++        BwlThreatBlocked(bot, current, BWL_THREAT_LIMIT);
++    if (!veto || BwlFightHasOwnThreatRules(bot))
++        return 1.0f;
++    return 0.0f;
++}
+diff --git a/modules/mod-playerbots/src/Ai/Raid/BWL/BWLMultipliers.h b/modules/mod-playerbots/src/Ai/Raid/BWL/BWLMultipliers.h
+index 7a063a9..3e19732 100644
+--- a/modules/mod-playerbots/src/Ai/Raid/BWL/BWLMultipliers.h
++++ b/modules/mod-playerbots/src/Ai/Raid/BWL/BWLMultipliers.h
+@@ -33,4 +33,31 @@ public:
+     float GetValue(Action* action) override;
+ };
+ 
++// Death Talon Wyrmguard packs (overlay patch 0020)
++class BwlWyrmguardMultiplier : public Multiplier
++{
++public:
++    BwlWyrmguardMultiplier(
++        PlayerbotAI* botAI) : Multiplier(botAI, "bwl wyrmguard multiplier") {}
++    float GetValue(Action* action) override;
++};
++
++// Nefarian phases 2 and 3 (overlay patch 0020, spec 2026-10-07)
++class BwlNefarianMultiplier : public Multiplier
++{
++public:
++    BwlNefarianMultiplier(
++        PlayerbotAI* botAI) : Multiplier(botAI, "bwl nefarian multiplier") {}
++    float GetValue(Action* action) override;
++};
++
++// BWL-wide DPS threat discipline (overlay patch 0020, spec 2026-10-08)
++class BwlThreatDisciplineMultiplier : public Multiplier
++{
++public:
++    BwlThreatDisciplineMultiplier(
++        PlayerbotAI* botAI) : Multiplier(botAI, "bwl threat discipline multiplier") {}
++    float GetValue(Action* action) override;
++};
++
+ #endif
+diff --git a/modules/mod-playerbots/src/Ai/Raid/BWL/BWLStrategy.cpp b/modules/mod-playerbots/src/Ai/Raid/BWL/BWLStrategy.cpp
+index 9caff8a..89b33c2 100644
+--- a/modules/mod-playerbots/src/Ai/Raid/BWL/BWLStrategy.cpp
++++ b/modules/mod-playerbots/src/Ai/Raid/BWL/BWLStrategy.cpp
+@@ -6,9 +6,23 @@
+ 
+ #include "BWLStrategy.h"
+ #include "BWLMultipliers.h"
++#include "Log.h"
++
++#include <mutex>
+ 
+ void RaidBwlStrategy::InitTriggers(std::vector<TriggerNode*>& triggers)
+ {
++    static std::once_flag s_wyrmguardCanary;
++    std::call_once(s_wyrmguardCanary, []
++    {
++        LOG_INFO("playerbots", "[BWLWyrmguard] pack strategy loaded (patch 0020)");
++    });
++    static std::once_flag s_nefarianCanary;
++    std::call_once(s_nefarianCanary, []
++    {
++        LOG_INFO("playerbots", "[BWLNefarian] strategy loaded (patch 0020)");
++    });
++
+     triggers.push_back(new TriggerNode("often", {
+         NextAction("bwl check onyxia scale cloak", ACTION_RAID) }));
+     triggers.push_back(new TriggerNode("bwl suppression device", {
+@@ -44,10 +58,59 @@ void RaidBwlStrategy::InitTriggers(std::vector<TriggerNode*>& triggers)
+     triggers.push_back(new TriggerNode("bwl nefarian fear ward", {
+         NextAction("bwl nefarian fear ward", ACTION_RAID) }));
+ 
++    // Nefarian phases 2 and 3 (overlay patch 0020, spec 2026-10-07 §4.7)
++    triggers.push_back(new TriggerNode("bwl nefarian mt station", {
++        NextAction("bwl nefarian mt station", ACTION_RAID + 3) }));
++    triggers.push_back(new TriggerNode("bwl nefarian position", {
++        NextAction("bwl nefarian position", ACTION_RAID + 3) }));
++    triggers.push_back(new TriggerNode("bwl nefarian dps target", {
++        NextAction("bwl nefarian dps target", ACTION_RAID + 2) }));
++    triggers.push_back(new TriggerNode("bwl nefarian ot target", {
++        NextAction("bwl nefarian ot target", ACTION_RAID + 1) }));
++    triggers.push_back(new TriggerNode("bwl nefarian dispel polymorph", {
++        NextAction("bwl nefarian dispel polymorph", ACTION_RAID + 2) }));
++    triggers.push_back(new TriggerNode("bwl nefarian priest tank only", {
++        NextAction("bwl nefarian priest tank only", ACTION_RAID + 1) }));
++    triggers.push_back(new TriggerNode("bwl nefarian decurse tank", {
++        NextAction("bwl nefarian decurse tank", ACTION_RAID + 1) }));
++    triggers.push_back(new TriggerNode("bwl nefarian tremor", {
++        NextAction("bwl nefarian tremor", ACTION_RAID) }));
++    triggers.push_back(new TriggerNode("bwl nefarian hunter rearm", {
++        NextAction("bwl nefarian hunter rearm", ACTION_RAID + 1) }));
++    triggers.push_back(new TriggerNode("bwl nefarian rogue survive", {
++        NextAction("bwl nefarian rogue survive", ACTION_RAID + 1) }));
++    // Dev attempt 1 fixes (spec §9)
++    // Just above the stock tank rotation (Revenge ACTION_HIGH + 2, Heroic Strike ACTION_HIGH).
++    triggers.push_back(new TriggerNode("bwl nefarian mt sunder", {
++        NextAction("bwl nefarian mt sunder", ACTION_HIGH + 3) }));
++
+     triggers.push_back(new TriggerNode("bwl death talon wyrmguard tank", {
+         NextAction("bwl death talon wyrmguard tank move away", ACTION_RAID) }));
+     triggers.push_back(new TriggerNode("bwl death talon wyrmguard ranged", {
+         NextAction("bwl death talon wyrmguard ranged move away", ACTION_RAID) }));
++
++    // BWL-wide DPS threat discipline (spec 2026-10-08): the hard stop. The multiplier's vetoes cannot
++    // stop an auto-attack or auto-shot that is already running.
++    triggers.push_back(new TriggerNode("bwl threat hold", {
++        NextAction("bwl threat hold", ACTION_RAID + 1) }));
++
++    // Death Talon Wyrmguard packs (overlay patch 0020)
++    triggers.push_back(new TriggerNode("bwl wyrmguard tank", {
++        NextAction("bwl wyrmguard tank", ACTION_RAID + 2) }));
++    triggers.push_back(new TriggerNode("bwl wyrmguard mark skull", {
++        NextAction("bwl wyrmguard mark skull", ACTION_RAID + 1) }));
++    triggers.push_back(new TriggerNode("bwl wyrmguard dps target", {
++        NextAction("bwl wyrmguard dps target", ACTION_RAID + 1) }));
++    triggers.push_back(new TriggerNode("bwl wyrmguard melee position", {
++        NextAction("bwl wyrmguard melee position", ACTION_RAID + 3) }));
++    triggers.push_back(new TriggerNode("bwl wyrmguard melee behind", {
++        NextAction("rear flank", ACTION_MOVE + 4) }));
++    triggers.push_back(new TriggerNode("bwl wyrmguard ebonroc keep out", {
++        NextAction("bwl wyrmguard ebonroc keep out", ACTION_RAID + 4) }));
++    // Spec 4.8a: above light/medium heals - a healer out of range or LoS of a tank cannot help him -
++    // and below critical heals. It fires only while the healer's spot is not good.
++    triggers.push_back(new TriggerNode("bwl wyrmguard healer position", {
++        NextAction("bwl wyrmguard healer position", ACTION_MEDIUM_HEAL + 1) }));
+ }
+ 
+ void RaidBwlStrategy::InitMultipliers(std::vector<Multiplier*>& multipliers)
+@@ -55,4 +118,7 @@ void RaidBwlStrategy::InitMultipliers(std::vector<Multiplier*>& multipliers)
+     multipliers.push_back(new RazorgoreTankMultiplier(botAI));
+     multipliers.push_back(new VaelastraszTankMultiplier(botAI));
+     multipliers.push_back(new VaelastraszBurningAdrenalineMultiplier(botAI));
++    multipliers.push_back(new BwlWyrmguardMultiplier(botAI));
++    multipliers.push_back(new BwlNefarianMultiplier(botAI));
++    multipliers.push_back(new BwlThreatDisciplineMultiplier(botAI));
+ }
+diff --git a/modules/mod-playerbots/src/Ai/Raid/BWL/BWLTriggerContext.h b/modules/mod-playerbots/src/Ai/Raid/BWL/BWLTriggerContext.h
+index 688334b..90a8503 100644
+--- a/modules/mod-playerbots/src/Ai/Raid/BWL/BWLTriggerContext.h
++++ b/modules/mod-playerbots/src/Ai/Raid/BWL/BWLTriggerContext.h
+@@ -33,8 +33,27 @@ public:
+         creators["bwl affliction bronze"] = &RaidBwlTriggerContext::bwl_affliction_bronze;
+         creators["bwl wild magic"] = &RaidBwlTriggerContext::bwl_wild_magic;
+         creators["bwl nefarian fear ward"] = &RaidBwlTriggerContext::bwl_nefarian_fear_ward;
++        creators["bwl nefarian mt station"] = &RaidBwlTriggerContext::bwl_nefarian_mt_station;
++        creators["bwl nefarian position"] = &RaidBwlTriggerContext::bwl_nefarian_position;
++        creators["bwl nefarian dps target"] = &RaidBwlTriggerContext::bwl_nefarian_dps_target;
++        creators["bwl nefarian ot target"] = &RaidBwlTriggerContext::bwl_nefarian_ot_target;
++        creators["bwl nefarian tremor"] = &RaidBwlTriggerContext::bwl_nefarian_tremor;
++        creators["bwl nefarian decurse tank"] = &RaidBwlTriggerContext::bwl_nefarian_decurse_tank;
++        creators["bwl nefarian dispel polymorph"] = &RaidBwlTriggerContext::bwl_nefarian_dispel_polymorph;
++        creators["bwl nefarian priest tank only"] = &RaidBwlTriggerContext::bwl_nefarian_priest_tank_only;
++        creators["bwl nefarian hunter rearm"] = &RaidBwlTriggerContext::bwl_nefarian_hunter_rearm;
++        creators["bwl nefarian rogue survive"] = &RaidBwlTriggerContext::bwl_nefarian_rogue_survive;
++        creators["bwl nefarian mt sunder"] = &RaidBwlTriggerContext::bwl_nefarian_mt_sunder;
+         creators["bwl death talon wyrmguard tank"] = &RaidBwlTriggerContext::bwl_death_talon_wyrmguard_tank;
+         creators["bwl death talon wyrmguard ranged"] = &RaidBwlTriggerContext::bwl_death_talon_wyrmguard_ranged;
++        creators["bwl wyrmguard tank"] = &RaidBwlTriggerContext::bwl_wyrmguard_tank;
++        creators["bwl wyrmguard mark skull"] = &RaidBwlTriggerContext::bwl_wyrmguard_mark_skull;
++        creators["bwl wyrmguard dps target"] = &RaidBwlTriggerContext::bwl_wyrmguard_dps_target;
++        creators["bwl wyrmguard melee position"] = &RaidBwlTriggerContext::bwl_wyrmguard_melee_position;
++        creators["bwl wyrmguard melee behind"] = &RaidBwlTriggerContext::bwl_wyrmguard_melee_behind;
++        creators["bwl wyrmguard ebonroc keep out"] = &RaidBwlTriggerContext::bwl_wyrmguard_ebonroc_keep_out;
++        creators["bwl wyrmguard healer position"] = &RaidBwlTriggerContext::bwl_wyrmguard_healer_position;
++        creators["bwl threat hold"] = &RaidBwlTriggerContext::bwl_threat_hold;
+     }
+ 
+ private:
+@@ -50,8 +69,27 @@ private:
+     static Trigger* bwl_affliction_bronze(PlayerbotAI* ai) { return new BwlAfflictionBronzeTrigger(ai); }
+     static Trigger* bwl_wild_magic(PlayerbotAI* ai) { return new BwlWildMagicTrigger(ai); }
+     static Trigger* bwl_nefarian_fear_ward(PlayerbotAI* ai) { return new BwlNefarianFearWardTrigger(ai); }
++    static Trigger* bwl_nefarian_mt_station(PlayerbotAI* ai) { return new BwlNefarianMtStationTrigger(ai); }
++    static Trigger* bwl_nefarian_position(PlayerbotAI* ai) { return new BwlNefarianPositionTrigger(ai); }
++    static Trigger* bwl_nefarian_dps_target(PlayerbotAI* ai) { return new BwlNefarianDpsTargetTrigger(ai); }
++    static Trigger* bwl_nefarian_ot_target(PlayerbotAI* ai) { return new BwlNefarianOtTargetTrigger(ai); }
++    static Trigger* bwl_nefarian_tremor(PlayerbotAI* ai) { return new BwlNefarianTremorTrigger(ai); }
++    static Trigger* bwl_nefarian_decurse_tank(PlayerbotAI* ai) { return new BwlNefarianDecurseTankTrigger(ai); }
++    static Trigger* bwl_nefarian_dispel_polymorph(PlayerbotAI* ai) { return new BwlNefarianDispelPolymorphTrigger(ai); }
++    static Trigger* bwl_nefarian_priest_tank_only(PlayerbotAI* ai) { return new BwlNefarianPriestTankOnlyTrigger(ai); }
++    static Trigger* bwl_nefarian_hunter_rearm(PlayerbotAI* ai) { return new BwlNefarianHunterRearmTrigger(ai); }
++    static Trigger* bwl_nefarian_rogue_survive(PlayerbotAI* ai) { return new BwlNefarianRogueSurviveTrigger(ai); }
++    static Trigger* bwl_nefarian_mt_sunder(PlayerbotAI* ai) { return new BwlNefarianMtSunderTrigger(ai); }
+     static Trigger* bwl_death_talon_wyrmguard_tank(PlayerbotAI* ai) { return new BwlDeathTalonWyrmguardTankTrigger(ai); }
+     static Trigger* bwl_death_talon_wyrmguard_ranged(PlayerbotAI* ai) { return new BwlDeathTalonWyrmguardRangedTrigger(ai); }
++    static Trigger* bwl_wyrmguard_tank(PlayerbotAI* ai) { return new BwlWyrmguardTankTrigger(ai); }
++    static Trigger* bwl_wyrmguard_mark_skull(PlayerbotAI* ai) { return new BwlWyrmguardMarkSkullTrigger(ai); }
++    static Trigger* bwl_wyrmguard_dps_target(PlayerbotAI* ai) { return new BwlWyrmguardDpsTargetTrigger(ai); }
++    static Trigger* bwl_wyrmguard_melee_position(PlayerbotAI* ai) { return new BwlWyrmguardMeleePositionTrigger(ai); }
++    static Trigger* bwl_wyrmguard_melee_behind(PlayerbotAI* ai) { return new BwlWyrmguardMeleeBehindTrigger(ai); }
++    static Trigger* bwl_wyrmguard_ebonroc_keep_out(PlayerbotAI* ai) { return new BwlWyrmguardEbonrocKeepOutTrigger(ai); }
++    static Trigger* bwl_wyrmguard_healer_position(PlayerbotAI* ai) { return new BwlWyrmguardHealerPositionTrigger(ai); }
++    static Trigger* bwl_threat_hold(PlayerbotAI* ai) { return new BwlThreatHoldTrigger(ai); }
+ };
+ 
+ #endif
+diff --git a/modules/mod-playerbots/src/Ai/Raid/BWL/BWLTriggers.cpp b/modules/mod-playerbots/src/Ai/Raid/BWL/BWLTriggers.cpp
+index 616acf3..4f3a9d3 100644
+--- a/modules/mod-playerbots/src/Ai/Raid/BWL/BWLTriggers.cpp
++++ b/modules/mod-playerbots/src/Ai/Raid/BWL/BWLTriggers.cpp
+@@ -6,7 +6,11 @@
+ 
+ #include "BWLTriggers.h"
+ #include "BWLHelpers.h"
++#include "InstanceScript.h"
++#include "Log.h"
+ #include "Playerbots.h"
++#include "StringFormat.h"
++#include "Timer.h"
+ 
+ using namespace BlackwingLairHelpers;
+ 
+@@ -85,14 +89,353 @@ bool BwlNefarianFearWardTrigger::IsActive()
+     return !botAI->HasAura("fear ward", victim);
+ }
+ 
++// Nefarian phases 2 and 3 (overlay patch 0020, spec 2026-10-07)
++
++bool BwlNefarianMtStationTrigger::IsActive()
++{
++    NefarianView view;
++    if (!GetNefarianView(bot, view) || view.mainTank != bot)
++        return false;
++    return NefMtStationHasWork(bot, view, AI_VALUE(Unit*, "current target"));
++}
++
++bool BwlNefarianPositionTrigger::IsActive()
++{
++    NefarianView view;
++    if (!GetNefarianView(bot, view))
++        return false;
++    Position dest;
++    return GetNefPositionTarget(bot, botAI, view, dest);
++}
++
++bool BwlNefarianDpsTargetTrigger::IsActive()
++{
++    if (PlayerbotAI::IsTank(bot))
++        return false;
++    // Healers stay healers, except a druid locked in cat form (spec §4.5).
++    if (PlayerbotAI::IsHeal(bot) &&
++        !(bot->getClass() == CLASS_DRUID && bot->HasAura(BwlNefarianRules::SPELL_CALL_DRUID)))
++        return false;
++    NefarianView view;
++    if (!GetNefarianView(bot, view))
++        return false;
++    return GetNefDpsTarget(bot, botAI, view) != AI_VALUE(Unit*, "current target");
++}
++
++bool BwlNefarianOtTargetTrigger::IsActive()
++{
++    NefarianView view;
++    if (!GetNefarianView(bot, view) || GetNefRole(bot, view) != NefRole::OffTank)
++        return false;
++    Unit* const current = AI_VALUE(Unit*, "current target");
++    if (Unit* const add = GetNefOffTankTarget(bot, view))
++        return current != add ||
++               (add->GetEntry() == BwlNefarianRules::NPC_CORRUPTED_INFERNAL && add->GetVictim() != bot);
++    // No add: Nefarian (spec §9 #2), never taunted; hold fire at the MT-denominated cap.
++    if (OffTankHoldsFireOnNefarian(bot, view))
++        return current == view.nefarian || bot->GetVictim() == view.nefarian;
++    return current != view.nefarian;
++}
++
++bool BwlNefarianTremorTrigger::IsActive()
++{
++    if (bot->getClass() != CLASS_SHAMAN)
++        return false;
++    NefarianView view;
++    if (!GetNefarianView(bot, view))
++        return false;
++    // By name: era-talents shamans know a clone (931080 / 947070), not stock 8143 (spec §9 #3).
++    return !AI_VALUE2(bool, "has totem", "tremor totem") && botAI->CanCastSpell("tremor totem", bot);
++}
++
++bool BwlNefarianDecurseTankTrigger::IsActive()
++{
++    uint8 const cls = bot->getClass();
++    if (cls != CLASS_MAGE && cls != CLASS_DRUID)
++        return false;
++    NefarianView view;
++    if (!GetNefarianView(bot, view))
++        return false;
++    return view.mainTank && view.mainTank->HasAura(BwlNefarianRules::SPELL_VEIL_OF_SHADOW) &&
++           bot->GetDistance(view.mainTank) <= 40.0f && botAI->CanCastSpell("remove curse", view.mainTank);
++}
++
++bool BwlNefarianDispelPolymorphTrigger::IsActive()
++{
++    uint8 const cls = bot->getClass();
++    if (cls != CLASS_PRIEST && cls != CLASS_PALADIN)
++        return false;
++    NefarianView view;
++    if (!GetNefarianView(bot, view))
++        return false;
++    Player* const target = GetNefPolymorphDispelTarget(bot, view);
++    return target && botAI->CanCastSpell(cls == CLASS_PRIEST ? "dispel magic" : "cleanse", target);
++}
++
++bool BwlNefarianPriestTankOnlyTrigger::IsActive()
++{
++    if (bot->getClass() != CLASS_PRIEST || !bot->HasAura(BwlNefarianRules::SPELL_CALL_PRIEST))
++        return false;
++    NefarianView view;
++    if (!GetNefarianView(bot, view))
++        return false;
++    Player* tank = nullptr;
++    BwlNefarianRules::TankHeal spell = BwlNefarianRules::TankHeal::None;
++    // Only when the pick is castable now (GCD, fear, range): no fallback to another tank (spec §9 #4).
++    return GetNefTankHeal(bot, botAI, view, tank, spell) && botAI->CanCastSpell(NefTankHealSpellName(spell), tank);
++}
++
++bool BwlNefarianHunterRearmTrigger::IsActive()
++{
++    if (!HasBrokenRangedWeapon(bot))   // hunters only
++        return false;
++    NefarianView view;
++    if (!GetNefarianView(bot, view))
++        return false;
++    return FindSpareRangedWeapon(bot) != 0;
++}
++
++bool BwlNefarianRogueSurviveTrigger::IsActive()
++{
++    if (bot->getClass() != CLASS_ROGUE || !bot->HasAura(BwlNefarianRules::SPELL_CALL_ROGUE))
++        return false;
++    NefarianView view;
++    if (!GetNefarianView(bot, view))
++        return false;
++    return !botAI->HasAura("cloak of shadows", bot) && !botAI->HasAura("evasion", bot) &&
++           (botAI->CanCastSpell("cloak of shadows", bot) || botAI->CanCastSpell("evasion", bot));
++}
++
++// Spec §9 #5: Sunder only while neither Revenge nor Shield Slam can be cast right now.
++bool BwlNefarianMtSunderTrigger::IsActive()
++{
++    if (bot->getClass() != CLASS_WARRIOR || bot->GetPower(POWER_RAGE) < 150)   // rage is in tenths
++        return false;
++    NefarianView view;
++    if (!GetNefarianView(bot, view) || view.mainTank != bot)
++        return false;
++    Creature* const nef = view.nefarian;
++    if (AI_VALUE(Unit*, "current target") != nef || !bot->IsWithinMeleeRange(nef))
++        return false;
++    return botAI->CanCastSpell("sunder armor", nef) && !botAI->CanCastSpell("revenge", nef) &&
++           !botAI->CanCastSpell("shield slam", nef);
++}
++
+ // Trash
+ 
+ bool BwlDeathTalonWyrmguardTankTrigger::IsActive()
+ {
+-    return PlayerbotAI::IsTank(bot) && AI_VALUE2(Unit*, "find target", "death talon wyrmguard");
++    if (!PlayerbotAI::IsTank(bot))
++        return false;
++
++    // Patch 0020: the two keyed packs use fixed stations ("bwl wyrmguard tank"); this 16 y spacing
++    // would drag a tank off its station. It stays live for the lone Wyrmguard + Overseers pack.
++    WyrmguardPackView view;
++    if (GetActiveWyrmguardPack(bot, view))
++        return false;
++
++    return AI_VALUE2(Unit*, "find target", "death talon wyrmguard");
+ }
+ 
+ bool BwlDeathTalonWyrmguardRangedTrigger::IsActive()
+ {
+-    return PlayerbotAI::IsRanged(bot) && AI_VALUE2(Unit*, "find target", "death talon wyrmguard");
++    if (!PlayerbotAI::IsRanged(bot))
++        return false;
++
++    // Patch 0020: keyed packs are visible from the first tick, even to a healer/caster that has
++    // never threatened them (find target only scans the bot's own threat list).
++    WyrmguardPackView view;
++    if (GetActiveWyrmguardPack(bot, view))
++        return true;
++
++    return AI_VALUE2(Unit*, "find target", "death talon wyrmguard");
++}
++
++// Death Talon Wyrmguard packs (overlay patch 0020)
++
++bool BwlWyrmguardTankTrigger::IsActive()
++{
++    int const role = GetTankRole(bot);
++    if (role == BwlWyrmguardRules::NONE)
++        return false;
++
++    WyrmguardPackView view;
++    if (!GetActiveWyrmguardPack(bot, view))
++        return false;
++
++    for (int s = 0; s < BwlWyrmguardRules::SLOTS; ++s)
++        if (view.assign.holderRole[s] == role)
++            return true;
++    return false;
++}
++
++namespace
++{
++    constexpr uint32 NO_SKULL_LOG_INTERVAL_MS = 2000;
++
++    // Why NextSkull marks nothing: per slot alive / holder role / on holder / distance to its station /
++    // min distance to a living guard held on another station / time continuously settled (skull lead).
++    std::string DescribeNoSkull(WyrmguardPackView const& view)
++    {
++        using namespace BwlWyrmguardRules;
++        PackState const& p = view.state;
++        std::string out;
++        for (int s = 0; s < SLOTS; ++s)
++        {
++            if (!p.alive[s])
++            {
++                out += Acore::StringFormat(" | slot {}: dead", s);
++                continue;
++            }
++            float const toStation = Dist2d(p.guard[s], p.station[view.assign.station[s]]);
++            float minOther = -1.0f;
++            for (int t = 0; t < SLOTS; ++t)
++            {
++                if (t == s || !p.alive[t] || view.assign.station[t] == view.assign.station[s])
++                    continue;
++                float const d = Dist2d(p.guard[s], p.guard[t]);
++                if (minOther < 0.0f || d < minOther)
++                    minOther = d;
++            }
++            out += Acore::StringFormat(
++                " | slot {}: alive holderRole={} onHolder={} toStation={:.1f} minOther={:.1f} settledMs={}", s,
++                view.assign.holderRole[s], p.onHolder[s] ? 1 : 0, toStation, minOther, view.settledMs[s]);
++        }
++        return out;
++    }
++}
++
++bool BwlWyrmguardMarkSkullTrigger::IsActive()
++{
++    if (!IsWyrmguardMarker(bot))
++        return false;
++
++    WyrmguardPackView view;
++    if (!GetActiveWyrmguardPack(bot, view))
++        return false;
++
++    int const next = BwlWyrmguardRules::NextSkull(view.state, view.assign, view.skull, view.settledMs);
++
++    // Diagnostics: two or more guards up, skull not on one of them, and still nothing to mark.
++    if (next == BwlWyrmguardRules::NONE && sLog->ShouldLog("playerbots", LogLevel::LOG_LEVEL_DEBUG))
++    {
++        int alive = 0;
++        for (int s = 0; s < BwlWyrmguardRules::SLOTS; ++s)
++            alive += view.state.alive[s] ? 1 : 0;
++        bool const skullOnLiving = view.skull != BwlWyrmguardRules::NONE && view.state.alive[view.skull];
++        uint32 const now = getMSTime();
++        if (alive >= 2 && !skullOnLiving &&
++            (!lastNoSkullLogMs || getMSTimeDiff(lastNoSkullLogMs, now) >= NO_SKULL_LOG_INTERVAL_MS))
++        {
++            lastNoSkullLogMs = now ? now : 1;
++            LOG_DEBUG("playerbots", "[BWLWyrmguard] no skull: {} pack {}{}", bot->GetName(), view.packIndex + 1,
++                      DescribeNoSkull(view));
++        }
++    }
++
++    return next != BwlWyrmguardRules::NONE && next != view.skull;
++}
++
++bool BwlWyrmguardDpsTargetTrigger::IsActive()
++{
++    if (PlayerbotAI::IsTank(bot) || PlayerbotAI::IsHeal(bot))
++        return false;
++
++    WyrmguardPackView view;
++    if (!GetActiveWyrmguardPack(bot, view))
++        return false;
++
++    return GetWyrmguardDpsTarget(bot, botAI, view) != AI_VALUE(Unit*, "current target");
++}
++
++bool BwlWyrmguardMeleePositionTrigger::IsActive()
++{
++    if (!IsWyrmguardMelee(bot))
++        return false;
++
++    WyrmguardPackView view;
++    if (!GetActiveWyrmguardPack(bot, view))
++        return false;
++
++    return WyrmguardStompThreat(bot, view) != BwlWyrmguardRules::NONE;
++}
++
++// Released melee on skull get behind it (out of Cleave) via the stock "rear flank" action, which
++// works on the bot's current target and only fires from the front arc (its own isUseful). Only
++// when the spot behind skull is itself Stomp-clear, or rear flank and the away rule would trade
++// the bot back and forth (review I4).
++bool BwlWyrmguardMeleeBehindTrigger::IsActive()
++{
++    if (!IsWyrmguardMelee(bot))
++        return false;
++
++    WyrmguardPackView view;
++    if (!GetActiveWyrmguardPack(bot, view) || view.skull == BwlWyrmguardRules::NONE)
++        return false;
++    if (BwlWyrmguardRules::MeleeHeld(view.state, view.assign, view.skull, view.msSinceActive))
++        return false;
++
++    Creature* const skull = view.guards[view.skull];
++    if (!skull || AI_VALUE(Unit*, "current target") != skull)
++        return false;
++
++    BwlWyrmguardRules::Pt const rear = BwlWyrmguardRules::RearPoint(
++        BwlWyrmguardRules::Pt{skull->GetPositionX(), skull->GetPositionY()}, skull->GetOrientation());
++    return BwlWyrmguardRules::RearSpotClear(view.state, view.assign, view.skull, rear);
++}
++
++// Every bot, every role, in and out of combat (spec §4.9).
++bool BwlWyrmguardEbonrocKeepOutTrigger::IsActive()
++{
++    return EbonrocKeepOutActive(bot) && EbonrocPathDistance(bot) < BwlWyrmguardRules::EBONROC_KEEPOUT_ENTER;
++}
++
++// Spec §4.8a healer positioning: a healer moves only when its spot is not good - inside
++// HEALER_STOMP_CLEAR of a living guard, or out of HEALER_RANGE or line of sight of a holder tank.
++bool BwlWyrmguardHealerPositionTrigger::IsActive()
++{
++    if (!PlayerbotAI::IsHeal(bot))
++        return false;
++
++    WyrmguardPackView view;
++    if (!GetActiveWyrmguardPack(bot, view))
++        return false;
++
++    BwlWyrmguardRules::Pt const here{bot->GetPositionX(), bot->GetPositionY()};
++    if (!BwlWyrmguardRules::StompClear(here, view.state))
++        return true;
++
++    Player* tanks[BwlWyrmguardRules::SLOTS];
++    int const n = GetWyrmguardHolderTanks(bot, view, tanks);
++    BwlWyrmguardRules::Pt tankPt[BwlWyrmguardRules::SLOTS];
++    for (int i = 0; i < n; ++i)
++        tankPt[i] = {tanks[i]->GetPositionX(), tanks[i]->GetPositionY()};
++    if (BwlWyrmguardRules::TanksReached(here, tankPt, n) < n)
++        return true;
++
++    for (int i = 0; i < n; ++i)
++        if (!bot->IsWithinLOSInMap(tanks[i]))
++            return true;
++    return false;
++}
++
++// BWL-wide DPS threat discipline (overlay patch 0020, spec 2026-10-08)
++//
++// The hard stop, on the plain ratio (no headroom): it only exists to stop an auto-attack or auto-shot that
++// is already running. Active only while the bot is attacking, so it fires once per breach rather than
++// every tick while the bot already holds; the multiplier's vetoes keep the attack from restarting until
++// the ratio falls back under BWL_THREAT_LIMIT.
++bool BwlThreatHoldTrigger::IsActive()
++{
++    if (!IsBwlThreatDisciplined(bot))
++        return false;
++    if (!bot->GetVictim() && !bot->GetCurrentSpell(CURRENT_AUTOREPEAT_SPELL))
++        return false;
++    if (AI_VALUE(bool, "neglect threat"))
++        return false;
++
++    Unit* const current = AI_VALUE(Unit*, "current target");
++    if (!IsBwlThreatDisciplineTarget(bot, current) || WyrmguardThreatRatio(bot, current) < BWL_THREAT_STOP)
++        return false;
++    return !BwlFightHasOwnThreatRules(bot);
+ }
+diff --git a/modules/mod-playerbots/src/Ai/Raid/BWL/BWLTriggers.h b/modules/mod-playerbots/src/Ai/Raid/BWL/BWLTriggers.h
+index ea7d65f..16e684a 100644
+--- a/modules/mod-playerbots/src/Ai/Raid/BWL/BWLTriggers.h
++++ b/modules/mod-playerbots/src/Ai/Raid/BWL/BWLTriggers.h
+@@ -68,6 +68,85 @@ public:
+     bool IsActive() override;
+ };
+ 
++// Nefarian phases 2 and 3 (overlay patch 0020, spec 2026-10-07)
++
++class BwlNefarianMtStationTrigger : public Trigger
++{
++public:
++    BwlNefarianMtStationTrigger(PlayerbotAI* botAI) : Trigger(botAI, "bwl nefarian mt station") {}
++    bool IsActive() override;
++};
++
++class BwlNefarianPositionTrigger : public Trigger
++{
++public:
++    BwlNefarianPositionTrigger(PlayerbotAI* botAI) : Trigger(botAI, "bwl nefarian position") {}
++    bool IsActive() override;
++};
++
++class BwlNefarianDpsTargetTrigger : public Trigger
++{
++public:
++    BwlNefarianDpsTargetTrigger(PlayerbotAI* botAI) : Trigger(botAI, "bwl nefarian dps target") {}
++    bool IsActive() override;
++};
++
++class BwlNefarianOtTargetTrigger : public Trigger
++{
++public:
++    BwlNefarianOtTargetTrigger(PlayerbotAI* botAI) : Trigger(botAI, "bwl nefarian ot target") {}
++    bool IsActive() override;
++};
++
++class BwlNefarianTremorTrigger : public Trigger
++{
++public:
++    BwlNefarianTremorTrigger(PlayerbotAI* botAI) : Trigger(botAI, "bwl nefarian tremor") {}
++    bool IsActive() override;
++};
++
++class BwlNefarianDecurseTankTrigger : public Trigger
++{
++public:
++    BwlNefarianDecurseTankTrigger(PlayerbotAI* botAI) : Trigger(botAI, "bwl nefarian decurse tank") {}
++    bool IsActive() override;
++};
++
++class BwlNefarianDispelPolymorphTrigger : public Trigger
++{
++public:
++    BwlNefarianDispelPolymorphTrigger(PlayerbotAI* botAI) : Trigger(botAI, "bwl nefarian dispel polymorph") {}
++    bool IsActive() override;
++};
++
++class BwlNefarianPriestTankOnlyTrigger : public Trigger
++{
++public:
++    BwlNefarianPriestTankOnlyTrigger(PlayerbotAI* botAI) : Trigger(botAI, "bwl nefarian priest tank only") {}
++    bool IsActive() override;
++};
++
++class BwlNefarianHunterRearmTrigger : public Trigger
++{
++public:
++    BwlNefarianHunterRearmTrigger(PlayerbotAI* botAI) : Trigger(botAI, "bwl nefarian hunter rearm") {}
++    bool IsActive() override;
++};
++
++class BwlNefarianRogueSurviveTrigger : public Trigger
++{
++public:
++    BwlNefarianRogueSurviveTrigger(PlayerbotAI* botAI) : Trigger(botAI, "bwl nefarian rogue survive") {}
++    bool IsActive() override;
++};
++
++class BwlNefarianMtSunderTrigger : public Trigger
++{
++public:
++    BwlNefarianMtSunderTrigger(PlayerbotAI* botAI) : Trigger(botAI, "bwl nefarian mt sunder") {}
++    bool IsActive() override;
++};
++
+ // Trash
+ 
+ class BwlDeathTalonWyrmguardTankTrigger : public Trigger
+@@ -84,4 +163,66 @@ public:
+     bool IsActive() override;
+ };
+ 
++// Death Talon Wyrmguard packs (overlay patch 0020)
++
++class BwlWyrmguardTankTrigger : public Trigger
++{
++public:
++    BwlWyrmguardTankTrigger(PlayerbotAI* botAI) : Trigger(botAI, "bwl wyrmguard tank") {}
++    bool IsActive() override;
++};
++
++class BwlWyrmguardMarkSkullTrigger : public Trigger
++{
++public:
++    BwlWyrmguardMarkSkullTrigger(PlayerbotAI* botAI) : Trigger(botAI, "bwl wyrmguard mark skull") {}
++    bool IsActive() override;
++
++private:
++    uint32 lastNoSkullLogMs = 0;  // throttles the "[BWLWyrmguard] no skull" debug line (per bot)
++};
++
++class BwlWyrmguardDpsTargetTrigger : public Trigger
++{
++public:
++    BwlWyrmguardDpsTargetTrigger(PlayerbotAI* botAI) : Trigger(botAI, "bwl wyrmguard dps target") {}
++    bool IsActive() override;
++};
++
++class BwlWyrmguardMeleePositionTrigger : public Trigger
++{
++public:
++    BwlWyrmguardMeleePositionTrigger(PlayerbotAI* botAI) : Trigger(botAI, "bwl wyrmguard melee position") {}
++    bool IsActive() override;
++};
++
++class BwlWyrmguardMeleeBehindTrigger : public Trigger
++{
++public:
++    BwlWyrmguardMeleeBehindTrigger(PlayerbotAI* botAI) : Trigger(botAI, "bwl wyrmguard melee behind") {}
++    bool IsActive() override;
++};
++
++class BwlWyrmguardEbonrocKeepOutTrigger : public Trigger
++{
++public:
++    BwlWyrmguardEbonrocKeepOutTrigger(PlayerbotAI* botAI) : Trigger(botAI, "bwl wyrmguard ebonroc keep out") {}
++    bool IsActive() override;
++};
++
++class BwlWyrmguardHealerPositionTrigger : public Trigger
++{
++public:
++    BwlWyrmguardHealerPositionTrigger(PlayerbotAI* botAI) : Trigger(botAI, "bwl wyrmguard healer position") {}
++    bool IsActive() override;
++};
++
++// BWL-wide DPS threat discipline (overlay patch 0020, spec 2026-10-08)
++class BwlThreatHoldTrigger : public Trigger
++{
++public:
++    BwlThreatHoldTrigger(PlayerbotAI* botAI) : Trigger(botAI, "bwl threat hold") {}
++    bool IsActive() override;
++};
++
+ #endif
+diff --git a/modules/mod-playerbots/src/Ai/Raid/BWL/BwlNefarianRules.h b/modules/mod-playerbots/src/Ai/Raid/BWL/BwlNefarianRules.h
+new file mode 100644
+index 0000000..1af3e5e
+--- /dev/null
++++ b/modules/mod-playerbots/src/Ai/Raid/BWL/BwlNefarianRules.h
+@@ -0,0 +1,445 @@
++/*
++ * This file is part of the mod-playerbots module for AzerothCore. See AUTHORS file for Copyright
++ * information; released under GNU GPL v2 license, redistribute/modify under version 2 of the License,
++ * or (at your option) any later version.
++ */
++
++// Pure rules for BWL Nefarian phases 2 and 3 (overlay patch 0020). Deliberately free of core and
++// playerbots includes so tests/test_bwl_nefarian_rules.cpp builds it standalone.
++// Spec: docs/superpowers/specs/2026-10-07-playerbot-bwl-nefarian-design.md (overlay repo).
++
++#ifndef PLAYERBOTS_BWLNEFARIANRULES_H
++#define PLAYERBOTS_BWLNEFARIANRULES_H
++
++#include <cmath>
++#include <cstdint>
++#include <initializer_list>
++#include <string_view>
++
++namespace BwlNefarianRules
++{
++    constexpr int NONE = -1;
++    constexpr float PI_F = 3.14159265358979f;
++    constexpr float DEG = PI_F / 180.0f;
++
++    // Creatures (spec §2)
++    constexpr uint32_t NPC_NEFARIAN = 11583;
++    constexpr uint32_t NPC_BONE_CONSTRUCT = 14605;
++    constexpr uint32_t NPC_CORRUPTED_INFERNAL = 14668;
++
++    // Class calls (spec §2.4) and related auras
++    constexpr uint32_t SPELL_CALL_WARRIOR = 23397;   // Berserk: forced Berserker Stance, +30% taken
++    constexpr uint32_t SPELL_CALL_DRUID = 23398;     // forced Cat Form
++    constexpr uint32_t SPELL_CALL_PRIEST = 23401;    // Corrupted Healing
++    constexpr uint32_t SPELL_CALL_MAGE = 23410;      // Wild Magic
++    constexpr uint32_t SPELL_CALL_ROGUE = 23414;     // Paralyze (rooted in front)
++    constexpr uint32_t SPELL_CALL_PALADIN = 23418;   // Siphon Blessing
++    constexpr uint32_t SPELL_CALL_SHAMAN = 23425;    // Corrupted Totems
++    constexpr uint32_t SPELL_CALL_WARLOCK = 23427;   // Summon Infernals
++    constexpr uint32_t SPELL_IMPROVED_BOP = 23415;   // on Nefarian: physical immunity
++    constexpr uint32_t SPELL_WILD_POLYMORPH = 23603;
++    constexpr uint32_t SPELL_VEIL_OF_SHADOW = 22687;
++    constexpr uint32_t SPELL_WEAKENED_SOUL = 6788;
++    constexpr uint32_t SPELL_TREMOR_TOTEM = 8143;    // stock id, reference only: cast by NAME (spec §9 #3)
++
++    // Geometry (spec §2.2, §4.2). Both cones are spell_cone 82 = +-41 degrees (Position::HasInArc halves).
++    constexpr float CONE_HALF_DEG = 41.0f;
++    constexpr float FRONT_RANGE = 45.0f;            // Shadow Flame 22539
++    constexpr float BACK_RANGE = 30.0f;             // Tail Lash 23364 (SPELL_ATTR0_CU_CONE_BACK)
++    constexpr float FRONT_AVOID = 50.0f;
++    constexpr float BACK_AVOID = 35.0f;
++    constexpr float AVOID_MARGIN_DEG = 10.0f;       // escape this far before the cone edge
++    constexpr float STATION_MARGIN_DEG = 20.0f;     // authored stations keep this clear of both edges
++    constexpr float MELEE_ESCAPE_RADIUS = 6.0f;
++    constexpr float RANGED_ESCAPE_RADIUS = 14.0f;
++    constexpr float PARKED_RADIUS = 12.0f;          // Nefarian within this of P = parked (after an MT swap he
++                                                    // sits ~10 y off P: his reach covers the MT at T)
++    constexpr float STATION_ARRIVE = 3.0f;
++    constexpr float P3_HP_PCT = 20.0f;              // ScheduleHealthCheckEvent(20) raises the drakonids
++
++    // Threat discipline (spec §4.2, shared with 0020's float ratio)
++    constexpr uint32_t MT_HOLD_FAILOPEN_MS = 20000;
++    constexpr float THREAT_LIMIT = 0.80f;
++    constexpr float THREAT_STOP = 0.90f;
++
++    constexpr float RENEW_BELOW_PCT = 95.0f;        // tank-only Renew is not cast on a full tank
++
++    // Threat-cap denominators on Nefarian (spec §9 #2). The MT is never capped. An off-tank is capped
++    // against the MT; everyone else against the backup tank (highest-threat living non-MT tank) when it
++    // has threat, else against the MT - so the order stays MT > backup > DPS. 0 = no cap (no tank threat).
++    enum class ThreatRole
++    {
++        MainTank,
++        OffTank,
++        Other
++    };
++
++    inline float ThreatRatio(ThreatRole role, float own, float mtThreat, float backupThreat)
++    {
++        if (role == ThreatRole::MainTank)
++            return 0.0f;
++        float denom = mtThreat;
++        if (role == ThreatRole::Other && backupThreat > 0.0f)
++            denom = backupThreat;
++        if (denom <= 0.0f)
++            return 0.0f;
++        return own / denom;
++    }
++
++    struct Pt
++    {
++        float x;
++        float y;
++    };
++
++    inline float Dist(Pt a, Pt b)
++    {
++        return std::hypot(a.x - b.x, a.y - b.y);
++    }
++
++    inline float NormalizeAngle(float a)
++    {
++        while (a > PI_F)
++            a -= 2.0f * PI_F;
++        while (a < -PI_F)
++            a += 2.0f * PI_F;
++        return a;
++    }
++
++    // |angle| in degrees, [0, 180], between `facing` and the direction origin -> p.
++    inline float RelBearingDeg(Pt origin, float facing, Pt p)
++    {
++        float const a = std::atan2(p.y - origin.y, p.x - origin.x);
++        return std::fabs(NormalizeAngle(a - facing)) / DEG;
++    }
++
++    // +1 = p is left of the facing (counter-clockwise), -1 = right.
++    inline int SideOf(Pt origin, float facing, Pt p)
++    {
++        float const a = std::atan2(p.y - origin.y, p.x - origin.x);
++        return NormalizeAngle(a - facing) >= 0.0f ? 1 : -1;
++    }
++
++    inline bool InFrontCone(Pt nef, float facing, Pt p, float range, float extraDeg)
++    {
++        return Dist(nef, p) <= range && RelBearingDeg(nef, facing, p) <= CONE_HALF_DEG + extraDeg;
++    }
++
++    inline bool InBackCone(Pt nef, float facing, Pt p, float range, float extraDeg)
++    {
++        return Dist(nef, p) <= range && RelBearingDeg(nef, facing, p) >= 180.0f - (CONE_HALF_DEG + extraDeg);
++    }
++
++    // The trigger for the dynamic escape (spec §4.2): either cone, padded by range and angle.
++    inline bool InDanger(Pt nef, float facing, Pt p)
++    {
++        return InFrontCone(nef, facing, p, FRONT_AVOID, AVOID_MARGIN_DEG) ||
++               InBackCone(nef, facing, p, BACK_AVOID, AVOID_MARGIN_DEG);
++    }
++
++    // An authored station is used only while it is out of both (padded) cones for Nefarian's LIVE
++    // position and facing: off P a flank station can fall inside a cone, and a bot would then alternate
++    // station <-> escape point.
++    inline bool StationUsable(Pt nef, float facing, Pt station)
++    {
++        return !InDanger(nef, facing, station);
++    }
++
++    // True when p's bearing lies in [41 + margin, 139 - margin] degrees off the facing, on either side.
++    inline bool InSafeArc(Pt nef, float facing, Pt p, float marginDeg)
++    {
++        float const b = RelBearingDeg(nef, facing, p);
++        return b >= CONE_HALF_DEG + marginDeg - 0.01f && b <= 180.0f - CONE_HALF_DEG - marginDeg + 0.01f;
++    }
++
++    // A fixed point straight off Nefarian's side: stable (derived from his position, not the bot's).
++    inline Pt EscapePoint(Pt nef, float facing, int side, float radius)
++    {
++        float const a = facing + static_cast<float>(side) * PI_F / 2.0f;
++        return Pt{nef.x + radius * std::cos(a), nef.y + radius * std::sin(a)};
++    }
++
++    // "Come in" while Nefarian is not parked (fix round 3, G2): a bot farther than its role radius +
++    // APPROACH_SLACK from him, or without LOS, walks in and stops at the role radius.
++    constexpr float APPROACH_RADIUS_MELEE = 5.0f;    // melee and off-tanks
++    constexpr float APPROACH_RADIUS_RANGED = 15.0f;
++    constexpr float APPROACH_RADIUS_HEALER = 12.0f;
++    constexpr float APPROACH_SLACK = 8.0f;
++
++    inline bool NeedsApproach(float distToNef, float radius, bool los)
++    {
++        return !los || distToNef > radius + APPROACH_SLACK;
++    }
++
++    // The point on the line Nefarian -> bot at `radius` from him; when that point is inside a (padded)
++    // cone, the side escape point at that radius instead (`side`: the bot's own side, see SideOf, so it
++    // never walks across his front or tail).
++    inline Pt ApproachPoint(Pt nef, float facing, Pt bot, float radius, int side)
++    {
++        float const d = Dist(nef, bot);
++        if (d < 0.01f)
++            return EscapePoint(nef, facing, side, radius);
++        Pt const p{nef.x + (bot.x - nef.x) * radius / d, nef.y + (bot.y - nef.y) * radius / d};
++        if (InDanger(nef, facing, p))
++            return EscapePoint(nef, facing, side, radius);
++        return p;
++    }
++
++    inline int FlankSide(int ordinal)
++    {
++        return ordinal % 2 == 0 ? 1 : -1;
++    }
++
++    struct Slot
++    {
++        int side;    // +1 / -1, see SideOf
++        int index;   // into that side's station array; NONE when perSide == 0
++    };
++
++    // North/south alternate by ordinal, then wrap through that side's stations.
++    inline Slot SlotFor(int ordinal, int perSide)
++    {
++        return Slot{FlankSide(ordinal), perSide > 0 ? (ordinal / 2) % perSide : NONE};
++    }
++
++    inline bool Parked(Pt nef, Pt park)
++    {
++        return Dist(nef, park) <= PARKED_RADIUS;
++    }
++
++    enum class Phase
++    {
++        None,
++        P2,   // landed
++        P3    // <= 20% or any Bone Construct alive
++    };
++
++    inline Phase GetPhase(bool landed, float hpPct, bool constructAlive)
++    {
++        if (!landed)
++            return Phase::None;
++        if (hpPct <= P3_HP_PCT || constructAlive)
++            return Phase::P3;
++        return Phase::P2;
++    }
++
++    enum class Kind
++    {
++        Totem,
++        Infernal,
++        Drakonid,
++        Construct,
++        Nefarian,
++        Other
++    };
++
++    inline Kind KindOfEntry(uint32_t entry)
++    {
++        switch (entry)
++        {
++            case 14662: case 14663: case 14664: case 14666:   // Fire Nova / Stoneskin / Healing / Windfury
++                return Kind::Totem;
++            case NPC_CORRUPTED_INFERNAL:
++                return Kind::Infernal;
++            case 14261: case 14262: case 14263: case 14264: case 14265: case 14302:
++                return Kind::Drakonid;
++            case NPC_BONE_CONSTRUCT:
++                return Kind::Construct;
++            case NPC_NEFARIAN:
++                return Kind::Nefarian;
++            default:
++                return Kind::Other;
++        }
++    }
++
++    struct Cand
++    {
++        Kind kind;
++        float dist;
++    };
++
++    // Kill priority (spec §4.3); lower first, NONE = never a DPS target in this state.
++    inline int Rank(Phase phase, bool siphonPhysical, Kind kind)
++    {
++        switch (kind)
++        {
++            case Kind::Totem:
++                return 0;
++            case Kind::Infernal:
++                return 1;
++            case Kind::Drakonid:
++                return siphonPhysical ? 2 : NONE;
++            case Kind::Construct:
++                return phase == Phase::P3 ? 3 : NONE;
++            case Kind::Nefarian:
++                return 4;
++            default:
++                return NONE;
++        }
++    }
++
++    // Index of the best candidate: best rank, then nearest. NONE when nothing qualifies.
++    inline int PickTarget(Phase phase, bool siphonPhysical, Cand const* c, int n)
++    {
++        int best = NONE;
++        for (int i = 0; i < n; ++i)
++        {
++            int const r = Rank(phase, siphonPhysical, c[i].kind);
++            if (r == NONE)
++                continue;
++            if (best == NONE)
++            {
++                best = i;
++                continue;
++            }
++            int const br = Rank(phase, siphonPhysical, c[best].kind);
++            if (r < br || (r == br && c[i].dist < c[best].dist))
++                best = i;
++        }
++        return best;
++    }
++
++    // Off-tanks: infernals, then constructs, then leftover drakonids. Never Nefarian, never a totem.
++    inline int PickOtTarget(Cand const* c, int n)
++    {
++        auto rank = [](Kind k)
++        {
++            return k == Kind::Infernal ? 0 : k == Kind::Construct ? 1 : k == Kind::Drakonid ? 2 : NONE;
++        };
++        int best = NONE;
++        for (int i = 0; i < n; ++i)
++        {
++            int const r = rank(c[i].kind);
++            if (r == NONE)
++                continue;
++            if (best == NONE || r < rank(c[best].kind) || (r == rank(c[best].kind) && c[i].dist < c[best].dist))
++                best = i;
++        }
++        return best;
++    }
++
++    // Non-tanks hold fire on Nefarian until the MT is his victim (fail-open after 20 s), and at/above
++    // THREAT_STOP of the top living tank's threat (spec §4.2).
++    inline bool HoldFireOnNefarian(bool mtIsVictim, uint32_t msSinceLanded, float ownRatio)
++    {
++        if (!mtIsVictim && msSinceLanded < MT_HOLD_FAILOPEN_MS)
++            return true;
++        return ownRatio >= THREAT_STOP;
++    }
++
++    struct TankInfo
++    {
++        bool eligible;       // alive, in 40 y, and the MT or an off-tank currently holding an add
++        bool mainTank;
++        bool weakenedSoul;
++        bool myRenew;        // this priest's Renew is on it
++        float hpPct;
++    };
++
++    enum class TankHeal
++    {
++        None,
++        Shield,
++        Renew
++    };
++
++    struct TankHealPick
++    {
++        int index;
++        TankHeal spell;
++    };
++
++    // Corrupted Healing (spec §4.5): PW:S, else Renew, on TANKS ONLY - MT first, then off-tanks by HP.
++    inline TankHealPick PickTankHeal(TankInfo const* t, int n)
++    {
++        int order[64];
++        int count = 0;
++        for (int i = 0; i < n && count < 64; ++i)
++            if (t[i].eligible && t[i].mainTank)
++                order[count++] = i;
++        int const firstOther = count;
++        for (int i = 0; i < n && count < 64; ++i)
++            if (t[i].eligible && !t[i].mainTank)
++                order[count++] = i;
++        for (int a = firstOther; a < count; ++a)          // off-tanks lowest HP first
++            for (int b = a + 1; b < count; ++b)
++                if (t[order[b]].hpPct < t[order[a]].hpPct)
++                {
++                    int const tmp = order[a];
++                    order[a] = order[b];
++                    order[b] = tmp;
++                }
++        for (int k = 0; k < count; ++k)
++        {
++            TankInfo const& ti = t[order[k]];
++            if (!ti.weakenedSoul)
++                return TankHealPick{order[k], TankHeal::Shield};
++            if (!ti.myRenew && ti.hpPct < RENEW_BELOW_PCT)
++                return TankHealPick{order[k], TankHeal::Renew};
++        }
++        return TankHealPick{NONE, TankHeal::None};
++    }
++
++    struct DispelInfo
++    {
++        bool mainTank;
++        bool healer;
++        float hpPct;
++    };
++
++    // Wild Polymorph dispel order (spec §4.5): MT, then healers, then everyone else; ties lowest HP.
++    inline int PickDispel(DispelInfo const* d, int n)
++    {
++        auto rank = [](DispelInfo const& x) { return x.mainTank ? 0 : x.healer ? 1 : 2; };
++        int best = NONE;
++        for (int i = 0; i < n; ++i)
++            if (best == NONE || rank(d[i]) < rank(d[best]) ||
++                (rank(d[i]) == rank(d[best]) && d[i].hpPct < d[best].hpPct))
++                best = i;
++        return best;
++    }
++
++    // Spell-name veto lists, matched against CastSpellAction::getSpell() so self/party/macro variants
++    // are all caught (spec §4.5/§4.6).
++    inline bool InList(std::string_view s, std::initializer_list<std::string_view> list)
++    {
++        for (std::string_view v : list)
++            if (s == v)
++                return true;
++        return false;
++    }
++
++    // Holy, direct SPELL_EFFECT_HEAL, no periodic-heal aura (SpellEffects.cpp EffectHeal). Renew and
++    // Power Word: Shield are deliberately absent.
++    inline bool IsCorruptedHealingSpell(std::string_view s)
++    {
++        return InList(s, {"lesser heal", "heal", "greater heal", "flash heal", "binding heal", "circle of healing",
++                          "prayer of healing", "prayer of mending", "penance", "divine hymn", "desperate prayer"});
++    }
++
++    inline bool IsCatAbility(std::string_view s)
++    {
++        return InList(s, {"claw", "rake", "shred", "mangle (cat)", "rip", "ferocious bite", "tiger's fury",
++                          "savage roar"});
++    }
++
++    inline bool IsStanceSpell(std::string_view s)
++    {
++        return InList(s, {"battle stance", "defensive stance"});
++    }
++
++    inline bool IsHunterShot(std::string_view s)
++    {
++        return InList(s, {"auto shot", "arcane shot", "aimed shot", "chimera shot", "steady shot", "kill shot",
++                          "multi-shot", "concussive shot", "explosive shot", "silencing shot", "volley",
++                          "serpent sting", "viper sting", "scorpid sting", "wyvern sting", "scatter shot",
++                          "tranquilizing shot", "distracting shot"});
++    }
++
++    inline bool IsNonTremorEarthTotem(std::string_view s)
++    {
++        return InList(s, {"strength of earth totem", "stoneskin totem", "earthbind totem", "stoneclaw totem"});
++    }
++}
++
++#endif
+diff --git a/modules/mod-playerbots/src/Ai/Raid/BWL/BwlWyrmguardRules.h b/modules/mod-playerbots/src/Ai/Raid/BWL/BwlWyrmguardRules.h
+new file mode 100644
+index 0000000..87aa068
+--- /dev/null
++++ b/modules/mod-playerbots/src/Ai/Raid/BWL/BwlWyrmguardRules.h
+@@ -0,0 +1,350 @@
++/*
++ * This file is part of the mod-playerbots module for AzerothCore. See AUTHORS file for Copyright
++ * information; released under GNU GPL v2 license, redistribute/modify under version 2 of the License,
++ * or (at your option) any later version.
++ */
++
++// Pure rules for the BWL Death Talon Wyrmguard packs (overlay patch 0020). Deliberately free of
++// core and playerbots includes so tests/test_bwl_wyrmguard_rules.cpp builds it standalone.
++// Spec: docs/superpowers/specs/2026-10-05-playerbot-bwl-wyrmguard-design.md (overlay repo).
++
++#ifndef PLAYERBOTS_BWLWYRMGUARDRULES_H
++#define PLAYERBOTS_BWLWYRMGUARDRULES_H
++
++#include <cmath>
++#include <cstdint>
++#include <limits>
++
++namespace BwlWyrmguardRules
++{
++    constexpr int SLOTS = 3;       // Wyrmguards per pack
++    constexpr int ROLES = 4;       // 0 main tank, 1 assist tank 0, 2 assist tank 1, 3 assist tank 2 (spare)
++    constexpr int SPARE_ROLE = 3;
++    constexpr int NONE = -1;
++
++    constexpr float STOMP_RADIUS = 15.0f;         // War Stomp 24375, SpellRadius
++    constexpr float KEEP_AWAY = 16.0f;            // stand this far from a Stomp source
++    constexpr float SEPARATION = 25.0f;           // Stomp 15 + ~8 melee standing distance + 2 margin
++    // Guard this close to its station counts as there. The tank stops up to STATION_ARRIVE short and
++    // the guard stands at its melee reach in front of the tank, so the guard can sit well past the
++    // station point (dev pull 2026-10-06: >8 y froze the skull). SEPARATION is the safety gate.
++    constexpr float SETTLED_RADIUS = 15.0f;
++    constexpr float STATION_ARRIVE = 3.0f;        // tank arrival radius at its station
++    // A guard is skulled only after this long continuously settled: a taunt only MATCHES top threat,
++    // so at the moment of settling the tank's lead is tiny and one DPS crit pulls (spec §4.8a).
++    constexpr uint32_t SKULL_LEAD_MS = 8000;
++    constexpr uint32_t MELEE_TIMEOUT_MS = 15000;  // after this long the separation relaxes ...
++    constexpr float RELAXED_SEPARATION = KEEP_AWAY + 4.0f;  // ... to this: below it no melee spot clears Stomp
++    constexpr float REAR_SPOT_DISTANCE = 4.0f;    // where "rear flank" puts a melee bot behind skull
++    constexpr float EBONROC_KEEPOUT_ENTER = 32.0f;  // ~23 y aggro (detection 20, level 63 vs 60) + margin
++    constexpr float EBONROC_KEEPOUT_EXIT = 36.0f;   // step out to this far from his path
++    constexpr float HEALER_STOMP_CLEAR = 18.0f;   // a healer's spot is this far from every living guard
++    constexpr float HEALER_RANGE = 36.0f;         // ... and this close to every holder tank (heal range 40)
++
++    struct Pt
++    {
++        float x;
++        float y;
++    };
++
++    inline float Dist2d(Pt a, Pt b)
++    {
++        return std::hypot(a.x - b.x, a.y - b.y);
++    }
++
++    struct Assignment
++    {
++        int holderRole[SLOTS];  // tank role holding each slot's guard; NONE for a dead guard
++        int station[SLOTS];     // station the guard is held at; station 0 != slot means folded
++    };
++
++    struct PackState
++    {
++        Pt guard[SLOTS];        // live guard positions (unused when !alive)
++        bool alive[SLOTS];
++        bool onHolder[SLOTS];   // the guard's victim is its holder
++        Pt station[SLOTS];      // authored station positions, indexed by station
++    };
++
++    // tankAlive[r]: a living tank fills role r. guardAlive[s]: slot s's guard is alive.
++    // Own tank first, then the spare (at most one slot), else fold onto the main tank's station.
++    inline Assignment Assign(bool const tankAlive[ROLES], bool const guardAlive[SLOTS])
++    {
++        Assignment a{};
++        bool spareUsed = false;
++        for (int s = 0; s < SLOTS; ++s)
++        {
++            a.station[s] = s;
++            if (!guardAlive[s])
++            {
++                a.holderRole[s] = NONE;
++                continue;
++            }
++            if (tankAlive[s])
++            {
++                a.holderRole[s] = s;
++                continue;
++            }
++            if (tankAlive[SPARE_ROLE] && !spareUsed)
++            {
++                a.holderRole[s] = SPARE_ROLE;
++                spareUsed = true;
++                continue;
++            }
++            a.holderRole[s] = 0;
++            a.station[s] = 0;
++        }
++        return a;
++    }
++
++    inline bool IsFolded(Assignment const& a, int s)
++    {
++        return a.holderRole[s] != NONE && a.station[s] != s;
++    }
++
++    // Ownership follows aggro (spec 4.2). victimRole[s]: the role (0..ROLES-1) of the present,
++    // living role tank slot s's guard is attacking, else NONE. In slot order, a living guard whose
++    // victim is a role tank other than its holder is adopted by that tank - unless the tank already
++    // holds another living slot in `a` as it stands (earlier adoptions included). The station is
++    // unchanged. At the pull the main tank holds slot 0, so the other two it pulled stay with
++    // their assigned off-tanks.
++    inline void AdoptByVictim(Assignment& a, PackState const& p, int const victimRole[SLOTS])
++    {
++        for (int s = 0; s < SLOTS; ++s)
++        {
++            int const r = victimRole[s];
++            if (!p.alive[s] || r == NONE || r == a.holderRole[s])
++                continue;
++            bool holdsOther = false;
++            for (int t = 0; t < SLOTS; ++t)
++                if (t != s && p.alive[t] && a.holderRole[t] == r)
++                    holdsOther = true;
++            if (!holdsOther)
++                a.holderRole[s] = r;
++        }
++    }
++
++    // True when no guard other than slot s is alive (s itself may be alive or not).
++    inline bool OthersDead(PackState const& p, int s)
++    {
++        for (int t = 0; t < SLOTS; ++t)
++            if (t != s && p.alive[t])
++                return false;
++        return true;
++    }
++
++    // On its holder, on its station, and SEPARATION clear of every living guard held elsewhere.
++    // The last living guard of the pack is settled wherever it is and whoever holds it (spec 4.5).
++    inline bool IsSettled(PackState const& p, Assignment const& a, int s)
++    {
++        if (OthersDead(p, s))
++            return p.alive[s];
++        if (!p.alive[s] || !p.onHolder[s])
++            return false;
++        if (Dist2d(p.guard[s], p.station[a.station[s]]) > SETTLED_RADIUS)
++            return false;
++        for (int t = 0; t < SLOTS; ++t)
++        {
++            if (t == s || !p.alive[t] || a.station[t] == a.station[s])
++                continue;
++            if (Dist2d(p.guard[s], p.guard[t]) < SEPARATION)
++                return false;
++        }
++        return true;
++    }
++
++    // Settled AND settled for SKULL_LEAD_MS (settledMs = how long slot s has been continuously
++    // settled). The last living guard is exempt from the lead, as it is from IsSettled's checks.
++    inline bool SkullReady(PackState const& p, Assignment const& a, int s, uint32_t const settledMs[SLOTS])
++    {
++        if (!IsSettled(p, a, s))
++            return false;
++        return OthersDead(p, s) || settledMs[s] >= SKULL_LEAD_MS;
++    }
++
++    // currentSkull: the slot carrying skull now, or NONE. A skull on a living guard is never moved
++    // (it may be the player's own mark). Otherwise: folded extras first, then slots 0, 1, 2 -
++    // the first one settled for SKULL_LEAD_MS (spec §4.8a). NONE means mark nothing yet.
++    inline int NextSkull(PackState const& p, Assignment const& a, int currentSkull, uint32_t const settledMs[SLOTS])
++    {
++        if (currentSkull != NONE && p.alive[currentSkull])
++            return currentSkull;
++        for (int s = 0; s < SLOTS; ++s)
++            if (IsFolded(a, s) && SkullReady(p, a, s, settledMs))
++                return s;
++        for (int s = 0; s < SLOTS; ++s)
++            if (SkullReady(p, a, s, settledMs))
++                return s;
++        return NONE;
++    }
++
++    // Melee wait until skull is SEPARATION clear of every living guard held elsewhere. From
++    // MELEE_TIMEOUT_MS after the pack became active that relaxes to RELAXED_SEPARATION - never
++    // below it, where releasing would only ping-pong melee between the away rule and reach-melee.
++    inline bool MeleeHeld(PackState const& p, Assignment const& a, int skull, uint32_t msSinceActive)
++    {
++        if (skull == NONE || !p.alive[skull])
++            return true;
++        float const separation = msSinceActive >= MELEE_TIMEOUT_MS ? RELAXED_SEPARATION : SEPARATION;
++        for (int t = 0; t < SLOTS; ++t)
++        {
++            if (t == skull || !p.alive[t] || a.station[t] == a.station[skull])
++                continue;
++            if (Dist2d(p.guard[skull], p.guard[t]) < separation)
++                return true;
++        }
++        return false;
++    }
++
++    // The nearest living guard within KEEP_AWAY of `bot` that the bot must step away from.
++    // Guards held at `exemptStation` are ignored: a released melee bot passes skull's station, a
++    // held one passes NONE and avoids every guard.
++    inline int StompThreat(PackState const& p, Assignment const& a, Pt bot, int exemptStation)
++    {
++        int best = NONE;
++        float bestDist = KEEP_AWAY;
++        for (int s = 0; s < SLOTS; ++s)
++        {
++            if (!p.alive[s])
++                continue;
++            if (exemptStation != NONE && a.station[s] == exemptStation)
++                continue;
++            float const d = Dist2d(bot, p.guard[s]);
++            if (d < bestDist)
++            {
++                bestDist = d;
++                best = s;
++            }
++        }
++        return best;
++    }
++
++    // The point REAR_SPOT_DISTANCE directly behind a unit at `pos` facing `orientation`.
++    inline Pt RearPoint(Pt pos, float orientation)
++    {
++        return Pt{pos.x - REAR_SPOT_DISTANCE * std::cos(orientation),
++                  pos.y - REAR_SPOT_DISTANCE * std::sin(orientation)};
++    }
++
++    // True when `rear` (the spot behind skull) is KEEP_AWAY clear of every living guard not held
++    // on skull's station - otherwise "rear flank" would trade the bot back and forth with the
++    // away rule.
++    inline bool RearSpotClear(PackState const& p, Assignment const& a, int skull, Pt rear)
++    {
++        if (skull == NONE || !p.alive[skull])
++            return false;
++        return StompThreat(p, a, rear, a.station[skull]) == NONE;
++    }
++
++    // 2D distance from `pt` to the segment a-b.
++    inline float DistToSegment(Pt pt, Pt a, Pt b)
++    {
++        float const dx = b.x - a.x;
++        float const dy = b.y - a.y;
++        float const len2 = dx * dx + dy * dy;
++        float t = len2 > 0.0f ? ((pt.x - a.x) * dx + (pt.y - a.y) * dy) / len2 : 0.0f;
++        t = t < 0.0f ? 0.0f : (t > 1.0f ? 1.0f : t);
++        return Dist2d(pt, Pt{a.x + t * dx, a.y + t * dy});
++    }
++
++    // 2D distance from `pt` to the polyline path[0..n) (segment distance, not vertex distance).
++    inline float DistToPath(Pt pt, Pt const* path, int n)
++    {
++        if (n <= 0)
++            return std::numeric_limits<float>::max();
++        float best = Dist2d(pt, path[0]);
++        for (int i = 0; i + 1 < n; ++i)
++        {
++            float const d = DistToSegment(pt, path[i], path[i + 1]);
++            if (d < best)
++                best = d;
++        }
++        return best;
++    }
++
++    // ---- Healer positioning (spec §4.8a "Healer positioning") ----
++
++    // How many of tanks[0..nTanks) are within HEALER_RANGE (2D) of `spot`. Range only: the runtime
++    // adds line of sight.
++    inline int TanksReached(Pt spot, Pt const* tanks, int nTanks)
++    {
++        int n = 0;
++        for (int i = 0; i < nTanks; ++i)
++            if (Dist2d(spot, tanks[i]) <= HEALER_RANGE)
++                ++n;
++        return n;
++    }
++
++    // `spot` is at least HEALER_STOMP_CLEAR from every living guard.
++    inline bool StompClear(Pt spot, PackState const& p)
++    {
++        for (int s = 0; s < SLOTS; ++s)
++            if (p.alive[s] && Dist2d(spot, p.guard[s]) < HEALER_STOMP_CLEAR)
++                return false;
++        return true;
++    }
++
++    // The straight walk from -> to never passes within KEEP_AWAY of a living guard. A walk that
++    // STARTS inside KEEP_AWAY of a guard (upstream's ranged keep-away has not pushed the bot out
++    // yet) only has to never get closer to it than its start - otherwise no walk could ever leave.
++    inline bool WalkClear(Pt from, Pt to, PackState const& p)
++    {
++        for (int s = 0; s < SLOTS; ++s)
++        {
++            if (!p.alive[s])
++                continue;
++            float const start = Dist2d(from, p.guard[s]);
++            float const limit = start < KEEP_AWAY ? start - 0.001f : KEEP_AWAY;
++            if (DistToSegment(p.guard[s], from, to) < limit)
++                return false;
++        }
++        return true;
++    }
++
++    struct SpotScore
++    {
++        bool walkClear;   // the walk there is clear (always true for the current spot)
++        bool stompClear;
++        int tanks;        // holder tanks reached (the runtime replaces this with range AND LoS)
++        float move;       // 2D walk length; 0 for the current spot
++    };
++
++    inline SpotScore ScoreSpot(Pt from, Pt spot, Pt const* tanks, int nTanks, PackState const& p)
++    {
++        return SpotScore{WalkClear(from, spot, p), StompClear(spot, p), TanksReached(spot, tanks, nTanks),
++                         Dist2d(from, spot)};
++    }
++
++    // a strictly better than b: walk clear, then stomp clear, then more tanks, then a shorter move.
++    // The current spot (move 0, walk clear) therefore only loses to a strict improvement.
++    inline bool BetterSpot(SpotScore const& a, SpotScore const& b)
++    {
++        if (a.walkClear != b.walkClear)
++            return a.walkClear;
++        if (a.stompClear != b.stompClear)
++            return a.stompClear;
++        if (a.tanks != b.tanks)
++            return a.tanks > b.tanks;
++        return a.move < b.move;
++    }
++
++    // The best of cands[0..nCands) for a healer standing at `from`, or NONE when staying is at least
++    // as good as every candidate (range-only tank counts; see the runtime for LoS).
++    inline int BestSpot(Pt from, Pt const* cands, int nCands, Pt const* tanks, int nTanks, PackState const& p)
++    {
++        SpotScore best = ScoreSpot(from, from, tanks, nTanks, p);
++        int bestIdx = NONE;
++        for (int i = 0; i < nCands; ++i)
++        {
++            SpotScore const s = ScoreSpot(from, cands[i], tanks, nTanks, p);
++            if (BetterSpot(s, best))
++            {
++                best = s;
++                bestIdx = i;
++            }
++        }
++        return bestIdx;
++    }
++}
++
++#endif
