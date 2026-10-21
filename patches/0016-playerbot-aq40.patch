@@ -1,9 +1,9 @@
 diff --git a/modules/mod-playerbots/src/Ai/Raid/Aq40/Aq40ActionContext.h b/modules/mod-playerbots/src/Ai/Raid/Aq40/Aq40ActionContext.h
 new file mode 100644
-index 0000000..76df11d
+index 0000000..cbf86a0
 --- /dev/null
 +++ b/modules/mod-playerbots/src/Ai/Raid/Aq40/Aq40ActionContext.h
-@@ -0,0 +1,59 @@
+@@ -0,0 +1,73 @@
 +/*
 + * This file is part of the mod-playerbots module for AzerothCore. See AUTHORS file for Copyright
 + * information; released under GNU GPL v2 license, redistribute/modify under version 2 of the License,
@@ -39,6 +39,13 @@ index 0000000..76df11d
 +        creators["aq40 cthun run to far side"] = &RaidAq40ActionContext::cthun_run_to_far_side;
 +        creators["aq40 cthun focus target"] = &RaidAq40ActionContext::cthun_focus_target;
 +        creators["aq40 cthun form up"] = &RaidAq40ActionContext::cthun_form_up;
++        creators["aq40 huhuran erase trackers"] = &RaidAq40ActionContext::huhuran_erase_trackers;
++        creators["aq40 huhuran park boss"] = &RaidAq40ActionContext::huhuran_park_boss;
++        creators["aq40 huhuran off tank engage"] = &RaidAq40ActionContext::huhuran_off_tank_engage;
++        creators["aq40 huhuran hold spot"] = &RaidAq40ActionContext::huhuran_hold_spot;
++        creators["aq40 huhuran threat hold"] = &RaidAq40ActionContext::huhuran_threat_hold;
++        creators["aq40 huhuran tank heal"] = &RaidAq40ActionContext::huhuran_tank_heal;
++        creators["aq40 huhuran mt berserk defensive"] = &RaidAq40ActionContext::huhuran_mt_berserk_defensive;
 +    }
 +
 +private:
@@ -60,15 +67,22 @@ index 0000000..76df11d
 +    static Action* cthun_run_to_far_side(PlayerbotAI* b) { return new Aq40CthunRunToFarSideAction(b); }
 +    static Action* cthun_focus_target(PlayerbotAI* b) { return new Aq40CthunFocusTargetAction(b); }
 +    static Action* cthun_form_up(PlayerbotAI* b) { return new Aq40CthunFormUpAction(b); }
++    static Action* huhuran_erase_trackers(PlayerbotAI* b) { return new Aq40HuhuranEraseTrackersAction(b); }
++    static Action* huhuran_park_boss(PlayerbotAI* b) { return new Aq40HuhuranParkBossAction(b); }
++    static Action* huhuran_off_tank_engage(PlayerbotAI* b) { return new Aq40HuhuranOffTankEngageAction(b); }
++    static Action* huhuran_hold_spot(PlayerbotAI* b) { return new Aq40HuhuranHoldSpotAction(b); }
++    static Action* huhuran_threat_hold(PlayerbotAI* b) { return new Aq40HuhuranThreatHoldAction(b); }
++    static Action* huhuran_tank_heal(PlayerbotAI* b) { return new Aq40HuhuranTankHealAction(b); }
++    static Action* huhuran_mt_berserk_defensive(PlayerbotAI* b) { return new Aq40HuhuranMtBerserkDefensiveAction(b); }
 +};
 +
 +#endif
 diff --git a/modules/mod-playerbots/src/Ai/Raid/Aq40/Aq40Actions.h b/modules/mod-playerbots/src/Ai/Raid/Aq40/Aq40Actions.h
 new file mode 100644
-index 0000000..f4dcad9
+index 0000000..d74e321
 --- /dev/null
 +++ b/modules/mod-playerbots/src/Ai/Raid/Aq40/Aq40Actions.h
-@@ -0,0 +1,154 @@
+@@ -0,0 +1,218 @@
 +/*
 + * This file is part of the mod-playerbots module for AzerothCore. See AUTHORS file for Copyright
 + * information; released under GNU GPL v2 license, redistribute/modify under version 2 of the License,
@@ -219,6 +233,70 @@ index 0000000..f4dcad9
 +{
 +public:
 +    Aq40CthunFormUpAction(PlayerbotAI* botAI) : MovementAction(botAI, "aq40 cthun form up") {}
++    bool Execute(Event event) override;
++};
++
++// Princess Huhuran.
++
++class Aq40HuhuranEraseTrackersAction : public Action
++{
++public:
++    Aq40HuhuranEraseTrackersAction(PlayerbotAI* botAI) : Action(botAI, "aq40 huhuran erase trackers") {}
++    bool Execute(Event event) override;
++};
++
++// The MT's drag onto P (spec §4.2; mirrors BWL BwlNefarianMtStationAction).
++class Aq40HuhuranParkBossAction : public AttackAction
++{
++public:
++    Aq40HuhuranParkBossAction(PlayerbotAI* botAI) : AttackAction(botAI, "aq40 huhuran park boss") {}
++    bool Execute(Event event) override;
++
++private:
++    uint32 backAnchorMs = 0;  // 0 = not tracking; when the MT was last at backAnchorX/Y
++    uint32 backLastMs = 0;    // last Back tick (a gap restarts the tracking)
++    float backAnchorX = 0.0f;
++    float backAnchorY = 0.0f;
++};
++
++class Aq40HuhuranOffTankEngageAction : public AttackAction
++{
++public:
++    Aq40HuhuranOffTankEngageAction(PlayerbotAI* botAI) : AttackAction(botAI, "aq40 huhuran off tank engage") {}
++    bool Execute(Event event) override;
++
++private:
++    uint32 refusedLogMs = 0;  // last "off-tank spot move refused" log line; 0 = never
++};
++
++class Aq40HuhuranHoldSpotAction : public MovementAction
++{
++public:
++    Aq40HuhuranHoldSpotAction(PlayerbotAI* botAI) : MovementAction(botAI, "aq40 huhuran hold spot") {}
++    bool Execute(Event event) override;
++};
++
++// Rev 2 (spec §7.2 #2): stop the running auto-attack/auto-shot, keep the target (BWL BwlThreatHoldAction).
++class Aq40HuhuranThreatHoldAction : public Action
++{
++public:
++    Aq40HuhuranThreatHoldAction(PlayerbotAI* botAI) : Action(botAI, "aq40 huhuran threat hold") {}
++    bool Execute(Event event) override;
++};
++
++// Rev 2 (spec §7.2 #4): the class fast heal on the picked tank, cast by name.
++class Aq40HuhuranTankHealAction : public Action
++{
++public:
++    Aq40HuhuranTankHealAction(PlayerbotAI* botAI) : Action(botAI, "aq40 huhuran tank heal") {}
++    bool Execute(Event event) override;
++};
++
++// Rev 3 (spec §8.2 #2): the MT's Shield Wall / Divine Protection / Barkskin, then Last Stand < 50 %, once each.
++class Aq40HuhuranMtBerserkDefensiveAction : public Action
++{
++public:
++    Aq40HuhuranMtBerserkDefensiveAction(PlayerbotAI* botAI) : Action(botAI, "aq40 huhuran mt berserk defensive") {}
 +    bool Execute(Event event) override;
 +};
 +
@@ -465,6 +543,308 @@ index 0000000..623869d
 +    if (!bot->isMoving())
 +        LOG_DEBUG("playerbots", "[Aq40Cthun] {} form up move refused, dist {:.0f}", bot->GetName(), dist);
 +    return false;
++}
+diff --git a/modules/mod-playerbots/src/Ai/Raid/Aq40/Aq40Actions_Huhuran.cpp b/modules/mod-playerbots/src/Ai/Raid/Aq40/Aq40Actions_Huhuran.cpp
+new file mode 100644
+index 0000000..d83577c
+--- /dev/null
++++ b/modules/mod-playerbots/src/Ai/Raid/Aq40/Aq40Actions_Huhuran.cpp
+@@ -0,0 +1,296 @@
++/*
++ * This file is part of the mod-playerbots module for AzerothCore. See AUTHORS file for Copyright
++ * information; released under GNU GPL v2 license, redistribute/modify under version 2 of the License,
++ * or (at your option) any later version.
++ */
++
++// Princess Huhuran actions (overlay patch 0016). Spec:
++// docs/superpowers/specs/2026-10-20-playerbot-aq40-huhuran-design.md (overlay repo), §4.2-4.3.
++
++#include "Aq40Actions.h"
++
++#include <cmath>
++
++#include "Aq40Helpers.h"
++#include "PathGenerator.h"
++#include "Playerbots.h"
++#include "Timer.h"
++
++using namespace TempleOfAhnQirajHelpers;
++
++namespace
++{
++    constexpr float HUHURAN_MT_BACK_STEP_MIN = 2.0f;  // path step: at least this far along the route...
++    constexpr float HUHURAN_MT_BACK_STEP_MAX = 3.5f;  // ...and clipped to this, so aggro/facing re-check often
++    constexpr float HUHURAN_MT_STUCK_MOVE = 1.0f;     // moved less than this...
++    constexpr uint32 HUHURAN_MT_STUCK_MS = 3000;      // ...for this long in the Back step = stuck
++    constexpr uint32 HUHURAN_MT_BACK_GAP_MS = 1000;   // no Back tick for this long = a new Back episode
++    // Every direct move to T is one leg: PathGenerator silently fails past ~296 y (spec §4.2).
++    constexpr float HUHURAN_MT_MAX_LEG = 220.0f;
++    // "[Aq40Huhuran] ... off-tank spot move refused" throttle, per bot.
++    constexpr uint32 HUHURAN_OT_REFUSED_LOG_MS = 5000;
++
++    // The next step toward T along a navmesh route (PathGenerator::CalculatePath), not a straight line - a
++    // pillar on the line made every straight step unreachable at Nefarian. Copied from BWL GetNefMtPathStep:
++    // the route point HUHURAN_MT_BACK_STEP_MAX along the path (interpolated on its segment, so it stays on
++    // the mesh), or the first corner past HUHURAN_MT_BACK_STEP_MIN when that comes first, or the path end.
++    // False = no usable route (the caller falls back to a straight-line step).
++    bool GetHuhuranMtPathStep(Player* bot, Position const& t, float& stepX, float& stepY, float& stepZ)
++    {
++        PathGenerator path(bot);
++        path.CalculatePath(t.GetPositionX(), t.GetPositionY(), t.GetPositionZ(), false);
++        if (!(path.GetPathType() & (PATHFIND_NORMAL | PATHFIND_INCOMPLETE)))
++            return false;
++        Movement::PointsArray const& points = path.GetPath();
++        if (points.size() < 2)
++            return false;
++        float travelled = 0.0f;
++        G3D::Vector3 prev(bot->GetPositionX(), bot->GetPositionY(), bot->GetPositionZ());
++        for (size_t i = 1; i < points.size(); ++i)
++        {
++            G3D::Vector3 const& p = points[i];
++            float const seg = std::hypot(p.x - prev.x, p.y - prev.y);
++            if (travelled + seg >= HUHURAN_MT_BACK_STEP_MAX && seg > 0.01f)
++            {
++                float const f = (HUHURAN_MT_BACK_STEP_MAX - travelled) / seg;
++                stepX = prev.x + (p.x - prev.x) * f;
++                stepY = prev.y + (p.y - prev.y) * f;
++                stepZ = prev.z + (p.z - prev.z) * f;
++                return true;
++            }
++            travelled += seg;
++            if (travelled >= HUHURAN_MT_BACK_STEP_MIN || i + 1 == points.size())
++            {
++                stepX = p.x;
++                stepY = p.y;
++                stepZ = p.z;
++                return true;
++            }
++            prev = p;
++        }
++        return false;
++    }
++
++    // Straight-line fallback: HUHURAN_MT_BACK_STEP_MAX toward T (or T itself when nearer).
++    bool GetHuhuranMtStraightStep(Player* bot, Position const& t, float& stepX, float& stepY)
++    {
++        float const dx = t.GetPositionX() - bot->GetPositionX();
++        float const dy = t.GetPositionY() - bot->GetPositionY();
++        float const d = std::hypot(dx, dy);
++        if (d <= HUHURAN_MT_ARRIVE)
++            return false;
++        float const f = d <= HUHURAN_MT_BACK_STEP_MAX ? 1.0f : HUHURAN_MT_BACK_STEP_MAX / d;
++        stepX = bot->GetPositionX() + dx * f;
++        stepY = bot->GetPositionY() + dy * f;
++        return true;
++    }
++
++    // Walk backwards when the step leads away from her (the Back step already requires aggro and melee).
++    bool StepIsBackwards(Player* bot, Unit* huhuran, float stepX, float stepY)
++    {
++        float const toStepX = stepX - bot->GetPositionX();
++        float const toStepY = stepY - bot->GetPositionY();
++        float const toBossX = huhuran->GetPositionX() - bot->GetPositionX();
++        float const toBossY = huhuran->GetPositionY() - bot->GetPositionY();
++        return toStepX * toBossX + toStepY * toBossY < 0.0f;
++    }
++}  // namespace
++
++bool Aq40HuhuranEraseTrackersAction::Execute(Event /*event*/)
++{
++    HuhuranEraseTrackers(bot);
++    return false;
++}
++
++// Spec §4.2, mirroring BWL BwlNefarianMtStationAction. Close to melee and LOS first (pathfinding,
++// MOVEMENT_COMBAT), take her as the target (Attack also switches the engine to combat), and only while she
++// is on the MT, in melee and not parked, back her toward T. Rev 7 (spec §12.2 #2): once she is parked the MT's
++// generic movers are vetoed, and with no step left this turns it in place to face her (only while stopped).
++// Returns false when idle so the tank rotation runs.
++bool Aq40HuhuranParkBossAction::Execute(Event /*event*/)
++{
++    HuhuranView view;
++    if (!GetHuhuranView(bot, view) || view.mainTank != bot)
++        return false;
++    Creature* const huhuran = view.huhuran;
++    Unit* const current = AI_VALUE(Unit*, "current target");
++    switch (GetHuhuranMtStep(bot, view, current))
++    {
++        case HuhuranMtStep::Close:
++        {
++            bool const los = bot->IsWithinLOSInMap(huhuran);
++            // Attack first where it can succeed: it sets the target and the combat engine, and its
++            // facing/stop is overridden by the combat-priority move launched right after it.
++            bool const attacked = los && current != huhuran && Attack(huhuran);
++            bool moved = los && MoveTo(huhuran, HUHURAN_MT_APPROACH_DIST, MovementPriority::MOVEMENT_COMBAT);
++            if (!moved && !bot->isMoving())
++                // No LOS, or the straight-line point was refused (duplicate after a short path): path to her
++                // own position instead - a different point, always reachable on the floor.
++                moved = MoveTo(AQ40_MAP_ID, huhuran->GetPositionX(), huhuran->GetPositionY(),
++                               huhuran->GetPositionZ(), false, false, false, false,
++                               MovementPriority::MOVEMENT_COMBAT);
++            // Still out of melee and walking: claim the tick so nothing else cancels the approach.
++            return attacked || moved || bot->isMoving();
++        }
++        case HuhuranMtStep::Attack:
++            return Attack(huhuran);
++        case HuhuranMtStep::Back:
++        {
++            Position const t = GetHuhuranTankStation(bot, view);  // latched by GetHuhuranMtStep
++            uint32 const now = getMSTime();
++            // Stuck fallback: in the Back step for HUHURAN_MT_STUCK_MS without moving HUHURAN_MT_STUCK_MOVE -
++            // turn and run to T on a plain pathfinding move (she follows her victim), then resume backing.
++            if (!backAnchorMs || getMSTimeDiff(backLastMs, now) > HUHURAN_MT_BACK_GAP_MS ||
++                bot->GetExactDist2d(backAnchorX, backAnchorY) >= HUHURAN_MT_STUCK_MOVE)
++            {
++                backAnchorMs = now ? now : 1;
++                backAnchorX = bot->GetPositionX();
++                backAnchorY = bot->GetPositionY();
++            }
++            backLastMs = now;
++            if (getMSTimeDiff(backAnchorMs, now) >= HUHURAN_MT_STUCK_MS &&
++                bot->GetExactDist2d(t.GetPositionX(), t.GetPositionY()) <= HUHURAN_MT_MAX_LEG)
++            {
++                if (MoveTo(AQ40_MAP_ID, t.GetPositionX(), t.GetPositionY(), t.GetPositionZ(), false, false,
++                           false, false, MovementPriority::MOVEMENT_COMBAT, true, false))
++                {
++                    backAnchorMs = 0;  // restart the timer from the next Back tick
++                    return true;
++                }
++            }
++
++            float moveX;
++            float moveY;
++            float moveZ;
++            if (GetHuhuranMtPathStep(bot, t, moveX, moveY, moveZ))
++                return MoveTo(AQ40_MAP_ID, moveX, moveY, moveZ, false, false, false, false,
++                              MovementPriority::MOVEMENT_COMBAT, true, StepIsBackwards(bot, huhuran, moveX, moveY));
++            // No usable route: a straight-line step.
++            if (GetHuhuranMtStraightStep(bot, t, moveX, moveY))
++                return MoveTo(AQ40_MAP_ID, moveX, moveY, t.GetPositionZ(), false, false, false, false,
++                              MovementPriority::MOVEMENT_COMBAT, true, StepIsBackwards(bot, huhuran, moveX, moveY));
++            return false;
++        }
++        default:
++            // Rev 7 (spec §12.2 #2): parked, the MT holds position (its generic movers are vetoed) and turns in
++            // place to face her; false while it moves, so the turn never claims every tick.
++            if (HuhuranMtShouldFace(bot, view))
++            {
++                bot->SetFacingToObject(huhuran);
++                return true;
++            }
++            return false;
++    }
++}
++
++// Off-tanks build backup threat from melee (spec §4.2): attacked, never taunted (she is immune). Rev 2 (spec
++// §7.2 #3): first walk to the melee spot beside the MT (her position + combat reach + 1.5 y along her -> MT,
++// +-20 deg per off-tank rank), then take her as the target. Moving comes first because Attack() cancels
++// movement. The Attack is skipped at the threat cap (§7.2 #2): this action is exempt from the threat
++// multiplier (an "aq40 huhuran" action), so it gates itself.
++bool Aq40HuhuranOffTankEngageAction::Execute(Event /*event*/)
++{
++    HuhuranView view;
++    if (!GetHuhuranView(bot, view) || view.mainTank == bot || HuhuranOpenerHold(view))
++        return false;
++
++    Position spot;
++    bool const hasSpot = GetHuhuranOffTankSpot(bot, view, spot);
++    float const spotDist = hasSpot ? bot->GetExactDist2d(spot.GetPositionX(), spot.GetPositionY()) : 0.0f;
++    if (hasSpot && spotDist > Aq40HuhuranRules::OFFTANK_SPOT_TOLERANCE && botAI->CanMove())
++    {
++        if (MoveTo(AQ40_MAP_ID, spot.GetPositionX(), spot.GetPositionY(), spot.GetPositionZ(), false, false, false,
++                   false, MovementPriority::MOVEMENT_COMBAT, true))
++            return true;
++        // MoveTo's already-heading-there guard: holding course, claim the tick.
++        if (bot->isMoving())
++            return true;
++        uint32 const now = getMSTime();
++        if (!refusedLogMs || getMSTimeDiff(refusedLogMs, now) >= HUHURAN_OT_REFUSED_LOG_MS)
++        {
++            refusedLogMs = now ? now : 1;
++            LOG_DEBUG("playerbots", "[Aq40Huhuran] {} off-tank spot move refused, dist {:.1f}", bot->GetName(),
++                      bot->GetExactDist2d(spot.GetPositionX(), spot.GetPositionY()));
++        }
++    }
++
++    // Rev 6 (spec §11.2): at the spot, turn to face her - in place, no movement. Stock "tank face" is vetoed
++    // here by the movement multiplier, and without it the off-tank never swung (no rage, no threat). Only while
++    // standing still (rev 7): a moving bot's turn may not take, and must not claim the tick forever.
++    bool faced = false;
++    if (hasSpot && spotDist <= Aq40HuhuranRules::OFFTANK_SPOT_TOLERANCE && bot->IsStopped() &&
++        !bot->HasInArc(HUHURAN_FACE_ARC, view.huhuran))
++    {
++        bot->SetFacingToObject(view.huhuran);
++        faced = true;
++    }
++
++    if (AI_VALUE(Unit*, "current target") == view.huhuran)
++        return faced;
++    if (HuhuranThreatVetoed(bot, view))
++        return faced;
++    return Attack(view.huhuran) || faced;
++}
++
++// Ring spot (spec §4.3). The trigger is false within SLOT_TOLERANCE, so this only runs off the spot.
++bool Aq40HuhuranHoldSpotAction::Execute(Event /*event*/)
++{
++    if (!botAI->CanMove())
++        return false;
++
++    HuhuranView view;
++    if (!GetHuhuranView(bot, view))
++        return false;
++    Position spot;
++    if (!GetHuhuranSpot(bot, botAI, view, spot))
++        return false;
++
++    bool const moved = MoveTo(AQ40_MAP_ID, spot.GetPositionX(), spot.GetPositionY(), spot.GetPositionZ(), false,
++                              false, false, false, MovementPriority::MOVEMENT_COMBAT, true);
++    if (moved)
++        return true;
++    // A false while walking is MoveTo's already-heading-there guard: the bot is holding its course, so claim
++    // the tick (a false would fall through to lower actions). Standing still = MoveTo refused the spot.
++    if (bot->isMoving())
++        return true;
++    LOG_DEBUG("playerbots", "[Aq40Huhuran] {} hold spot move refused, dist {:.1f}", bot->GetName(),
++              bot->GetExactDist2d(spot.GetPositionX(), spot.GetPositionY()));
++    return false;
++}
++
++// Rev 2 (spec §7.2 #2), BwlThreatHoldAction: stop the swing / auto-repeat, keep the target.
++bool Aq40HuhuranThreatHoldAction::Execute(Event /*event*/)
++{
++    bot->AttackStop();
++    bot->InterruptSpell(CURRENT_AUTOREPEAT_SPELL);
++    return true;
++}
++
++// Rev 2 (spec §7.2 #4): re-resolved at execution (the trigger's pick may be a tick old). False = stock healing.
++bool Aq40HuhuranTankHealAction::Execute(Event /*event*/)
++{
++    HuhuranView view;
++    if (!GetHuhuranView(bot, view))
++        return false;
++    Player* tank = nullptr;
++    char const* spell = nullptr;
++    if (!GetHuhuranTankHeal(bot, botAI, view, tank, spell))
++        return false;
++    return botAI->CastSpell(spell, tank);
++}
++
++// Rev 3 (spec §8.2 #2): cast it by name on self; the once-flag (MT guid + spell) is set only when it went off.
++bool Aq40HuhuranMtBerserkDefensiveAction::Execute(Event /*event*/)
++{
++    HuhuranView view;
++    if (!GetHuhuranView(bot, view))
++        return false;
++    char const* spell = nullptr;
++    HuhuranMtDefensive const which = GetHuhuranMtDefensive(bot, botAI, view, spell);
++    if (which == HuhuranMtDefensive::None || !botAI->CastSpell(spell, bot))
++        return false;
++    MarkHuhuranMtDefensiveUsed(bot, which);
++    LOG_DEBUG("playerbots", "[Aq40Huhuran] {} mt berserk defensive: {} at {:.0f}%", bot->GetName(), spell,
++              bot->GetHealthPct());
++    return true;
 +}
 diff --git a/modules/mod-playerbots/src/Ai/Raid/Aq40/Aq40Actions_Twins.cpp b/modules/mod-playerbots/src/Ai/Raid/Aq40/Aq40Actions_Twins.cpp
 new file mode 100644
@@ -1546,10 +1926,10 @@ index 0000000..b981544
 +}  // namespace TempleOfAhnQirajHelpers
 diff --git a/modules/mod-playerbots/src/Ai/Raid/Aq40/Aq40Helpers.h b/modules/mod-playerbots/src/Ai/Raid/Aq40/Aq40Helpers.h
 new file mode 100644
-index 0000000..c1e92b3
+index 0000000..bb6c76a
 --- /dev/null
 +++ b/modules/mod-playerbots/src/Ai/Raid/Aq40/Aq40Helpers.h
-@@ -0,0 +1,167 @@
+@@ -0,0 +1,324 @@
 +/*
 + * This file is part of the mod-playerbots module for AzerothCore. See AUTHORS file for Copyright
 + * information; released under GNU GPL v2 license, redistribute/modify under version 2 of the License,
@@ -1560,6 +1940,9 @@ index 0000000..c1e92b3
 +#define PLAYERBOTS_AQ40HELPERS_H
 +
 +
++#include <cmath>
++
++#include "Aq40HuhuranRules.h"
 +#include "Common.h"
 +#include "ObjectGuid.h"
 +#include "Position.h"
@@ -1713,6 +2096,160 @@ index 0000000..c1e92b3
 +
 +// Shared by the triggers and the movement multiplier so the veto and the moves cannot disagree.
 +bool TwinsShouldSuppressGenericMovement(Player* bot, PlayerbotAI* botAI);
++
++// =============================================================================================
++// PRINCESS HUHURAN (spec docs/superpowers/specs/2026-10-20-playerbot-aq40-huhuran-design.md in the
++// overlay repo). The main tank drags her onto a fixed park spot P; ranged DPS bots and healer bots
++// then hold fixed, evenly spaced spots on two rings centred on P (radii and timings in
++// Aq40HuhuranRules.h). Melee and tanks are not slotted.
++// =============================================================================================
++
++// temple_of_ahnqiraj.h DATA_HUHURAN / NPC_HUHURAN (mirrored: script headers are not includable).
++constexpr uint32 AQT_DATA_HUHURAN = 6;
++constexpr uint32 NPC_HUHURAN = 15509;
++
++constexpr uint32 SPELL_HUHURAN_WYVERN_STING = 26180;    // 12s stun; 26233 damage when it is removed
++constexpr uint32 SPELL_HUHURAN_NOXIOUS_POISON = 26053;  // silence + splash, leaves an aura
++constexpr uint32 SPELL_HUHURAN_BERSERK = 26068;         // 30%: Poison Bolt on the 15 nearest
++constexpr uint32 SPELL_HUHURAN_ACID_SPIT = 26050;       // stacking nature DoT on her victim (diag acid=)
++
++// Park spot P, authored 2026-10-20 by tools/aq40-huhuran-stations.py (tools/aq40-huhuran-stations.json):
++// 158 open-floor grid points within 36 y; in-game verify ranged 72/72, tank 12/12, healer 70/72 (160/165 deg
++// reachable but one smoothing point over the straightness limit). While HUHURAN_STATIONS_PROVISIONAL is true
++// GetHuhuranView returns false, so the whole Huhuran strategy is inert except the Wyvern Sting dispel rule,
++// and the strategy logs a LOG_WARN at load. Re-author with the tool; never hand-edit one coordinate.
++//
++// The MT's tank station T is NOT fixed: GetHuhuranTankStation latches it per attempt at
++// P + HUHURAN_MT_STATION_OFFSET toward the far side of P from her approach, so she trails the backing MT
++// onto P from either side of her patrol. HUHURAN_MT_STATION is only the degenerate fallback, used when she
++// is within HUHURAN_MT_STATION_DEGENERATE of P at latch time (no approach direction).
++constexpr bool HUHURAN_STATIONS_PROVISIONAL = false;
++inline Position const HUHURAN_PARK(-8576.30f, 1683.65f, -90.70f);
++inline Position const HUHURAN_MT_STATION(-8576.30f, 1688.65f, -91.10f, 4.7124f);
++constexpr float HUHURAN_MT_STATION_OFFSET = 5.0f;
++constexpr float HUHURAN_MT_STATION_DEGENERATE = 0.5f;
++
++// Grid-scan radius for resolving her by entry, from a bot near P (under the ~533y Cell::Visit clamp).
++constexpr float HUHURAN_SEARCH_RANGE = 250.0f;
++// Only a bot this close to P may cache a "not found" scan: a far bot's empty scan says nothing.
++constexpr float HUHURAN_SCAN_ORIGIN_RANGE = 150.0f;
++constexpr uint32 HUHURAN_SCAN_INTERVAL_MS = 500;
++// Unseen this long while IN_PROGRESS = a new attempt (backstop for the erase-trackers trigger).
++constexpr uint32 HUHURAN_ATTEMPT_GAP_MS = 10000;
++
++struct HuhuranView
++{
++    Creature* huhuran = nullptr;
++    Player* mainTank = nullptr;
++    bool parked = false;
++    // She has been parked at least once this attempt (rev 2, spec §7.2 #1): latched per instance under
++    // huhuranMutex, cleared with the attempt reset / erase trackers. The opener hold lasts until this.
++    bool everParked = false;
++    bool spotsLatched = false;
++    bool berserk = false;
++    uint32 msSinceEngage = 0;
++};
++
++enum class HuhuranSlotRole : uint8
++{
++    None = 0,
++    Ranged,  // inner ring (RANGED_RADIUS)
++    Healer   // outer ring (HEALER_RADIUS)
++};
++
++// IsInAq40, GetBossState(AQT_DATA_HUHURAN) == IN_PROGRESS, and a living Huhuran.
++bool IsHuhuranEncounterActive(Player* bot);
++// False when the gate fails, and always while HUHURAN_STATIONS_PROVISIONAL. Latches engage time, parked and
++// spotsLatched per instance; emits the throttled [Aq40Huhuran] diag line.
++bool GetHuhuranView(Player* bot, HuhuranView& view);
++// Her victim if it is a living group role tank, else the lowest-GUID living group bot role tank.
++Player* GetHuhuranMainTank(Player* bot, Creature* huhuran);
++// Healer = IsHeal; Ranged = IsRanged and neither tank nor healer; None otherwise and for non-bots.
++HuhuranSlotRole GetHuhuranSlotRole(Player* bot, PlayerbotAI* botAI);
++// The bot's fixed ring spot. False unless spots are latched and the bot holds a latched rank.
++bool GetHuhuranSpot(Player* bot, PlayerbotAI* botAI, HuhuranView const& view, Position& spot);
++// Dispel rule (spec §4.4): true = do NOT remove Wyvern Sting from `target` (a non-tank player during
++// the encounter). Bails first when the bot is not on map 531.
++bool HuhuranKeepWyvernSting(Player* bot, Unit* target);
++void HuhuranEraseTrackers(Player* bot);
++
++// Opener hold (rev 2, spec §7.2 #1): Aq40HuhuranRules::HoldFireOnHuhuran(view.everParked, msSinceEngage).
++// Time-bounded by its 45 s fail-open, so the target veto built on it is never permanent.
++bool HuhuranOpenerHold(HuhuranView const& view);
++
++// ---- rev 2 (spec §7.2) ----
++// Threat discipline (§7.2 #2, mirrors BWL's BwlThreatBlocked; copied, not called). Disciplined = a
++// non-healer bot that is not the MT (DPS and off-tanks). Threat is read through her ThreatMgr.
++bool HuhuranThreatDisciplined(Player* bot, HuhuranView const& view);
++// The MT's threat on her; 0 when there is no MT or the MT is not on her threat list.
++float HuhuranMtThreat(HuhuranView const& view);
++float HuhuranOwnThreat(Player* bot, HuhuranView const& view);
++// The bot's cap denominator, order MT > backup > DPS (fix round 1, R11; Aq40HuhuranRules::ThreatDenominator):
++// an off-tank against the MT, a DPS against the top living off-tank on her (fallback the MT). 0 = no cap.
++float HuhuranThreatDenominator(Player* bot, HuhuranView const& view);
++// MainTank / OffTank (any other role tank) / Other.
++Aq40HuhuranRules::ThreatRole HuhuranThreatRole(Player* bot, HuhuranView const& view);
++// Acid Spit stacks on `unit` (0 = none): the diag's acid= watch value.
++uint32 HuhuranAcidStacks(Unit* unit);
++// The per-role caps on the live view (rev 3, §8.2 #3): off-tanks 1.00 / 1.05 of the MT, DPS 0.80 / 0.90; in
++// Berserk off-tanks 1.05 / 1.08 and DPS 1.00 / 1.03 of the MT with no headroom (rev 5 §10.3, R14).
++bool HuhuranThreatVetoed(Player* bot, HuhuranView const& view);
++bool HuhuranThreatHardStop(Player* bot, HuhuranView const& view);
++// The off-tank's melee spot beside the MT (§7.2 #3): Aq40HuhuranRules::OffTankSpot with the bot's rank in
++// GUID order among the living group bot role tanks other than the MT. False for the MT, non-tanks, humans,
++// and when there is no MT.
++bool GetHuhuranOffTankSpot(Player* bot, HuhuranView const& view, Position& spot);
++// Healer tank priority in Berserk (§7.2 #4). The class fast heal, by name, or nullptr for a class without one.
++char const* HuhuranTankHealSpellName(Player* bot);
++// The bot is one of the ceil(n/2) living group healer bots nearest the MT (2-D, ties by GUID), recomputed
++// from live positions (fix round 1, R12). False when there is no MT.
++bool IsHuhuranTankHealer(Player* bot, PlayerbotAI* botAI, HuhuranView const& view);
++// The full pick: Berserk, an MT, a tank healer, a class fast heal, the MT under 90 % else the lowest-HP% role
++// tank under 90 %, and only if that cast can go off now (known, in LOS, in range, CanCastSpell). False = stock
++// healing runs; there is no fallback to another tank.
++bool GetHuhuranTankHeal(Player* bot, PlayerbotAI* botAI, HuhuranView const& view, Player*& tank,
++                        char const*& spell);
++
++// ---- rev 3 (spec §8.2) ----
++// The MT's Berserk defensive (§8.2 #2). Big = warrior "shield wall" / paladin "divine protection" / druid
++// "barkskin"; LastStand = a warrior MT's "last stand" below LAST_STAND_HP_PCT. Each fires once per attempt per
++// (MT guid, spell) - a new MT gets its own - and only while known and ready (CanCastSpell on self).
++enum class HuhuranMtDefensive : uint8
++{
++    None,
++    Big,
++    LastStand
++};
++HuhuranMtDefensive GetHuhuranMtDefensive(Player* bot, PlayerbotAI* botAI, HuhuranView const& view,
++                                         char const*& spell);
++void MarkHuhuranMtDefensiveUsed(Player* bot, HuhuranMtDefensive which);
++
++// The MT's order of business each tick (spec §4.2, mirrors BWL GetNefMtStep): close to melee/LOS (Close),
++// take her as the target (Attack), back her toward T while she is on the MT, in melee and not parked
++// (Back). None = nothing to do; the normal tank rotation runs.
++enum class HuhuranMtStep : uint8
++{
++    None,
++    Close,
++    Attack,
++    Back
++};
++// Rev 6 (spec §11.2): an off-tank at its stacked spot - and, rev 7 (§12.2 #2), the parked MT - is turned to face
++// her in place when she is outside this front arc. The movement multiplier vetoes stock "tank face" for them,
++// which was the only stock action that turned a tank: pull 5's off-tanks never swung and built no rage.
++constexpr float HUHURAN_FACE_ARC = static_cast<float>(M_PI) / 2.0f;
++constexpr float HUHURAN_MT_CHASE_SLACK = 5.0f;    // she is on the MT and this close: she walks to it
++constexpr float HUHURAN_MT_APPROACH_DIST = 1.0f;  // MoveTo(WorldObject*) edge distance
++constexpr float HUHURAN_MT_ARRIVE = 2.0f;         // the MT is at T: no further Back step
++HuhuranMtStep GetHuhuranMtStep(Player* bot, HuhuranView const& view, Unit* currentTarget);
++// Rev 7 (spec §12.2 #2): the parked MT, standing still (IsStopped), with her outside HUHURAN_FACE_ARC - turn it in
++// place. False while it moves, so the turn never claims every tick when it does not take.
++bool HuhuranMtShouldFace(Player* bot, HuhuranView const& view);
++// The per-attempt tank station T, latched on the first call: T = P + 5 y * unit(P - her 2-D position), z = P's
++// z, facing P; HUHURAN_MT_STATION when she is within 0.5 y of P. First called when the MT's step reaches
++// Back, or by the ring code if the spots latch first (rev 4: they latch at engage, so normally them). The ring refBearing
++// is P -> this T. Cleared with the rest of the instance state (attempt reset, erase trackers).
++Position GetHuhuranTankStation(Player* bot, HuhuranView const& view);
 +
 +}  // namespace TempleOfAhnQirajHelpers
 +
@@ -2928,6 +3465,1158 @@ index 0000000..22e15e4
 +}
 +
 +}  // namespace TempleOfAhnQirajHelpers
+diff --git a/modules/mod-playerbots/src/Ai/Raid/Aq40/Aq40Helpers_Huhuran.cpp b/modules/mod-playerbots/src/Ai/Raid/Aq40/Aq40Helpers_Huhuran.cpp
+new file mode 100644
+index 0000000..356784e
+--- /dev/null
++++ b/modules/mod-playerbots/src/Ai/Raid/Aq40/Aq40Helpers_Huhuran.cpp
+@@ -0,0 +1,887 @@
++/*
++ * This file is part of the mod-playerbots module for AzerothCore. See AUTHORS file for Copyright
++ * information; released under GNU GPL v2 license, redistribute/modify under version 2 of the License,
++ * or (at your option) any later version.
++ */
++
++// Princess Huhuran helper layer (overlay patch 0016). Spec:
++// docs/superpowers/specs/2026-10-20-playerbot-aq40-huhuran-design.md (overlay repo), §4.1-4.6.
++
++#include <algorithm>
++#include <mutex>
++#include <set>
++#include <string>
++#include <unordered_map>
++#include <unordered_set>
++#include <utility>
++#include <vector>
++
++#include "Aq40Helpers.h"
++#include "Creature.h"
++#include "Group.h"
++#include "InstanceScript.h"
++#include "Log.h"
++#include "Map.h"
++#include "ObjectAccessor.h"
++#include "Pet.h"
++#include "Playerbots.h"
++#include "SpellAuras.h"
++#include "SpellInfo.h"
++#include "SpellMgr.h"
++#include "ThreatManager.h"
++#include "Timer.h"
++
++namespace TempleOfAhnQirajHelpers
++{
++
++namespace
++{
++    using Aq40HuhuranRules::Pt;
++
++    constexpr size_t ROLE_SLOTS = 2;  // [0] = Ranged, [1] = Healer
++
++    struct HuhuranRankTable
++    {
++        bool built = false;
++        std::unordered_map<ObjectGuid, uint32> rankByGuid;
++    };
++
++    // EVERYTHING per instance for Huhuran. Different instances update on parallel map threads, so the
++    // map is only touched under huhuranMutex (memory: module globals need locking), held briefly, and
++    // callers get copies, never references into it.
++    struct HuhuranInstanceState
++    {
++        // Encounter clock. 0 = no attempt seen yet.
++        uint32 engageMs = 0;
++        uint32 lastSeenMs = 0;
++        // Latches (spec §4.2 / §4.3). everParked: parked at least once this attempt (rev 2, §7.2 #1).
++        bool parked = false;
++        bool everParked = false;
++        bool spotsLatched = false;
++        // Tank station T, latched per attempt (GetHuhuranTankStation); the ring refBearing is P -> T.
++        bool tankStationSet = false;
++        float tankX = 0.0f;
++        float tankY = 0.0f;
++        // Spot ranks per role, built once after the spots latch (deaths never reshuffle; a late arrival
++        // is not in the table and gets no slot).
++        HuhuranRankTable ranks[ROLE_SLOTS];
++        // "[Aq40Huhuran] diag" throttle. 0 = never.
++        uint32 diagMs = 0;
++        // Rev 3 (spec §8.2): first Berserk tick seen this attempt (0 = not yet), the healer bots already given
++        // the one-time mana refill, and the MT defensives already used, keyed by (MT guid, HuhuranMtDefensive).
++        uint32 berserkMs = 0;
++        std::unordered_set<ObjectGuid> manaRefilled;
++        std::set<std::pair<ObjectGuid, uint8>> mtDefensiveUsed;
++        // Cached boss resolution. scanMs 0 = never scanned; an empty guid = "not found" by that scan.
++        ObjectGuid huhuranGuid;
++        uint32 scanMs = 0;
++    };
++
++    std::mutex huhuranMutex;
++    std::unordered_map<uint32, HuhuranInstanceState> huhuranStateByInstance;
++
++    uint32 NowMs()
++    {
++        uint32 const now = getMSTime();
++        return now ? now : 1;
++    }
++
++    size_t RoleSlot(HuhuranSlotRole role) { return role == HuhuranSlotRole::Healer ? 1 : 0; }
++
++    float RoleRadius(HuhuranSlotRole role)
++    {
++        return role == HuhuranSlotRole::Healer ? Aq40HuhuranRules::HEALER_RADIUS : Aq40HuhuranRules::RANGED_RADIUS;
++    }
++
++    Pt ParkPt() { return Pt{HUHURAN_PARK.GetPositionX(), HUHURAN_PARK.GetPositionY()}; }
++
++    float ParkBearingTo(float x, float y)
++    {
++        return std::atan2(y - HUHURAN_PARK.GetPositionY(), x - HUHURAN_PARK.GetPositionX());
++    }
++
++    // Diag only: bearing P -> the latched T, WITHOUT latching it (0 while unlatched; the rank tables are
++    // empty then, so the on-spot counts do not read it).
++    float PeekRefBearing(uint32 instanceId)
++    {
++        std::lock_guard<std::mutex> lock(huhuranMutex);
++        auto it = huhuranStateByInstance.find(instanceId);
++        if (it == huhuranStateByInstance.end() || !it->second.tankStationSet)
++            return 0.0f;
++        return ParkBearingTo(it->second.tankX, it->second.tankY);
++    }
++
++    // Every successful resolution of her (gate or view) keeps the attempt alive. First sight, or a gap
++    // longer than HUHURAN_ATTEMPT_GAP_MS since the last one, starts a fresh attempt: new engage clock,
++    // latches, ranks and diag throttle; only the boss resolution cache survives. Returns ms since engage.
++    uint32 TouchAttempt(uint32 instanceId, uint32 now)
++    {
++        std::lock_guard<std::mutex> lock(huhuranMutex);
++        HuhuranInstanceState& st = huhuranStateByInstance[instanceId];
++        if (!st.engageMs || getMSTimeDiff(st.lastSeenMs, now) > HUHURAN_ATTEMPT_GAP_MS)
++        {
++            HuhuranInstanceState fresh;
++            fresh.huhuranGuid = st.huhuranGuid;
++            fresh.scanMs = st.scanMs;
++            st = std::move(fresh);
++            st.engageMs = now;
++            LOG_DEBUG("playerbots", "[Aq40Huhuran] instance {}: engage", instanceId);
++        }
++        st.lastSeenMs = now;
++        return getMSTimeDiff(st.engageMs, now);
++    }
++
++    // Living Huhuran for the bot's instance, or nullptr. Gate (map, boss state) first. A known GUID
++    // resolves map-wide with no scan; a scan by entry runs at most once per HUHURAN_SCAN_INTERVAL_MS per
++    // instance. A "not found" is cached only when the scanning bot stood near P - a far bot's empty
++    // scan (grid searches are clamped to ~533y) would otherwise blind the whole raid for the interval.
++    Creature* FindHuhuran(Player* bot)
++    {
++        if (!IsInAq40(bot) || !bot->IsInWorld())
++            return nullptr;
++        InstanceScript* instance = bot->GetInstanceScript();
++        if (!instance || instance->GetBossState(AQT_DATA_HUHURAN) != IN_PROGRESS)
++            return nullptr;
++
++        Map* const map = bot->GetMap();
++        uint32 const instanceId = map->GetInstanceId();
++        uint32 const now = NowMs();
++
++        ObjectGuid knownGuid;
++        bool freshScan = false;
++        {
++            std::lock_guard<std::mutex> lock(huhuranMutex);
++            auto it = huhuranStateByInstance.find(instanceId);
++            if (it != huhuranStateByInstance.end())
++            {
++                knownGuid = it->second.huhuranGuid;
++                freshScan = it->second.scanMs && getMSTimeDiff(it->second.scanMs, now) < HUHURAN_SCAN_INTERVAL_MS;
++            }
++        }
++
++        if (!knownGuid.IsEmpty())
++            if (Creature* known = map->GetCreature(knownGuid))
++                if (known->IsAlive() && known->GetEntry() == NPC_HUHURAN)
++                {
++                    TouchAttempt(instanceId, now);
++                    return known;
++                }
++        if (freshScan)
++            return nullptr;  // a recent scan near P found nothing (or found her since dead/despawned)
++
++        bool const nearPark = bot->GetExactDist2d(HUHURAN_PARK.GetPositionX(), HUHURAN_PARK.GetPositionY()) <=
++                              HUHURAN_SCAN_ORIGIN_RANGE;
++        // Scan outside the lock: one instance's bots share one map thread.
++        Creature* found = bot->FindNearestCreature(NPC_HUHURAN, HUHURAN_SEARCH_RANGE, true);
++        if (found || nearPark)
++        {
++            std::lock_guard<std::mutex> lock(huhuranMutex);
++            HuhuranInstanceState& st = huhuranStateByInstance[instanceId];
++            st.huhuranGuid = found ? found->GetGUID() : ObjectGuid::Empty;
++            st.scanMs = now;
++        }
++        if (found)
++            TouchAttempt(instanceId, now);
++        return found;
++    }
++
++    // Rank of `bot` in the latched table for `role`, building the table on the first call (spec §4.3,
++    // mirroring GetCthunLatchedRank): living group bots of that role, sorted by bearing from P relative
++    // to the reference bearing, GUID tie-break. Returns false when the bot holds no rank.
++    bool GetLatchedRank(Player* bot, HuhuranSlotRole role, float refBearing, uint32& rank, uint32& count)
++    {
++        uint32 const instanceId = bot->GetMap()->GetInstanceId();
++        size_t const slot = RoleSlot(role);
++        {
++            std::lock_guard<std::mutex> lock(huhuranMutex);
++            auto it = huhuranStateByInstance.find(instanceId);
++            if (it != huhuranStateByInstance.end() && it->second.ranks[slot].built)
++            {
++                HuhuranRankTable const& table = it->second.ranks[slot];
++                auto r = table.rankByGuid.find(bot->GetGUID());
++                if (r == table.rankByGuid.end())
++                    return false;
++                rank = r->second;
++                count = uint32(table.rankByGuid.size());
++                return rank < count;
++            }
++        }
++
++        // Only a living bot of the role may build the table, so it is never latched empty.
++        if (!bot->IsAlive())
++            return false;
++
++        std::vector<std::pair<float, ObjectGuid>> order;
++        auto relOf = [refBearing](Player* p)
++        { return Position::NormalizeOrientation(ParkBearingTo(p->GetPositionX(), p->GetPositionY()) - refBearing); };
++        auto eligible = [&](Player* p)
++        {
++            return p && p->IsInWorld() && p->IsAlive() && p->GetMap() == bot->GetMap() &&
++                   GetHuhuranSlotRole(p, GET_PLAYERBOT_AI(p)) == role;
++        };
++        if (Group* group = bot->GetGroup())
++        {
++            for (GroupReference* ref = group->GetFirstMember(); ref; ref = ref->next())
++                if (Player* member = ref->GetSource())
++                    if (eligible(member))
++                        order.emplace_back(relOf(member), member->GetGUID());
++        }
++        else if (eligible(bot))
++            order.emplace_back(relOf(bot), bot->GetGUID());
++        std::sort(order.begin(), order.end());
++
++        std::lock_guard<std::mutex> lock(huhuranMutex);
++        HuhuranRankTable& table = huhuranStateByInstance[instanceId].ranks[slot];
++        if (!table.built)  // first writer builds the whole table
++        {
++            for (uint32 i = 0; i < order.size(); ++i)
++                table.rankByGuid.emplace(order[i].second, i);
++            table.built = true;
++        }
++        auto r = table.rankByGuid.find(bot->GetGUID());
++        if (r == table.rankByGuid.end())
++            return false;
++        rank = r->second;
++        count = uint32(table.rankByGuid.size());
++        return rank < count;
++    }
++
++    // Snapshot of one role's latched table (copied out of the lock).
++    std::vector<std::pair<ObjectGuid, uint32>> CopyRankTable(uint32 instanceId, HuhuranSlotRole role)
++    {
++        std::vector<std::pair<ObjectGuid, uint32>> out;
++        std::lock_guard<std::mutex> lock(huhuranMutex);
++        auto it = huhuranStateByInstance.find(instanceId);
++        if (it == huhuranStateByInstance.end() || !it->second.ranks[RoleSlot(role)].built)
++            return out;
++        for (auto const& entry : it->second.ranks[RoleSlot(role)].rankByGuid)
++            out.emplace_back(entry.first, entry.second);
++        return out;
++    }
++
++    // Bots of `role` within SLOT_TOLERANCE of their latched spot; `latched` = the table size.
++    uint32 CountOnSpot(Player* bot, HuhuranSlotRole role, float refBearing, uint32& latched)
++    {
++        auto const table = CopyRankTable(bot->GetMap()->GetInstanceId(), role);
++        latched = uint32(table.size());
++        uint32 onSpot = 0;
++        for (auto const& entry : table)
++        {
++            Player* p = ObjectAccessor::GetPlayer(*bot, entry.first);
++            if (!p || !p->IsAlive() || entry.second >= latched)
++                continue;
++            Pt const s = Aq40HuhuranRules::RingSpot(ParkPt(), RoleRadius(role), latched, entry.second, refBearing);
++            if (p->GetExactDist2d(s.x, s.y) <= Aq40HuhuranRules::SLOT_TOLERANCE)
++                ++onSpot;
++        }
++        return onSpot;
++    }
++
++    // True the first time `guid` asks this attempt (claims it). Each bot asks only for itself (rev 3, §8.2 #4).
++    bool ClaimHuhuranManaRefill(uint32 instanceId, ObjectGuid guid)
++    {
++        std::lock_guard<std::mutex> lock(huhuranMutex);
++        return huhuranStateByInstance[instanceId].manaRefilled.insert(guid).second;
++    }
++
++    // The bot's mana cost for `spellName` (its highest known rank), via SpellInfo::CalcPowerCost. False when the
++    // spell is unknown; cost 0 for a non-mana spell.
++    bool HuhuranSpellManaCost(Player* bot, PlayerbotAI* botAI, char const* spellName, int32& cost)
++    {
++        uint32 const spellId = botAI->GetAiObjectContext()->GetValue<uint32>("spell id", spellName)->Get();
++        SpellInfo const* const info = spellId ? sSpellMgr->GetSpellInfo(spellId) : nullptr;
++        if (!info)
++            return false;
++        cost = info->PowerType == POWER_MANA ? info->CalcPowerCost(bot, info->GetSchoolMask()) : 0;
++        return true;
++    }
++
++    // True at most once per DIAG_INTERVAL_MS per instance (claims the slot when it returns true).
++    bool HuhuranDiagDue(uint32 instanceId, uint32 now)
++    {
++        std::lock_guard<std::mutex> lock(huhuranMutex);
++        HuhuranInstanceState& st = huhuranStateByInstance[instanceId];
++        if (st.diagMs && getMSTimeDiff(st.diagMs, now) < Aq40HuhuranRules::DIAG_INTERVAL_MS)
++            return false;
++        st.diagMs = now;
++        return true;
++    }
++
++    // Spec §4.6: one line per instance every DIAG_INTERVAL_MS at Logger.playerbots = 5.
++    void LogHuhuranDiag(Player* bot, HuhuranView const& view)
++    {
++        Creature* const huhuran = view.huhuran;
++        float const refBearing = PeekRefBearing(bot->GetMap()->GetInstanceId());
++
++        uint32 rangedLatched = 0;
++        uint32 healerLatched = 0;
++        uint32 const rangedOn = CountOnSpot(bot, HuhuranSlotRole::Ranged, refBearing, rangedLatched);
++        uint32 const healersOn = CountOnSpot(bot, HuhuranSlotRole::Healer, refBearing, healerLatched);
++
++        // Noxious Poison victims, total and healers (26053 leaves an aura), and the predicted Poison Bolt
++        // set: the BOLT_TARGETS nearest living players and pets, as spell_huhuran_poison_bolt selects.
++        uint32 noxVictims = 0;
++        uint32 noxHealers = 0;
++        // Rev 6 (§11.2): the top living off-tank's threat on her (role tanks other than the MT).
++        float otThreatMax = -1.0f;
++        // Rev 3 (§8.2 #6): average mana % of the living healer bots.
++        float healManaSum = 0.0f;
++        uint32 healManaCount = 0;
++        std::vector<std::pair<float, bool>> bodies;
++        auto consider = [&](Player* p)
++        {
++            if (!p || !p->IsInWorld() || p->GetMap() != bot->GetMap() || !p->IsAlive())
++                return;
++            bool const healer = PlayerbotAI::IsHeal(p);
++            if (p != view.mainTank && PlayerbotAI::IsTank(p))
++                otThreatMax = std::max(otThreatMax, huhuran->GetThreatMgr().GetThreat(p));
++            if (p->GetMaxPower(POWER_MANA) > 0 &&
++                GetHuhuranSlotRole(p, GET_PLAYERBOT_AI(p)) == HuhuranSlotRole::Healer)
++            {
++                healManaSum += 100.0f * float(p->GetPower(POWER_MANA)) / float(p->GetMaxPower(POWER_MANA));
++                ++healManaCount;
++            }
++            if (p->HasAura(SPELL_HUHURAN_NOXIOUS_POISON))
++            {
++                ++noxVictims;
++                if (healer)
++                    ++noxHealers;
++            }
++            bodies.emplace_back(huhuran->GetExactDist(p), healer);
++            if (Pet* pet = p->GetPet())
++                if (pet->IsInWorld() && pet->IsAlive())
++                    bodies.emplace_back(huhuran->GetExactDist(pet), false);
++        };
++        if (Group* group = bot->GetGroup())
++        {
++            for (GroupReference* ref = group->GetFirstMember(); ref; ref = ref->next())
++                consider(ref->GetSource());
++        }
++        else
++            consider(bot);
++        uint32 const boltHealers = Aq40HuhuranRules::HealersAmongNearest(bodies, Aq40HuhuranRules::BOLT_TARGETS);
++
++        std::string const mt = view.mainTank ? view.mainTank->GetName() + "#" +
++                                                   std::to_string(view.mainTank->GetGUID().GetCounter())
++                                             : std::string("none");
++        // Rev 2 (§7.2 #5): who she is actually hitting - the first pull's loss of her to a non-tank was only
++        // visible indirectly through mt= and her distance to P.
++        Unit* const victim = huhuran->GetVictim();
++        std::string const victimName = victim ? victim->GetName() : std::string("none");
++        std::string const healMana =
++            healManaCount ? std::to_string(int(healManaSum / float(healManaCount) + 0.5f)) : std::string("none");
++        // Rev 6 (§11.2): top off-tank threat as a % of the MT's (backup-threat watch value).
++        float const mtThreatDiag = HuhuranMtThreat(view);
++        std::string const otThreat = (otThreatMax >= 0.0f && mtThreatDiag > 0.0f)
++                                         ? std::to_string(int(100.0f * otThreatMax / mtThreatDiag + 0.5f))
++                                         : std::string("none");
++        // The MT's Acid Spit stacks (rev 5), kept as a watch value.
++        std::string const acid = view.mainTank ? std::to_string(HuhuranAcidStacks(view.mainTank)) : std::string("none");
++        LOG_DEBUG("playerbots",
++                  "[Aq40Huhuran] diag t={} pos=({:.1f},{:.1f}) toP={:.1f} mt={} victim={} parked={} everParked={} "
++                  "latched={} berserk={} ranged={}/{} healers={}/{} noxVictims={} noxHealers={} boltHealers={} "
++                  "healMana={} acid={} otThreat={}",
++                  view.msSinceEngage, huhuran->GetPositionX(), huhuran->GetPositionY(),
++                  huhuran->GetExactDist2d(HUHURAN_PARK.GetPositionX(), HUHURAN_PARK.GetPositionY()), mt, victimName,
++                  view.parked, view.everParked, view.spotsLatched, view.berserk, rangedOn, rangedLatched, healersOn,
++                  healerLatched, noxVictims, noxHealers, boltHealers, healMana, acid, otThreat);
++    }
++}  // namespace
++
++bool IsHuhuranEncounterActive(Player* bot)
++{
++    return FindHuhuran(bot) != nullptr;
++}
++
++Player* GetHuhuranMainTank(Player* bot, Creature* huhuran)
++{
++    // Aggro decides (Nefarian rule, spec §4.2): the tank she is hitting is the MT, so a resurrected tank
++    // cannot reclaim the role while another tank holds her.
++    if (huhuran)
++        if (Unit* const victim = huhuran->GetVictim())
++            if (Player* const v = victim->ToPlayer())
++                if (v->IsInWorld() && v->GetMap() == bot->GetMap() && v->IsAlive() &&
++                    (v == bot || bot->IsInSameRaidWith(v)) && PlayerbotAI::IsTank(v))
++                    return v;
++
++    Player* best = nullptr;
++    auto consider = [&](Player* p)
++    {
++        if (p && p->IsInWorld() && p->GetMap() == bot->GetMap() && p->IsAlive() && GET_PLAYERBOT_AI(p) &&
++            !IsSelfBot(p) &&
++            PlayerbotAI::IsTank(p) && (!best || p->GetGUID() < best->GetGUID()))
++            best = p;
++    };
++    if (Group* group = bot->GetGroup())
++    {
++        for (GroupReference* ref = group->GetFirstMember(); ref; ref = ref->next())
++            consider(ref->GetSource());
++    }
++    else
++        consider(bot);
++    return best;
++}
++
++bool GetHuhuranView(Player* bot, HuhuranView& view)
++{
++    using namespace Aq40HuhuranRules;
++
++    // Inert until P and T are probe-authored (M1): every trigger, action and multiplier keyed on the view
++    // is a no-op, so bots run stock behaviour. The Wyvern Sting dispel rule does not read P and stays live.
++    if constexpr (HUHURAN_STATIONS_PROVISIONAL)
++        return false;
++
++    Creature* const huhuran = FindHuhuran(bot);
++    if (!huhuran)
++        return false;
++
++    uint32 const instanceId = bot->GetMap()->GetInstanceId();
++    uint32 const now = NowMs();
++    float const distP = huhuran->GetExactDist2d(HUHURAN_PARK.GetPositionX(), HUHURAN_PARK.GetPositionY());
++
++    bool const berserk = huhuran->HasAura(SPELL_HUHURAN_BERSERK);
++    bool parked = false;
++    bool everParked = false;
++    bool latched = false;
++    uint32 msSinceEngage = 0;
++    uint32 msSinceBerserk = 0;
++    {
++        std::lock_guard<std::mutex> lock(huhuranMutex);
++        // FindHuhuran just refreshed the attempt (TouchAttempt), so engageMs is set for this attempt.
++        HuhuranInstanceState& st = huhuranStateByInstance[instanceId];
++        msSinceEngage = st.engageMs ? getMSTimeDiff(st.engageMs, now) : 0;
++        st.parked = UpdateParked(st.parked, distP);
++        st.everParked = st.everParked || st.parked;
++        st.spotsLatched = SpotsLatch(st.spotsLatched);  // rev 4: latched from the first view of the attempt
++        parked = st.parked;
++        everParked = st.everParked;
++        latched = st.spotsLatched;
++        if (berserk && !st.berserkMs)
++            st.berserkMs = now;
++        msSinceBerserk = st.berserkMs ? getMSTimeDiff(st.berserkMs, now) : 0;
++    }
++
++    view = HuhuranView{};
++    view.huhuran = huhuran;
++    view.mainTank = GetHuhuranMainTank(bot, huhuran);
++    view.parked = parked;
++    view.everParked = everParked;
++    view.spotsLatched = latched;
++    view.berserk = berserk;
++    view.msSinceEngage = msSinceEngage;
++
++    // Rev 3 (spec §8.2 #4), the Nefarian landing-refill pattern (BWLHelpers.cpp): every living healer BOT starts
++    // Berserk at full mana, once per attempt (claimed by GUID in the instance state, cleared with the attempt),
++    // only under the owner-approved playerbots `raid` cheat, only within MANA_REFILL_WINDOW_MS of the first
++    // Berserk tick, never for humans/selfbots. Each bot refills only itself.
++    if (berserk && msSinceBerserk <= MANA_REFILL_WINDOW_MS && bot->IsAlive() && bot->GetMaxPower(POWER_MANA) > 0 &&
++        !IsSelfBot(bot))
++        if (PlayerbotAI* const botAI = GET_PLAYERBOT_AI(bot))
++            if (GetHuhuranSlotRole(bot, botAI) == HuhuranSlotRole::Healer && botAI->HasCheat(BotCheatMask::raid) &&
++                ClaimHuhuranManaRefill(instanceId, bot->GetGUID()))
++            {
++                LOG_DEBUG("playerbots", "[Aq40Huhuran] {} mana refill at berserk", bot->GetName());
++                bot->SetPower(POWER_MANA, bot->GetMaxPower(POWER_MANA));
++            }
++
++    if (HuhuranDiagDue(instanceId, now))
++        LogHuhuranDiag(bot, view);
++    return true;
++}
++
++HuhuranSlotRole GetHuhuranSlotRole(Player* bot, PlayerbotAI* botAI)
++{
++    // Humans are never slotted: a bot is `ai && !IsSelfBot` (project convention).
++    if (!bot || !botAI || IsSelfBot(bot))
++        return HuhuranSlotRole::None;
++    if (PlayerbotAI::IsHeal(bot))
++        return HuhuranSlotRole::Healer;
++    if (PlayerbotAI::IsRanged(bot) && !PlayerbotAI::IsTank(bot))
++        return HuhuranSlotRole::Ranged;
++    return HuhuranSlotRole::None;
++}
++
++bool GetHuhuranSpot(Player* bot, PlayerbotAI* botAI, HuhuranView const& view, Position& spot)
++{
++    if (!view.spotsLatched || !bot || !bot->IsInWorld())
++        return false;
++    HuhuranSlotRole const role = GetHuhuranSlotRole(bot, botAI);
++    if (role == HuhuranSlotRole::None)
++        return false;
++
++    // P -> T. Latches T here from her current position if the spots latched before any Back step - with rev 4's
++    // latch-at-engage this is the normal path: the first ring holder's call fixes T (so the ring bearing follows
++    // her approach) before GetLatchedRank builds the table against it, and the MT's later Back step reads the
++    // same latched T.
++    Position const t = GetHuhuranTankStation(bot, view);
++    float const refBearing = ParkBearingTo(t.GetPositionX(), t.GetPositionY());
++    uint32 rank = 0;
++    uint32 count = 0;
++    // count > 0 is implied by rank < count; RingSpot divides by count.
++    if (!GetLatchedRank(bot, role, refBearing, rank, count) || count == 0 || rank >= count)
++        return false;
++
++    Pt const s = Aq40HuhuranRules::RingSpot(ParkPt(), RoleRadius(role), count, rank, refBearing);
++    float z = HUHURAN_PARK.GetPositionZ();
++    bot->UpdateAllowedPositionZ(s.x, s.y, z);
++    spot.Relocate(s.x, s.y, z, Position::NormalizeOrientation(std::atan2(
++                                   HUHURAN_PARK.GetPositionY() - s.y, HUHURAN_PARK.GetPositionX() - s.x)));
++    return true;
++}
++
++bool HuhuranKeepWyvernSting(Player* bot, Unit* target)
++{
++    if (!bot || bot->GetMapId() != AQ40_MAP_ID || !target)
++        return false;
++    Player* const victim = target->ToPlayer();
++    if (!victim || PlayerbotAI::IsTank(victim))
++        return false;
++    return IsHuhuranEncounterActive(bot);
++}
++
++void HuhuranEraseTrackers(Player* bot)
++{
++    if (!bot || !bot->GetMap())
++        return;
++
++    std::lock_guard<std::mutex> lock(huhuranMutex);
++    huhuranStateByInstance.erase(bot->GetMap()->GetInstanceId());
++}
++
++bool HuhuranOpenerHold(HuhuranView const& view)
++{
++    return Aq40HuhuranRules::HoldFireOnHuhuran(view.everParked, view.msSinceEngage);
++}
++
++// ---- rev 2 (spec §7.2) ----
++
++bool HuhuranThreatDisciplined(Player* bot, HuhuranView const& view)
++{
++    return bot && view.huhuran && bot != view.mainTank && GET_PLAYERBOT_AI(bot) && !PlayerbotAI::IsHeal(bot);
++}
++
++uint32 HuhuranAcidStacks(Unit* unit)
++{
++    if (!unit)
++        return 0;
++    Aura* const aura = unit->GetAura(SPELL_HUHURAN_ACID_SPIT);
++    return aura ? aura->GetStackAmount() : 0;
++}
++
++float HuhuranMtThreat(HuhuranView const& view)
++{
++    if (!view.huhuran || !view.mainTank)
++        return 0.0f;
++    // 0 when the MT is not on her threat list: no cap (spec §7.2 #2).
++    return view.huhuran->GetThreatMgr().GetThreat(view.mainTank);
++}
++
++float HuhuranOwnThreat(Player* bot, HuhuranView const& view)
++{
++    if (!bot || !view.huhuran)
++        return 0.0f;
++    return view.huhuran->GetThreatMgr().GetThreat(bot);
++}
++
++float HuhuranThreatDenominator(Player* bot, HuhuranView const& view)
++{
++    using Aq40HuhuranRules::ThreatRole;
++    if (!bot || !view.huhuran)
++        return 0.0f;
++    ThreatRole const role = HuhuranThreatRole(bot, view);
++    float backup = 0.0f;
++    if (role == ThreatRole::Other && !view.berserk)
++    {
++        // The top living off-tank on her: the highest threat of a living role tank other than the MT (humans
++        // included - a human off-tank holds her just as well).
++        if (Group* group = bot->GetGroup())
++        {
++            ThreatManager& mgr = view.huhuran->GetThreatMgr();
++            for (GroupReference* ref = group->GetFirstMember(); ref; ref = ref->next())
++            {
++                Player* const m = ref->GetSource();
++                if (!m || m == view.mainTank || !m->IsInWorld() || m->GetMap() != bot->GetMap() || !m->IsAlive() ||
++                    !PlayerbotAI::IsTank(m))
++                    continue;
++                float const t = mgr.GetThreat(m);
++                if (t > backup)
++                    backup = t;
++            }
++        }
++    }
++    // Rev 5 §10.3: in Berserk DPS go against the MT.
++    return Aq40HuhuranRules::ThreatDenominator(role, HuhuranMtThreat(view), backup, view.berserk);
++}
++
++Aq40HuhuranRules::ThreatRole HuhuranThreatRole(Player* bot, HuhuranView const& view)
++{
++    using Aq40HuhuranRules::ThreatRole;
++    if (bot == view.mainTank)
++        return ThreatRole::MainTank;
++    return PlayerbotAI::IsTank(bot) ? ThreatRole::OffTank : ThreatRole::Other;
++}
++
++bool HuhuranThreatVetoed(Player* bot, HuhuranView const& view)
++{
++    return Aq40HuhuranRules::ThreatVetoed(HuhuranThreatRole(bot, view), HuhuranOwnThreat(bot, view),
++                                          HuhuranThreatDenominator(bot, view), view.berserk);
++}
++
++bool HuhuranThreatHardStop(Player* bot, HuhuranView const& view)
++{
++    return Aq40HuhuranRules::ThreatHardStop(HuhuranThreatRole(bot, view), HuhuranOwnThreat(bot, view),
++                                            HuhuranThreatDenominator(bot, view), view.berserk);
++}
++
++bool GetHuhuranOffTankSpot(Player* bot, HuhuranView const& view, Position& spot)
++{
++    Creature* const huhuran = view.huhuran;
++    Player* const mt = view.mainTank;
++    if (!bot || !huhuran || !mt || bot == mt || !PlayerbotAI::IsTank(bot) || !GET_PLAYERBOT_AI(bot) ||
++        IsSelfBot(bot))
++        return false;
++
++    // Rank = GUID order among the living group bot role tanks other than the MT. It shifts when the MT
++    // changes; the spot then moves by one 20-degree step at most per rank, which is fine at 4.5 y.
++    Group* const group = bot->GetGroup();
++    if (!group)
++        return false;
++    uint32 rank = 0;
++    for (GroupReference* ref = group->GetFirstMember(); ref; ref = ref->next())
++    {
++        Player* const m = ref->GetSource();
++        if (!m || m == mt || m == bot || !m->IsInWorld() || m->GetMap() != bot->GetMap() || !m->IsAlive() ||
++            !GET_PLAYERBOT_AI(m) || IsSelfBot(m) || !PlayerbotAI::IsTank(m))
++            continue;
++        if (m->GetGUID() < bot->GetGUID())
++            ++rank;
++    }
++
++    Aq40HuhuranRules::Pt const s = Aq40HuhuranRules::OffTankSpot(
++        Pt{huhuran->GetPositionX(), huhuran->GetPositionY()}, Pt{mt->GetPositionX(), mt->GetPositionY()},
++        huhuran->GetCombatReach(), rank);
++    float z = huhuran->GetPositionZ();
++    bot->UpdateAllowedPositionZ(s.x, s.y, z);
++    spot.Relocate(s.x, s.y, z,
++                  Position::NormalizeOrientation(std::atan2(huhuran->GetPositionY() - s.y,
++                                                            huhuran->GetPositionX() - s.x)));
++    return true;
++}
++
++char const* HuhuranTankHealSpellName(Player* bot)
++{
++    if (!bot)
++        return nullptr;
++    switch (bot->getClass())
++    {
++        case CLASS_PRIEST:
++            return "flash heal";
++        case CLASS_PALADIN:
++            return "flash of light";
++        case CLASS_SHAMAN:
++            return "lesser healing wave";
++        case CLASS_DRUID:
++            return "regrowth";
++        default:
++            return nullptr;
++    }
++}
++
++bool IsHuhuranTankHealer(Player* bot, PlayerbotAI* botAI, HuhuranView const& view)
++{
++    Player* const mt = view.mainTank;
++    if (!mt || !bot->IsAlive() || GetHuhuranSlotRole(bot, botAI) != HuhuranSlotRole::Healer)
++        return false;
++
++    // The ceil(n/2) living group healer bots nearest the MT, from live positions each tick (R12): a role
++    // choice, not a station, so re-picking as bodies move is fine.
++    std::vector<Aq40HuhuranRules::HealerDist> healers;
++    auto consider = [&](Player* p)
++    {
++        if (!p || !p->IsInWorld() || p->GetMap() != bot->GetMap() || !p->IsAlive() ||
++            GetHuhuranSlotRole(p, GET_PLAYERBOT_AI(p)) != HuhuranSlotRole::Healer)
++            return;
++        healers.push_back({p->GetExactDist2d(mt), p->GetGUID().GetRawValue()});
++    };
++    if (Group* group = bot->GetGroup())
++    {
++        for (GroupReference* ref = group->GetFirstMember(); ref; ref = ref->next())
++            consider(ref->GetSource());
++    }
++    else
++        consider(bot);
++    return Aq40HuhuranRules::IsNearestTankHealer(healers, bot->GetGUID().GetRawValue());
++}
++
++bool GetHuhuranTankHeal(Player* bot, PlayerbotAI* botAI, HuhuranView const& view, Player*& tank, char const*& spell)
++{
++    constexpr float TANK_HEAL_RANGE = 40.0f;  // all four fast heals; CanCastSpell passes OUT_OF_RANGE
++
++    // No MT: stock healing (R12).
++    if (!view.berserk || !view.mainTank || !bot || !botAI)
++        return false;
++    char const* const name = HuhuranTankHealSpellName(bot);
++    if (!name || !IsHuhuranTankHealer(bot, botAI, view))
++        return false;
++
++    std::vector<Player*> tanks;
++    std::vector<Aq40HuhuranRules::TankHp> hp;
++    if (Group* group = bot->GetGroup())
++    {
++        for (GroupReference* ref = group->GetFirstMember(); ref; ref = ref->next())
++        {
++            Player* const m = ref->GetSource();
++            if (!m || !m->IsInWorld() || m->GetMap() != bot->GetMap() || !m->IsAlive() || !PlayerbotAI::IsTank(m))
++                continue;
++            tanks.push_back(m);
++            hp.push_back({m == view.mainTank, m->GetHealthPct()});
++        }
++    }
++    int const pick = Aq40HuhuranRules::PickTankHealTarget(hp);
++    if (pick < 0)
++        return false;
++    Player* const target = tanks[static_cast<size_t>(pick)];
++    // Skip (stock healing runs) when this cast cannot go off now; no fallback to another tank.
++    if (bot->GetDistance(target) > TANK_HEAL_RANGE || !bot->IsWithinLOSInMap(target) ||
++        !botAI->CanCastSpell(name, target))
++        return false;
++    // Rev 3 (§8.2 #5): CanCastSpell checks with TRIGGERED_IGNORE_POWER_AND_REAGENT_COST, so it never sees mana -
++    // pull 2's dry healers kept this heal first in priority and every cast failed. Check the real cost.
++    int32 cost = 0;
++    if (!HuhuranSpellManaCost(bot, botAI, name, cost) || int32(bot->GetPower(POWER_MANA)) < cost)
++        return false;
++    tank = target;
++    spell = name;
++    return true;
++}
++
++HuhuranMtStep GetHuhuranMtStep(Player* bot, HuhuranView const& view, Unit* currentTarget)
++{
++    Creature* const huhuran = view.huhuran;
++    if (!bot || !huhuran || bot != view.mainTank)
++        return HuhuranMtStep::None;
++    bool const victim = huhuran->GetVictim() == bot;
++    bool const melee = bot->IsWithinMeleeRange(huhuran);
++    if (!bot->IsWithinLOSInMap(huhuran))
++        return HuhuranMtStep::Close;
++    // Out of melee: close in - unless she is already on the MT and nearly there (she walks to her victim;
++    // running at her would undo every backing step toward T). The slack only protects Back steps, which never
++    // run while she is parked (R16): parked, the MT's ReachTarget is vetoed, so it must always close itself.
++    if (!melee && !(victim && !view.parked && bot->GetDistance(huhuran) <= HUHURAN_MT_CHASE_SLACK))
++        return HuhuranMtStep::Close;
++    if (currentTarget != huhuran)
++        return HuhuranMtStep::Attack;
++    if (!victim || !melee || view.parked)
++        return HuhuranMtStep::None;  // not on the MT yet: earn aggro with the normal rotation first
++    // Every Back precondition but arrival holds: this is where T latches in the normal case.
++    Position const t = GetHuhuranTankStation(bot, view);
++    if (bot->GetExactDist2d(t.GetPositionX(), t.GetPositionY()) > HUHURAN_MT_ARRIVE)
++        return HuhuranMtStep::Back;
++    return HuhuranMtStep::None;
++}
++
++Position GetHuhuranTankStation(Player* bot, HuhuranView const& view)
++{
++    float const px = HUHURAN_PARK.GetPositionX();
++    float const py = HUHURAN_PARK.GetPositionY();
++    float const pz = HUHURAN_PARK.GetPositionZ();
++    if (!bot || !bot->IsInWorld() || !bot->GetMap() || !view.huhuran)
++        return HUHURAN_MT_STATION;
++
++    // The candidate from her current 2-D position, computed outside the lock; only the first caller's sticks.
++    float cx = HUHURAN_MT_STATION.GetPositionX();
++    float cy = HUHURAN_MT_STATION.GetPositionY();
++    float const dx = px - view.huhuran->GetPositionX();
++    float const dy = py - view.huhuran->GetPositionY();
++    float const d = std::hypot(dx, dy);
++    if (d > HUHURAN_MT_STATION_DEGENERATE)
++    {
++        cx = px + HUHURAN_MT_STATION_OFFSET * dx / d;
++        cy = py + HUHURAN_MT_STATION_OFFSET * dy / d;
++    }
++
++    float tx;
++    float ty;
++    bool latchedNow = false;
++    uint32 const instanceId = bot->GetMap()->GetInstanceId();
++    {
++        std::lock_guard<std::mutex> lock(huhuranMutex);
++        HuhuranInstanceState& st = huhuranStateByInstance[instanceId];
++        if (!st.tankStationSet)
++        {
++            st.tankStationSet = true;
++            st.tankX = cx;
++            st.tankY = cy;
++            latchedNow = true;
++        }
++        tx = st.tankX;
++        ty = st.tankY;
++    }
++    if (latchedNow)
++        LOG_DEBUG("playerbots", "[Aq40Huhuran] instance {}: tank station latched ({:.1f},{:.1f}), her dist to P {:.1f}",
++                  instanceId, tx, ty, d);
++    return Position(tx, ty, pz, Position::NormalizeOrientation(std::atan2(py - ty, px - tx)));
++}
++
++// ---- rev 3 (spec §8.2) ----
++
++namespace
++{
++    char const* HuhuranMtBigDefensiveName(Player* bot)
++    {
++        switch (bot->getClass())
++        {
++            case CLASS_WARRIOR:
++                return "shield wall";
++            case CLASS_PALADIN:
++                return "divine protection";
++            case CLASS_DRUID:
++                return "barkskin";
++            default:
++                return nullptr;
++        }
++    }
++
++    bool HuhuranMtDefensiveUsed(Player* bot, HuhuranMtDefensive which)
++    {
++        std::lock_guard<std::mutex> lock(huhuranMutex);
++        auto it = huhuranStateByInstance.find(bot->GetMap()->GetInstanceId());
++        return it != huhuranStateByInstance.end() &&
++               it->second.mtDefensiveUsed.count({bot->GetGUID(), uint8(which)}) != 0;
++    }
++}
++
++HuhuranMtDefensive GetHuhuranMtDefensive(Player* bot, PlayerbotAI* botAI, HuhuranView const& view, char const*& spell)
++{
++    if (!bot || !botAI || !view.berserk || bot != view.mainTank || !bot->IsAlive())
++        return HuhuranMtDefensive::None;
++    if (char const* const big = HuhuranMtBigDefensiveName(bot))
++        if (!HuhuranMtDefensiveUsed(bot, HuhuranMtDefensive::Big) && botAI->CanCastSpell(big, bot))
++        {
++            spell = big;
++            return HuhuranMtDefensive::Big;
++        }
++    if (bot->getClass() == CLASS_WARRIOR && bot->GetHealthPct() < Aq40HuhuranRules::LAST_STAND_HP_PCT &&
++        !HuhuranMtDefensiveUsed(bot, HuhuranMtDefensive::LastStand) && botAI->CanCastSpell("last stand", bot))
++    {
++        spell = "last stand";
++        return HuhuranMtDefensive::LastStand;
++    }
++    return HuhuranMtDefensive::None;
++}
++
++void MarkHuhuranMtDefensiveUsed(Player* bot, HuhuranMtDefensive which)
++{
++    if (!bot || !bot->GetMap() || which == HuhuranMtDefensive::None)
++        return;
++    std::lock_guard<std::mutex> lock(huhuranMutex);
++    huhuranStateByInstance[bot->GetMap()->GetInstanceId()].mtDefensiveUsed.insert({bot->GetGUID(), uint8(which)});
++}
++
++bool HuhuranMtShouldFace(Player* bot, HuhuranView const& view)
++{
++    return bot && view.huhuran && view.parked && bot == view.mainTank && bot->IsStopped() &&
++           !bot->HasInArc(HUHURAN_FACE_ARC, view.huhuran);
++}
++
++}  // namespace TempleOfAhnQirajHelpers
+diff --git a/modules/mod-playerbots/src/Ai/Raid/Aq40/Aq40HuhuranRules.h b/modules/mod-playerbots/src/Ai/Raid/Aq40/Aq40HuhuranRules.h
+new file mode 100644
+index 0000000..1aff568
+--- /dev/null
++++ b/modules/mod-playerbots/src/Ai/Raid/Aq40/Aq40HuhuranRules.h
+@@ -0,0 +1,253 @@
++/*
++ * This file is part of the mod-playerbots module for AzerothCore. See AUTHORS file for Copyright
++ * information; released under GNU GPL v2 license, redistribute/modify under version 2 of the License,
++ * or (at your option) any later version.
++ */
++
++// Pure rules for AQ40 Princess Huhuran (overlay patch 0016). Deliberately free of core and
++// playerbots includes so tests/test_aq40_huhuran_rules.cpp builds it standalone.
++// Spec: docs/superpowers/specs/2026-10-20-playerbot-aq40-huhuran-design.md (overlay repo).
++
++#ifndef PLAYERBOTS_AQ40HUHURANRULES_H
++#define PLAYERBOTS_AQ40HUHURANRULES_H
++
++#include <algorithm>
++#include <cmath>
++#include <cstdint>
++#include <utility>
++#include <vector>
++
++namespace Aq40HuhuranRules
++{
++    struct Pt
++    {
++        float x;
++        float y;
++    };
++
++    constexpr float PI_F = 3.14159265358979f;
++
++    // Ring radii, both centred on the park spot P (spec §4.3).
++    constexpr float RANGED_RADIUS = 17.0f;   // inner ring: ranged DPS bots
++    constexpr float HEALER_RADIUS = 32.0f;   // outer ring: healer bots
++    // Noxious Poison splash reach (spec §4.3 constraint 1).
++    constexpr float SPLASH_REACH = 16.5f;
++
++    // Parking (spec §4.2, rev 2 §7.2 #3). Hysteresis: parked at <= 6 y, re-park once she is beyond 8 y.
++    constexpr float PARKED_RADIUS = 6.0f;
++    constexpr float REPARK_RADIUS = 8.0f;
++    // A bot counts as on its spot within this distance (spec §4.3).
++    constexpr float SLOT_TOLERANCE = 1.5f;
++
++    // Opener hold fails open after 45 s (rev 2, spec §7.2 #1).
++    constexpr uint32_t OPENER_FAILOPEN_MS = 45000;
++
++    // Rev 3 (spec §8.2 #2): a warrior MT's Last Stand goes off once below this HP % during Berserk.
++    constexpr float LAST_STAND_HP_PCT = 50.0f;
++    // Rev 3 (spec §8.2 #4): the one-time healer mana refill only within this long of the first Berserk tick seen
++    // in the instance (the Nefarian landing-refill window), so a healer revived later is not refilled.
++    constexpr uint32_t MANA_REFILL_WINDOW_MS = 5000;
++
++    // spell_huhuran_poison_bolt truncates to the 15 nearest players (spec §1 / §4.6).
++    constexpr uint32_t BOLT_TARGETS = 15;
++    // [Aq40Huhuran] diag cadence (spec §4.6).
++    constexpr uint32_t DIAG_INTERVAL_MS = 5000;
++
++    // Spot `rank` of `count` evenly spaced on the ring (spec §4.3). Requires rank < count.
++    inline Pt RingSpot(Pt centre, float radius, uint32_t count, uint32_t rank, float refBearing)
++    {
++        float const a = refBearing + 2.0f * PI_F * (static_cast<float>(rank) + 0.5f) / static_cast<float>(count);
++        return Pt{centre.x + radius * std::cos(a), centre.y + radius * std::sin(a)};
++    }
++
++    // How many of `others` lie within `reach` of `victim` (Noxious Poison splash, spec §4.3).
++    inline uint32_t PointsWithin(Pt victim, std::vector<Pt> const& others, float reach)
++    {
++        uint32_t n = 0;
++        for (Pt const& p : others)
++        {
++            float const dx = p.x - victim.x;
++            float const dy = p.y - victim.y;
++            if (std::sqrt(dx * dx + dy * dy) <= reach)
++                ++n;
++        }
++        return n;
++    }
++
++    // Non-tank bots hold fire until she has been parked once this attempt, failing open (rev 2, spec §7.2 #1).
++    // The first pull showed why "until her victim is a tank" was not enough: a backpedalling MT builds almost
++    // no threat, so full DPS out-threatened it mid-drag and she never reached P.
++    inline bool HoldFireOnHuhuran(bool everParked, uint32_t msSinceEngage)
++    {
++        return !everParked && msSinceEngage < OPENER_FAILOPEN_MS;
++    }
++
++    // Threat discipline after the hold (rev 2, spec §7.2 #2), mirroring BWL's BwlThreatBlocked /
++    // BWL_THREAT_* (copied, not called). The denominator comes from ThreatDenominator below.
++    constexpr float THREAT_LIMIT = 0.80f;       // DPS: veto threat-generating actions at/above this (with headroom)
++    constexpr float THREAT_STOP = 0.90f;        // DPS: hard-stop a running auto-attack/auto-shot at/above this
++    // Off-tanks (rev 3, spec §8.2 #3): up to the MT's threat, so they out-threaten uncapped heal threat. She only
++    // switches victim above 110 % in melee, so 1.05 still never takes her off a living MT.
++    constexpr float OFFTANK_THREAT_LIMIT = 1.00f;
++    constexpr float OFFTANK_THREAT_STOP = 1.05f;
++    // A ratio checked before a cast does not bound that cast's own threat: ~one big level-60 crit.
++    constexpr float THREAT_HEADROOM = 1500.0f;
++
++    // Threat order MT > backup > DPS (fix round 1, R11; mirrors BwlNefarianRules::ThreatRatio's role split).
++    // The MT is never capped. An off-tank is capped against the MT. Everyone else (DPS) is capped against the
++    // top living off-tank (highest threat of a living role tank other than the MT) when it has threat on her,
++    // else against the MT - so when the MT dies she turns to an off-tank, not a DPS. 0 = no cap.
++    enum class ThreatRole
++    {
++        MainTank,
++        OffTank,
++        Other
++    };
++
++    // Rev 5 §10.3 "DPS unload in Berserk": once she is berserk, DPS (Other) are capped against the MT's threat
++    // with NO headroom (ratios below). By Berserk the MT holds ~90 s of threat, so in practice DPS are uncapped;
++    // she switches only above 110 % (melee) / 130 % (range), so she is never pulled off the MT. Off-tanks and
++    // healers are unchanged.
++    // Fix round 1 (R14): in Berserk the order stays MT > off-tank > DPS, all against the MT with no headroom:
++    // off-tanks 1.05 / 1.08, DPS 1.00 / 1.03 - every one under her 110 % melee switch.
++    constexpr float BERSERK_DPS_THREAT_LIMIT = 1.00f;
++    constexpr float BERSERK_DPS_THREAT_STOP = 1.03f;
++    constexpr float BERSERK_OFFTANK_THREAT_LIMIT = 1.05f;
++    constexpr float BERSERK_OFFTANK_THREAT_STOP = 1.08f;
++
++    inline float ThreatDenominator(ThreatRole role, float mtThreat, float backupThreat, bool berserk = false)
++    {
++        if (role == ThreatRole::MainTank)
++            return 0.0f;
++        if (role == ThreatRole::Other && backupThreat > 0.0f && !berserk)
++            return backupThreat;
++        return mtThreat > 0.0f ? mtThreat : 0.0f;
++    }
++
++    // Per-role ratios: off-tanks 1.00 / 1.05 of the MT (rev 3), everyone else 0.80 / 0.90 of the top off-tank.
++    inline float ThreatLimit(ThreatRole role, bool berserk = false)
++    {
++        if (role == ThreatRole::OffTank)
++            return berserk ? BERSERK_OFFTANK_THREAT_LIMIT : OFFTANK_THREAT_LIMIT;
++        return (role == ThreatRole::Other && berserk) ? BERSERK_DPS_THREAT_LIMIT : THREAT_LIMIT;
++    }
++    inline float ThreatStop(ThreatRole role, bool berserk = false)
++    {
++        if (role == ThreatRole::OffTank)
++            return berserk ? BERSERK_OFFTANK_THREAT_STOP : OFFTANK_THREAT_STOP;
++        return (role == ThreatRole::Other && berserk) ? BERSERK_DPS_THREAT_STOP : THREAT_STOP;
++    }
++    // The veto's absolute headroom: none for berserk off-tanks and DPS (§10.3, R14), THREAT_HEADROOM otherwise.
++    inline float ThreatHeadroom(ThreatRole role, bool berserk = false)
++    {
++        return ((role == ThreatRole::Other || role == ThreatRole::OffTank) && berserk) ? 0.0f : THREAT_HEADROOM;
++    }
++
++    // The veto gate: own + THREAT_HEADROOM >= limit(role) x denom. No cap when the denominator is 0 (and the MT,
++    // whose denominator is always 0, is never capped).
++    inline bool ThreatVetoed(ThreatRole role, float own, float denom, bool berserk = false)
++    {
++        return denom > 0.0f && own + ThreatHeadroom(role, berserk) >= ThreatLimit(role, berserk) * denom;
++    }
++
++    // The hard stop, on the plain ratio (no headroom). No cap when the denominator is 0.
++    inline bool ThreatHardStop(ThreatRole role, float own, float denom, bool berserk = false)
++    {
++        return denom > 0.0f && own >= ThreatStop(role, berserk) * denom;
++    }
++
++    // Off-tanks stack on the MT's side (rev 2, spec §7.2 #3): her position + (her combat reach + 1.5 y) along
++    // her -> MT, rotated +20, -20, +40, -40 ... deg by off-tank rank. When the MT dies she turns to a body
++    // standing where the MT stood, so she barely moves off P.
++    constexpr float OFFTANK_REACH_EXTRA = 1.5f;
++    constexpr float OFFTANK_BEARING_STEP = 20.0f * PI_F / 180.0f;
++    // An off-tank counts as on its spot within this distance.
++    constexpr float OFFTANK_SPOT_TOLERANCE = 2.0f;
++
++    inline float OffTankBearingOffset(uint32_t rank)
++    {
++        float const magnitude = static_cast<float>(rank / 2 + 1) * OFFTANK_BEARING_STEP;
++        return (rank % 2 == 0) ? magnitude : -magnitude;
++    }
++
++    inline Pt OffTankSpot(Pt boss, Pt mt, float bossCombatReach, uint32_t rank)
++    {
++        float const dx = mt.x - boss.x;
++        float const dy = mt.y - boss.y;
++        // The MT on top of her has no bearing: use 0 rather than atan2(0, 0)'s platform-defined sign games.
++        float const base = (dx * dx + dy * dy) > 1e-6f ? std::atan2(dy, dx) : 0.0f;
++        float const a = base + OffTankBearingOffset(rank);
++        float const r = bossCombatReach + OFFTANK_REACH_EXTRA;
++        return Pt{boss.x + r * std::cos(a), boss.y + r * std::sin(a)};
++    }
++
++    // Healer tank priority in Berserk (rev 2, spec §7.2 #4): ceil(n / 2) of the n living healer bots are tank
++    // healers - the ones NEAREST the MT (fix round 1, R12). The first ceil(n/2) by ring rank was a contiguous
++    // arc that could sit on the far side of the ring, beyond 40 y of the MT.
++    inline uint32_t TankHealerCount(uint32_t healers) { return (healers + 1) / 2; }
++    inline bool IsTankHealer(uint32_t rank, uint32_t healers) { return rank < TankHealerCount(healers); }
++
++    struct HealerDist
++    {
++        float distToMt;  // 2-D
++        uint64_t guid;   // tie-break
++    };
++    // `self` is a tank healer: among the TankHealerCount(n) nearest the MT, ties by GUID. False when absent.
++    inline bool IsNearestTankHealer(std::vector<HealerDist> healers, uint64_t self)
++    {
++        std::sort(healers.begin(), healers.end(), [](HealerDist const& a, HealerDist const& b)
++                  { return a.distToMt != b.distToMt ? a.distToMt < b.distToMt : a.guid < b.guid; });
++        uint32_t const n = static_cast<uint32_t>(healers.size());
++        for (uint32_t i = 0; i < n; ++i)
++            if (healers[i].guid == self)
++                return IsTankHealer(i, n);
++        return false;
++    }
++
++    // A tank healer heals the MT when it is under TANK_HEAL_PCT, else the lowest-HP% role tank under it.
++    constexpr float TANK_HEAL_PCT = 90.0f;
++    struct TankHp
++    {
++        bool isMt;
++        float hpPct;
++    };
++    // Index into `tanks` of the tank to heal, or -1 for none.
++    inline int PickTankHealTarget(std::vector<TankHp> const& tanks)
++    {
++        for (size_t i = 0; i < tanks.size(); ++i)
++            if (tanks[i].isMt && tanks[i].hpPct < TANK_HEAL_PCT)
++                return static_cast<int>(i);
++        int best = -1;
++        for (size_t i = 0; i < tanks.size(); ++i)
++            if (tanks[i].hpPct < TANK_HEAL_PCT && (best < 0 || tanks[i].hpPct < tanks[static_cast<size_t>(best)].hpPct))
++                best = static_cast<int>(i);
++        return best;
++    }
++
++    // Ring spots latch at engage (rev 4, spec §9.2): true from the first view of the attempt, wherever she is.
++    // Supersedes the 8 y / 30 s-within-20 y rules (§4.3, R8): pull 3's ranged and healers followed the dragging
++    // MT in a clump and one Noxious Poison hit 35 (8 healers). The MT now drags her into already-formed rings;
++    // healers are out of the MT's heal range for part of the drag (~15-20 s), an accepted cost. Kept as a rule
++    // (rather than a bare `true` at the call site) so the latch point stays documented and tested.
++    inline bool SpotsLatch(bool /*alreadyLatched*/) { return true; }
++
++    // Parked hysteresis (spec §4.2): stay parked to REPARK_RADIUS, become parked at PARKED_RADIUS.
++    inline bool UpdateParked(bool wasParked, float bossDistToPark)
++    {
++        return wasParked ? bossDistToPark <= REPARK_RADIUS : bossDistToPark <= PARKED_RADIUS;
++    }
++
++    // Healers among the `n` nearest bodies to her: the predicted Poison Bolt set (spec §4.6).
++    inline uint32_t HealersAmongNearest(std::vector<std::pair<float, bool>> distIsHealer, uint32_t n)
++    {
++        std::sort(distIsHealer.begin(), distIsHealer.end(),
++                  [](std::pair<float, bool> const& a, std::pair<float, bool> const& b) { return a.first < b.first; });
++        uint32_t healers = 0;
++        for (size_t i = 0; i < distIsHealer.size() && i < n; ++i)
++            if (distIsHealer[i].second)
++                ++healers;
++        return healers;
++    }
++}
++
++#endif
 diff --git a/modules/mod-playerbots/src/Ai/Raid/Aq40/Aq40Multipliers.cpp b/modules/mod-playerbots/src/Ai/Raid/Aq40/Aq40Multipliers.cpp
 new file mode 100644
 index 0000000..82ba54b
@@ -3018,10 +4707,10 @@ index 0000000..82ba54b
 +}
 diff --git a/modules/mod-playerbots/src/Ai/Raid/Aq40/Aq40Multipliers.h b/modules/mod-playerbots/src/Ai/Raid/Aq40/Aq40Multipliers.h
 new file mode 100644
-index 0000000..f3c9d92
+index 0000000..da2dda9
 --- /dev/null
 +++ b/modules/mod-playerbots/src/Ai/Raid/Aq40/Aq40Multipliers.h
-@@ -0,0 +1,63 @@
+@@ -0,0 +1,109 @@
 +/*
 + * This file is part of the mod-playerbots module for AzerothCore. See AUTHORS file for Copyright
 + * information; released under GNU GPL v2 license, redistribute/modify under version 2 of the License,
@@ -3081,6 +4770,52 @@ index 0000000..f3c9d92
 +public:
 +    Aq40CthunCastSafetyMultiplier(PlayerbotAI* ai)
 +        : Multiplier(ai, "aq40 cthun cast safety multiplier") {}
++    float GetValue(Action* action) override;
++};
++
++// Princess Huhuran.
++
++// Ring holders: no generic mover while they own a spot, on it or walking to it. Off-tanks (rev 2): none
++// while they have a melee spot beside the MT after the opener hold. The MT: none while
++// "aq40 huhuran park boss" has work.
++class Aq40HuhuranMovementMultiplier : public Multiplier
++{
++public:
++    Aq40HuhuranMovementMultiplier(PlayerbotAI* ai) : Multiplier(ai, "aq40 huhuran movement multiplier") {}
++    float GetValue(Action* action) override;
++};
++
++// The opener hold (rev 2, spec §7.2 #1): non-tank bots do not attack her until she has been parked once this
++// attempt, failing open after 45 s.
++class Aq40HuhuranTargetHoldMultiplier : public Multiplier
++{
++public:
++    Aq40HuhuranTargetHoldMultiplier(PlayerbotAI* ai) : Multiplier(ai, "aq40 huhuran target hold multiplier") {}
++    float GetValue(Action* action) override;
++};
++
++// She is taunt-immune: no taunt (single-target or AoE) while she is the bot's current target (BWL Nefarian rule).
++class Aq40HuhuranTauntMultiplier : public Multiplier
++{
++public:
++    Aq40HuhuranTauntMultiplier(PlayerbotAI* ai) : Multiplier(ai, "aq40 huhuran taunt multiplier") {}
++    float GetValue(Action* action) override;
++};
++
++// Rev 2 (spec §7.2 #2): threat discipline on her for DPS and off-tanks, against the MT's threat (BWL's
++// BwlThreatDisciplineMultiplier, mirrored).
++class Aq40HuhuranThreatMultiplier : public Multiplier
++{
++public:
++    Aq40HuhuranThreatMultiplier(PlayerbotAI* ai) : Multiplier(ai, "aq40 huhuran threat multiplier") {}
++    float GetValue(Action* action) override;
++};
++
++// Rev 3 (spec §8.2 #1): DPS / raid / racial / trinket / tank cooldowns held until Berserk, by exact action name.
++class Aq40HuhuranCooldownHoldMultiplier : public Multiplier
++{
++public:
++    Aq40HuhuranCooldownHoldMultiplier(PlayerbotAI* ai) : Multiplier(ai, "aq40 huhuran cooldown hold multiplier") {}
 +    float GetValue(Action* action) override;
 +};
 +
@@ -3218,12 +4953,228 @@ index 0000000..5aa0787
 +        return 0.0f;
 +    return 1.0f;
 +}
+diff --git a/modules/mod-playerbots/src/Ai/Raid/Aq40/Aq40Multipliers_Huhuran.cpp b/modules/mod-playerbots/src/Ai/Raid/Aq40/Aq40Multipliers_Huhuran.cpp
+new file mode 100644
+index 0000000..af3fd90
+--- /dev/null
++++ b/modules/mod-playerbots/src/Ai/Raid/Aq40/Aq40Multipliers_Huhuran.cpp
+@@ -0,0 +1,210 @@
++/*
++ * This file is part of the mod-playerbots module for AzerothCore. See AUTHORS file for Copyright
++ * information; released under GNU GPL v2 license, redistribute/modify under version 2 of the License,
++ * or (at your option) any later version.
++ */
++
++// Princess Huhuran multipliers (overlay patch 0016). Spec:
++// docs/superpowers/specs/2026-10-20-playerbot-aq40-huhuran-design.md (overlay repo), §4.2-4.3.
++
++#include "Aq40Multipliers.h"
++
++#include "Aq40Helpers.h"
++#include "AttackAction.h"
++#include "ChooseTargetActions.h"
++#include "EncounterHelpers.h"
++#include "FollowActions.h"
++#include "GenericSpellActions.h"
++#include "HunterActions.h"
++#include "MovementActions.h"
++#include "Playerbots.h"
++#include "ReachTargetActions.h"
++
++#include <string>
++#include <unordered_set>
++
++using namespace TempleOfAhnQirajHelpers;
++
++namespace
++{
++    bool IsHuhuranAction(Action* action) { return action->getName().rfind("aq40 huhuran", 0) == 0; }
++}
++
++// The C'Thun in-combat mover set (Aq40CthunMovementMultiplier). Type tests before any view lookup: this runs
++// for every queued action of every bot on every tick. NEVER blanket-veto MovementAction: AttackAction and
++// MeleeAction derive from it, and that would silence auto-attack.
++float Aq40HuhuranMovementMultiplier::GetValue(Action* action)
++{
++    if (!action || bot->GetMapId() != AQ40_MAP_ID || IsHuhuranAction(action))
++        return 1.0f;
++
++    bool const isGenericMover = dynamic_cast<CombatFormationMoveAction*>(action) ||
++                                dynamic_cast<RearFlankAction*>(action) ||
++                                dynamic_cast<ReachTargetAction*>(action) || dynamic_cast<FollowAction*>(action);
++    if (!isGenericMover)
++        return 1.0f;
++
++    HuhuranView view;
++    if (!GetHuhuranView(bot, view))
++        return 1.0f;
++
++    // A ring holder, on its spot OR still walking to it: the veto must not fail open while travelling, or
++    // follow/formation pulls it off course every tick.
++    Position spot;
++    if (GetHuhuranSpot(bot, botAI, view, spot))
++        return 0.0f;
++
++    // An off-tank with a melee spot beside the MT (rev 2, spec §7.2 #3), on it or walking to it: "aq40 huhuran
++    // off tank engage" owns its movement. Never while the opener hold runs (no spot is used then).
++    if (PlayerbotAI::IsTank(bot) && bot != view.mainTank && !HuhuranOpenerHold(view) &&
++        GetHuhuranOffTankSpot(bot, view, spot))
++        return 0.0f;
++
++    // The MT holds position once she is parked (rev 7, spec §12.2 #2): stock "tank face" put her back to the
++    // raid, but the rings surround her, so pull 6's MT circled her (834 runs, 24 moves). "aq40 huhuran park
++    // boss" turns it in place instead. Unparked, it owns its movement while it has work (the drag).
++    if (bot == view.mainTank &&
++        (view.parked || GetHuhuranMtStep(bot, view, AI_VALUE(Unit*, "current target")) != HuhuranMtStep::None))
++        return 0.0f;
++
++    return 1.0f;
++}
++
++// The opener hold (rev 2, spec §7.2 #1): the Nefarian hold-fire set (BwlNefarianMultiplier) - the generic target
++// choosers plus the melee / auto-shot / wand starters - and, for a bot already on her, its threat-bearing
++// non-heal actions. Non-tank bots only, until she has been parked once this attempt. Time-bounded by
++// HoldFireOnHuhuran's 45 s fail-open, so this is never a permanent targeting veto.
++float Aq40HuhuranTargetHoldMultiplier::GetValue(Action* action)
++{
++    if (!action || bot->GetMapId() != AQ40_MAP_ID || IsHuhuranAction(action))
++        return 1.0f;
++
++    // Exact classes, never AttackAction (MeleeAction and our own actions derive from it).
++    bool const isTargetChooser = dynamic_cast<DpsAssistAction*>(action) ||
++                                 dynamic_cast<DpsAoeAction*>(action) ||
++                                 dynamic_cast<TankAssistAction*>(action) ||
++                                 dynamic_cast<AggressiveTargetAction*>(action) ||
++                                 dynamic_cast<AttackAnythingAction*>(action) ||
++                                 dynamic_cast<AttackLeastHpTargetAction*>(action) ||
++                                 dynamic_cast<AttackRtiTargetAction*>(action);
++    bool const isAutoAttack = dynamic_cast<MeleeAction*>(action) || dynamic_cast<CastAutoShotAction*>(action) ||
++                              dynamic_cast<CastShootAction*>(action);
++    // Heals are Aoe-typed (CastHealingSpellAction) and never held.
++    bool const isThreatAction = action->getThreatType() != Action::ActionThreatType::None &&
++                                !dynamic_cast<CastHealingSpellAction*>(action);
++    if (!isTargetChooser && !isAutoAttack && !isThreatAction)
++        return 1.0f;
++    if (PlayerbotAI::IsTank(bot))
++        return 1.0f;
++
++    // Attack starters and threat actions are held only against her: cheap entry test before the view.
++    Unit* current = nullptr;
++    if (!isTargetChooser)
++    {
++        current = AI_VALUE(Unit*, "current target");
++        if (!current || current->GetEntry() != NPC_HUHURAN)
++            return 1.0f;
++    }
++
++    HuhuranView view;
++    if (!GetHuhuranView(bot, view) || !HuhuranOpenerHold(view))
++        return 1.0f;
++
++    // She is the only hostile in her room: every generic chooser would hand her straight back.
++    if (isTargetChooser)
++        return 0.0f;
++    return current == view.huhuran ? 0.0f : 1.0f;
++}
++
++// Taunt-immune (spec §4.2): a taunt at her is a wasted GCD for any tank. Copied from BWL's Nefarian veto
++// (BwlNefarianMultiplier): taunt-type actions (EncounterHelpers::IsTauntAction, tanks only) while she is the
++// current target. Encounter only: the view gate fails outside it.
++float Aq40HuhuranTauntMultiplier::GetValue(Action* action)
++{
++    if (!action || bot->GetMapId() != AQ40_MAP_ID || !EncounterHelpers::IsTauntAction(bot, action))
++        return 1.0f;
++
++    Unit* const current = AI_VALUE(Unit*, "current target");
++    if (!current || current->GetEntry() != NPC_HUHURAN)
++        return 1.0f;
++
++    HuhuranView view;
++    if (!GetHuhuranView(bot, view))
++        return 1.0f;
++    return current == view.huhuran ? 0.0f : 1.0f;
++}
++
++// Rev 2 (spec §7.2 #2): threat discipline after the opener hold, mirroring BwlThreatDisciplineMultiplier
++// (copied, not called): the same veto set - every threat-typed action plus the exact auto-attack restarters
++// (MeleeAction, CastAutoShotAction, CastShootAction, none of which has a subclass), heals never - against
++// her only, for DPS and off-tanks (HuhuranThreatDisciplined: not a healer, not the MT). Order MT > backup > DPS
++// (fix round 1, R11, the Nefarian rule): off-tanks against the MT's threat at 1.00 (rev 3, §8.2 #3), DPS
++// against the top living off-tank's (fallback the MT's) at 0.80; veto at own + 1500 >= ratio x denominator,
++// plus upstream's AoE rule. In Berserk all go against the MT with no headroom: off-tanks 1.05, DPS 1.00 (rev 5
++// §10.3, R14). No cap when the denominator is 0. Cheap type, role and target tests before the view: this runs
++// for every queued action of every bot on every tick.
++float Aq40HuhuranThreatMultiplier::GetValue(Action* action)
++{
++    if (!action || bot->GetMapId() != AQ40_MAP_ID || IsHuhuranAction(action))
++        return 1.0f;
++
++    Action::ActionThreatType const threatType = action->getThreatType();
++    bool const isAutoAttack = dynamic_cast<MeleeAction*>(action) || dynamic_cast<CastAutoShotAction*>(action) ||
++                              dynamic_cast<CastShootAction*>(action);
++    if (threatType == Action::ActionThreatType::None && !isAutoAttack)
++        return 1.0f;
++    // Heals are Aoe-typed (CastHealingSpellAction) and must never be limited, whoever casts them.
++    if (dynamic_cast<CastHealingSpellAction*>(action) || PlayerbotAI::IsHeal(bot))
++        return 1.0f;
++    if (AI_VALUE(bool, "neglect threat"))
++        return 1.0f;
++
++    Unit* const current = AI_VALUE(Unit*, "current target");
++    if (!current || current->GetEntry() != NPC_HUHURAN)
++        return 1.0f;
++
++    HuhuranView view;
++    if (!GetHuhuranView(bot, view) || current != view.huhuran || !HuhuranThreatDisciplined(bot, view))
++        return 1.0f;
++    float const denom = HuhuranThreatDenominator(bot, view);
++    if (denom <= 0.0f)
++        return 1.0f;  // no tank threat on her to protect: no cap
++
++    bool const veto = (threatType == Action::ActionThreatType::Aoe && AI_VALUE2(uint8, "threat", "aoe") >= 50) ||
++                      HuhuranThreatVetoed(bot, view);
++    return veto ? 0.0f : 1.0f;
++}
++
++// Rev 3 (spec §8.2 #1): offensive, raid, racial, trinket and tank cooldowns are held for Berserk. Pull 2 spent
++// every one between 20 and 90 s (the stock boost triggers have no phase input) and the MT had nothing left
++// when she went berserk. Exact registered action names (each checked against its context creator / Action
++// constructor); each bot's own strategies decide which it actually has. Mana cooldowns (innervate, mana tide,
++// potions, healthstone) and heals are deliberately absent. Bots only (not selfbots); 1.0 whenever the view
++// is inert or Berserk is up, so the stock triggers then fire them as usual.
++float Aq40HuhuranCooldownHoldMultiplier::GetValue(Action* action)
++{
++    static std::unordered_set<std::string> const kHeld = {
++        // DPS cooldowns
++        "death wish", "recklessness", "blade flurry", "adrenaline rush", "arcane power", "icy veins", "combustion",
++        "presence of mind", "mirror image", "rapid fire", "bestial wrath", "elemental mastery", "power infusion",
++        "avenging wrath", "divine favor", "berserk", "cold blood",
++        // raid cooldowns
++        "bloodlust", "heroism",
++        // racials
++        "blood fury", "berserking",
++        // trinkets
++        "use trinket",
++        // tank defensives. barkskin / divine protection (rev 3 fix round 1, R13): a bear MT's stock "almost full
++        // health" barkskin fired every ~60 s, so it was on cooldown at Berserk and the MT defensive could not fire.
++        "shield wall", "last stand", "every man for himself", "barkskin", "divine protection"};
++
++    if (!action || bot->GetMapId() != AQ40_MAP_ID || IsSelfBot(bot))
++        return 1.0f;
++    if (!kHeld.count(action->getName()))
++        return 1.0f;
++
++    HuhuranView view;
++    if (!GetHuhuranView(bot, view) || view.berserk)
++        return 1.0f;
++    return 0.0f;
++}
 diff --git a/modules/mod-playerbots/src/Ai/Raid/Aq40/Aq40Strategy.cpp b/modules/mod-playerbots/src/Ai/Raid/Aq40/Aq40Strategy.cpp
 new file mode 100644
-index 0000000..780ad94
+index 0000000..a926e4f
 --- /dev/null
 +++ b/modules/mod-playerbots/src/Ai/Raid/Aq40/Aq40Strategy.cpp
-@@ -0,0 +1,129 @@
+@@ -0,0 +1,182 @@
 +/*
 + * This file is part of the mod-playerbots module for AzerothCore. See AUTHORS file for Copyright
 + * information; released under GNU GPL v2 license, redistribute/modify under version 2 of the License,
@@ -3326,6 +5277,43 @@ index 0000000..780ad94
 +    triggers.push_back(new TriggerNode("aq40 cthun not formed", {
 +        NextAction("aq40 cthun form up", ACTION_RAID + 3) }));
 +
++    // ---- Huhuran ----
++    // Spec docs/superpowers/specs/2026-10-20-playerbot-aq40-huhuran-design.md (overlay repo), §4.2-4.3.
++
++    triggers.push_back(new TriggerNode("aq40 huhuran not in combat", {
++        NextAction("aq40 huhuran erase trackers", ACTION_EMERGENCY + 11) }));
++
++    // The MT's drag onto P: close, take her, back her toward T while she is on it and not parked.
++    triggers.push_back(new TriggerNode("aq40 huhuran mt has work", {
++        NextAction("aq40 huhuran park boss", ACTION_RAID + 4) }));
++
++    // Stock off-tanks idle while she is on the MT (FindTargetForTankStrategy); she is taunt-immune, so
++    // backup threat must be built by attacking. Rev 2 (spec §7.2 #3): also walks each off-tank to its melee
++    // spot beside the MT, so an MT death leaves her turning to a body where the MT stood.
++    triggers.push_back(new TriggerNode("aq40 huhuran off tank idle", {
++        NextAction("aq40 huhuran off tank engage", ACTION_RAID + 3) }));
++
++    // Ring spots, latched at engage (rev 4, spec §9.2): ranged and healers form the rings while the MT drags.
++    triggers.push_back(new TriggerNode("aq40 huhuran off spot", {
++        NextAction("aq40 huhuran hold spot", ACTION_RAID + 3) }));
++
++    // Rev 2 (spec §7.2 #2): the threat hard stop, at BWL's "bwl threat hold" relevance. The multiplier's
++    // vetoes cannot stop an auto-attack or auto-shot that is already running. Healers are never active.
++    triggers.push_back(new TriggerNode("aq40 huhuran threat hold", {
++        NextAction("aq40 huhuran threat hold", ACTION_RAID + 1) }));
++
++    // Rev 2 (spec §7.2 #4): Berserk tank healers. BWL's tank-only priest heal sits at ACTION_RAID + 1, which
++    // is above every stock heal (ACTION_CRITICAL_HEAL 30 and its +N rows); below the hold-spot row so a
++    // displaced tank healer walks back first. Healers are never active on the threat hold, so the two
++    // rows never compete.
++    triggers.push_back(new TriggerNode("aq40 huhuran tank heal", {
++        NextAction("aq40 huhuran tank heal", ACTION_RAID + 1) }));
++
++    // Rev 3 (spec §8.2 #2): the MT's Berserk defensive outranks the park/threat rows (and its own rotation):
++    // pull 2's MT died within ~5 s of Berserk. Off-GCD or instant, so it costs the tank rotation one tick.
++    triggers.push_back(new TriggerNode("aq40 huhuran mt berserk defensive", {
++        NextAction("aq40 huhuran mt berserk defensive", ACTION_EMERGENCY) }));
++
 +    LOG_DEBUG("playerbots", "[Aq40Cthun] strategy loaded: cthun={} eye={} exitAT={} acidExit={}",
 +              TempleOfAhnQirajHelpers::AQT_DATA_CTHUN,
 +              TempleOfAhnQirajHelpers::AQT_DATA_EYE_OF_CTHUN,
@@ -3341,6 +5329,16 @@ index 0000000..780ad94
 +              TempleOfAhnQirajHelpers::TWINS_SEAT_SEPARATION,
 +              TempleOfAhnQirajHelpers::TWINS_TANK_ENGAGE_RANGE,
 +              TempleOfAhnQirajHelpers::TWINS_SEPARATION_GUARD);
++
++    LOG_DEBUG("playerbots", "[Aq40Huhuran] strategy loaded: huhuran={} npc={} park=({:.1f},{:.1f})",
++              TempleOfAhnQirajHelpers::AQT_DATA_HUHURAN,
++              TempleOfAhnQirajHelpers::NPC_HUHURAN,
++              TempleOfAhnQirajHelpers::HUHURAN_PARK.GetPositionX(),
++              TempleOfAhnQirajHelpers::HUHURAN_PARK.GetPositionY());
++    if constexpr (TempleOfAhnQirajHelpers::HUHURAN_STATIONS_PROVISIONAL)
++        LOG_WARN("playerbots", "[Aq40Huhuran] park/MT stations are PROVISIONAL (patrol centroid): the Huhuran "
++                               "strategy is INERT (only the Wyvern Sting dispel rule runs) until they are authored "
++                               "with tools/aq40-huhuran-stations.py");
 +}
 +
 +void RaidAq40Strategy::InitMultipliers(std::vector<Multiplier*>& multipliers)
@@ -3352,6 +5350,12 @@ index 0000000..780ad94
 +    multipliers.push_back(new Aq40CthunMovementMultiplier(botAI));
 +    multipliers.push_back(new Aq40CthunTargetHoldMultiplier(botAI));
 +    multipliers.push_back(new Aq40CthunCastSafetyMultiplier(botAI));
++    // ---- Huhuran ----
++    multipliers.push_back(new Aq40HuhuranMovementMultiplier(botAI));
++    multipliers.push_back(new Aq40HuhuranTargetHoldMultiplier(botAI));
++    multipliers.push_back(new Aq40HuhuranTauntMultiplier(botAI));
++    multipliers.push_back(new Aq40HuhuranThreatMultiplier(botAI));
++    multipliers.push_back(new Aq40HuhuranCooldownHoldMultiplier(botAI));
 +}
 diff --git a/modules/mod-playerbots/src/Ai/Raid/Aq40/Aq40Strategy.h b/modules/mod-playerbots/src/Ai/Raid/Aq40/Aq40Strategy.h
 new file mode 100644
@@ -3382,10 +5386,10 @@ index 0000000..259c868
 +#endif
 diff --git a/modules/mod-playerbots/src/Ai/Raid/Aq40/Aq40TriggerContext.h b/modules/mod-playerbots/src/Ai/Raid/Aq40/Aq40TriggerContext.h
 new file mode 100644
-index 0000000..ed61b12
+index 0000000..32a03fb
 --- /dev/null
 +++ b/modules/mod-playerbots/src/Ai/Raid/Aq40/Aq40TriggerContext.h
-@@ -0,0 +1,59 @@
+@@ -0,0 +1,73 @@
 +/*
 + * This file is part of the mod-playerbots module for AzerothCore. See AUTHORS file for Copyright
 + * information; released under GNU GPL v2 license, redistribute/modify under version 2 of the License,
@@ -3421,6 +5425,13 @@ index 0000000..ed61b12
 +        creators["aq40 cthun opening puller"] = &RaidAq40TriggerContext::cthun_opening_puller;
 +        creators["aq40 cthun wrong target"] = &RaidAq40TriggerContext::cthun_wrong_target;
 +        creators["aq40 cthun not formed"] = &RaidAq40TriggerContext::cthun_not_formed;
++        creators["aq40 huhuran not in combat"] = &RaidAq40TriggerContext::huhuran_not_in_combat;
++        creators["aq40 huhuran mt has work"] = &RaidAq40TriggerContext::huhuran_mt_has_work;
++        creators["aq40 huhuran off tank idle"] = &RaidAq40TriggerContext::huhuran_off_tank_idle;
++        creators["aq40 huhuran off spot"] = &RaidAq40TriggerContext::huhuran_off_spot;
++        creators["aq40 huhuran threat hold"] = &RaidAq40TriggerContext::huhuran_threat_hold;
++        creators["aq40 huhuran tank heal"] = &RaidAq40TriggerContext::huhuran_tank_heal;
++        creators["aq40 huhuran mt berserk defensive"] = &RaidAq40TriggerContext::huhuran_mt_berserk_defensive;
 +    }
 +
 +private:
@@ -3442,15 +5453,22 @@ index 0000000..ed61b12
 +    static Trigger* cthun_opening_puller(PlayerbotAI* b) { return new Aq40CthunOpeningPullerTrigger(b); }
 +    static Trigger* cthun_wrong_target(PlayerbotAI* b) { return new Aq40CthunWrongTargetTrigger(b); }
 +    static Trigger* cthun_not_formed(PlayerbotAI* b) { return new Aq40CthunNotFormedTrigger(b); }
++    static Trigger* huhuran_not_in_combat(PlayerbotAI* b) { return new Aq40HuhuranNotInCombatTrigger(b); }
++    static Trigger* huhuran_mt_has_work(PlayerbotAI* b) { return new Aq40HuhuranMtHasWorkTrigger(b); }
++    static Trigger* huhuran_off_tank_idle(PlayerbotAI* b) { return new Aq40HuhuranOffTankIdleTrigger(b); }
++    static Trigger* huhuran_off_spot(PlayerbotAI* b) { return new Aq40HuhuranOffSpotTrigger(b); }
++    static Trigger* huhuran_threat_hold(PlayerbotAI* b) { return new Aq40HuhuranThreatHoldTrigger(b); }
++    static Trigger* huhuran_tank_heal(PlayerbotAI* b) { return new Aq40HuhuranTankHealTrigger(b); }
++    static Trigger* huhuran_mt_berserk_defensive(PlayerbotAI* b) { return new Aq40HuhuranMtBerserkDefensiveTrigger(b); }
 +};
 +
 +#endif
 diff --git a/modules/mod-playerbots/src/Ai/Raid/Aq40/Aq40Triggers.h b/modules/mod-playerbots/src/Ai/Raid/Aq40/Aq40Triggers.h
 new file mode 100644
-index 0000000..bf96924
+index 0000000..650d905
 --- /dev/null
 +++ b/modules/mod-playerbots/src/Ai/Raid/Aq40/Aq40Triggers.h
-@@ -0,0 +1,156 @@
+@@ -0,0 +1,211 @@
 +/*
 + * This file is part of the mod-playerbots module for AzerothCore. See AUTHORS file for Copyright
 + * information; released under GNU GPL v2 license, redistribute/modify under version 2 of the License,
@@ -3606,6 +5624,61 @@ index 0000000..bf96924
 +    bool IsActive() override;
 +};
 +
++// Princess Huhuran. Every name is prefixed "aq40 huhuran" for the same shared-registry reason as above.
++
++class Aq40HuhuranNotInCombatTrigger : public Trigger
++{
++public:
++    Aq40HuhuranNotInCombatTrigger(PlayerbotAI* botAI) : Trigger(botAI, "aq40 huhuran not in combat") {}
++    bool IsActive() override;
++};
++
++class Aq40HuhuranMtHasWorkTrigger : public Trigger
++{
++public:
++    Aq40HuhuranMtHasWorkTrigger(PlayerbotAI* botAI) : Trigger(botAI, "aq40 huhuran mt has work") {}
++    bool IsActive() override;
++};
++
++class Aq40HuhuranOffTankIdleTrigger : public Trigger
++{
++public:
++    Aq40HuhuranOffTankIdleTrigger(PlayerbotAI* botAI) : Trigger(botAI, "aq40 huhuran off tank idle") {}
++    bool IsActive() override;
++};
++
++class Aq40HuhuranOffSpotTrigger : public Trigger
++{
++public:
++    Aq40HuhuranOffSpotTrigger(PlayerbotAI* botAI) : Trigger(botAI, "aq40 huhuran off spot") {}
++    bool IsActive() override;
++};
++
++// Rev 2 (spec §7.2 #2): the hard stop of a running auto-attack/auto-shot at 0.90 of the MT's threat (BWL's
++// "bwl threat hold", mirrored).
++class Aq40HuhuranThreatHoldTrigger : public Trigger
++{
++public:
++    Aq40HuhuranThreatHoldTrigger(PlayerbotAI* botAI) : Trigger(botAI, "aq40 huhuran threat hold") {}
++    bool IsActive() override;
++};
++
++// Rev 2 (spec §7.2 #4): a Berserk tank healer has a castable fast heal for a tank under 90 %.
++class Aq40HuhuranTankHealTrigger : public Trigger
++{
++public:
++    Aq40HuhuranTankHealTrigger(PlayerbotAI* botAI) : Trigger(botAI, "aq40 huhuran tank heal") {}
++    bool IsActive() override;
++};
++
++// Rev 3 (spec §8.2 #2): the MT has an unused, castable Berserk defensive.
++class Aq40HuhuranMtBerserkDefensiveTrigger : public Trigger
++{
++public:
++    Aq40HuhuranMtBerserkDefensiveTrigger(PlayerbotAI* botAI) : Trigger(botAI, "aq40 huhuran mt berserk defensive") {}
++    bool IsActive() override;
++};
++
 +#endif
 diff --git a/modules/mod-playerbots/src/Ai/Raid/Aq40/Aq40Triggers_Cthun.cpp b/modules/mod-playerbots/src/Ai/Raid/Aq40/Aq40Triggers_Cthun.cpp
 new file mode 100644
@@ -3657,6 +5730,136 @@ index 0000000..9d08139
 +bool Aq40CthunWrongTargetTrigger::IsActive() { return CthunShouldRetarget(bot, botAI); }
 +
 +bool Aq40CthunNotFormedTrigger::IsActive() { return CthunShouldFormUp(bot, botAI); }
+diff --git a/modules/mod-playerbots/src/Ai/Raid/Aq40/Aq40Triggers_Huhuran.cpp b/modules/mod-playerbots/src/Ai/Raid/Aq40/Aq40Triggers_Huhuran.cpp
+new file mode 100644
+index 0000000..0a24b4e
+--- /dev/null
++++ b/modules/mod-playerbots/src/Ai/Raid/Aq40/Aq40Triggers_Huhuran.cpp
+@@ -0,0 +1,124 @@
++/*
++ * This file is part of the mod-playerbots module for AzerothCore. See AUTHORS file for Copyright
++ * information; released under GNU GPL v2 license, redistribute/modify under version 2 of the License,
++ * or (at your option) any later version.
++ */
++
++// Princess Huhuran triggers (overlay patch 0016). Spec:
++// docs/superpowers/specs/2026-10-20-playerbot-aq40-huhuran-design.md (overlay repo), §4.2-4.3.
++
++#include "Aq40Triggers.h"
++
++#include "Aq40Helpers.h"
++#include "Playerbots.h"
++
++using namespace TempleOfAhnQirajHelpers;
++
++bool Aq40HuhuranNotInCombatTrigger::IsActive()
++{
++    return IsInAq40(bot) && !bot->IsInCombat() && !IsHuhuranEncounterActive(bot);
++}
++
++bool Aq40HuhuranMtHasWorkTrigger::IsActive()
++{
++    // Cheap role test first: the MT is always a role tank (GetHuhuranMainTank).
++    if (!PlayerbotAI::IsTank(bot))
++        return false;
++    HuhuranView view;
++    if (!GetHuhuranView(bot, view) || view.mainTank != bot)
++        return false;
++    if (GetHuhuranMtStep(bot, view, AI_VALUE(Unit*, "current target")) != HuhuranMtStep::None)
++        return true;
++    // Rev 7 (spec §12.2 #2): parked, the MT holds position (generic movers vetoed) and only turns to face her.
++    return HuhuranMtShouldFace(bot, view);
++}
++
++// The fork's FindTargetForTankStrategy skips a target whose victim is the main tank, so stock off-tanks
++// would idle; threat is the only way to pick her up when the MT dies (she is taunt-immune). Rev 2 (spec
++// §7.2 #3): also true while the off-tank is off its melee spot beside the MT. Not while the off-tank is at
++// the threat cap with no spot to walk to: the engage would only restart the auto-attack the hold stopped.
++// Rev 6 (spec §11.2): also true while an off-tank standing (IsStopped) at its spot is not facing her: the movement
++// multiplier vetoes stock "tank face" for it. A bot still moving is left alone so the facing never claims every tick.
++bool Aq40HuhuranOffTankIdleTrigger::IsActive()
++{
++    if (!PlayerbotAI::IsTank(bot))
++        return false;
++    HuhuranView view;
++    if (!GetHuhuranView(bot, view) || view.mainTank == bot || HuhuranOpenerHold(view))
++        return false;
++    Position spot;
++    if (GetHuhuranOffTankSpot(bot, view, spot))
++    {
++        if (bot->GetExactDist2d(spot.GetPositionX(), spot.GetPositionY()) > Aq40HuhuranRules::OFFTANK_SPOT_TOLERANCE)
++            return true;
++        if (bot->IsStopped() && !bot->HasInArc(HUHURAN_FACE_ARC, view.huhuran))
++            return true;
++    }
++    if (AI_VALUE(Unit*, "current target") == view.huhuran)
++        return false;
++    return !HuhuranThreatVetoed(bot, view);
++}
++
++// True while the bot owns a ring spot and is off it. Within SLOT_TOLERANCE the trigger is false, so the
++// hold action never re-issues the same destination (MoveTo's duplicate guard would refuse it).
++bool Aq40HuhuranOffSpotTrigger::IsActive()
++{
++    if (GetHuhuranSlotRole(bot, botAI) == HuhuranSlotRole::None)
++        return false;
++    HuhuranView view;
++    if (!GetHuhuranView(bot, view))
++        return false;
++    Position spot;
++    if (!GetHuhuranSpot(bot, botAI, view, spot))
++        return false;
++    return bot->GetExactDist2d(spot.GetPositionX(), spot.GetPositionY()) > Aq40HuhuranRules::SLOT_TOLERANCE;
++}
++
++// Rev 2 (spec §7.2 #2), mirroring BwlThreatHoldTrigger: the hard stop, on the plain ratio (no headroom). Active
++// only while the bot is attacking, so it fires once per breach; the threat multiplier then keeps the attack
++// from restarting until the bot is back under the 0.80 veto. Cheap map/role/attacking tests before the view.
++bool Aq40HuhuranThreatHoldTrigger::IsActive()
++{
++    if (bot->GetMapId() != AQ40_MAP_ID || PlayerbotAI::IsHeal(bot))
++        return false;
++    if (!bot->GetVictim() && !bot->GetCurrentSpell(CURRENT_AUTOREPEAT_SPELL))
++        return false;
++    if (AI_VALUE(bool, "neglect threat"))
++        return false;
++
++    Unit* const current = AI_VALUE(Unit*, "current target");
++    if (!current || current->GetEntry() != NPC_HUHURAN)
++        return false;
++    HuhuranView view;
++    if (!GetHuhuranView(bot, view) || current != view.huhuran || !HuhuranThreatDisciplined(bot, view))
++        return false;
++    // Off-tanks at 1.05 of the MT (rev 3), DPS at 0.90 of the top living off-tank (fallback the MT): MT > backup
++    // > DPS (R11).
++    return HuhuranThreatHardStop(bot, view);
++}
++
++// Rev 2 (spec §7.2 #4): only when the pick is castable now (BWL BwlNefarianPriestTankOnlyTrigger rule).
++bool Aq40HuhuranTankHealTrigger::IsActive()
++{
++    // Cheap role and class tests first.
++    if (!PlayerbotAI::IsHeal(bot) || !HuhuranTankHealSpellName(bot))
++        return false;
++    HuhuranView view;
++    if (!GetHuhuranView(bot, view) || !view.berserk)
++        return false;
++    Player* tank = nullptr;
++    char const* spell = nullptr;
++    return GetHuhuranTankHeal(bot, botAI, view, tank, spell);
++}
++
++// Rev 3 (spec §8.2 #2): the MT has an unused Berserk defensive that it can cast now.
++bool Aq40HuhuranMtBerserkDefensiveTrigger::IsActive()
++{
++    if (!PlayerbotAI::IsTank(bot))
++        return false;
++    HuhuranView view;
++    if (!GetHuhuranView(bot, view) || !view.berserk || view.mainTank != bot)
++        return false;
++    char const* spell = nullptr;
++    return GetHuhuranMtDefensive(bot, botAI, view, spell) != HuhuranMtDefensive::None;
++}
 diff --git a/modules/mod-playerbots/src/Ai/Raid/Aq40/Aq40Triggers_Twins.cpp b/modules/mod-playerbots/src/Ai/Raid/Aq40/Aq40Triggers_Twins.cpp
 new file mode 100644
 index 0000000..5232ada
@@ -3757,10 +5960,18 @@ index 20ba4ce..fb4ea91 100644
      triggerContexts.Add(new RaidBwlTriggerContext());
      triggerContexts.Add(new RaidKarazhanTriggerContext());
 diff --git a/modules/mod-playerbots/src/Bot/PlayerbotAI.cpp b/modules/mod-playerbots/src/Bot/PlayerbotAI.cpp
-index 3f7e5e0..308efb7 100644
+index 3f7e5e0..9ad4649 100644
 --- a/modules/mod-playerbots/src/Bot/PlayerbotAI.cpp
 +++ b/modules/mod-playerbots/src/Bot/PlayerbotAI.cpp
-@@ -1658,7 +1658,7 @@ void PlayerbotAI::ApplyInstanceStrategies(uint32 mapId, bool tellMaster)
+@@ -6,6 +6,7 @@
+ 
+ #include "PlayerbotAI.h"
+ #include "AiFactory.h"
++#include "Aq40Helpers.h"
+ #include "Battlefield.h"
+ #include "BattlefieldMgr.h"
+ #include "BudgetValues.h"
+@@ -1658,7 +1659,7 @@ void PlayerbotAI::ApplyInstanceStrategies(uint32 mapId, bool tellMaster)
  {
      static const std::vector<std::string> allInstanceStrategies =
      {
@@ -3769,7 +5980,7 @@ index 3f7e5e0..308efb7 100644
          "moltencore", "naxx", "onyxia", "rs", "ssc", "sunwell", "tbc-ac", "tbc-mech", "tbc-mgt",
          "tbc-ramp", "tbc-seth", "tbc-ub", "tempestkeep", "ulduar", "voa", "wotlk-an", "wotlk-cos",
          "wotlk-dtk", "wotlk-eoe", "wotlk-fos", "wotlk-gd", "wotlk-hol", "wotlk-hos", "wotlk-nex",
-@@ -1687,6 +1687,9 @@ void PlayerbotAI::ApplyInstanceStrategies(uint32 mapId, bool tellMaster)
+@@ -1687,6 +1688,9 @@ void PlayerbotAI::ApplyInstanceStrategies(uint32 mapId, bool tellMaster)
          case 509:
              strategyName = "aq20";  // Ruins of Ahn'Qiraj
              break;
@@ -3779,3 +5990,15 @@ index 3f7e5e0..308efb7 100644
          case 532:
              strategyName = "karazhan";  // Karazhan
              break;
+@@ -4376,6 +4380,11 @@ bool PlayerbotAI::HasAuraToDispel(Unit* target, uint32 dispelType)
+         if (!spellInfo)
+             continue;
+ 
++        // AQ40 Huhuran (overlay patch 0016, spec §4.4): never strip Wyvern Sting off a non-tank.
++        if (spellInfo->Id == TempleOfAhnQirajHelpers::SPELL_HUHURAN_WYVERN_STING &&
++            TempleOfAhnQirajHelpers::HuhuranKeepWyvernSting(bot, target))
++            continue;
++
+         bool isPositiveSpell = spellInfo->IsPositive();
+         if (isPositiveSpell && isFriend)
+             continue;
