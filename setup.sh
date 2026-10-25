@@ -14,6 +14,7 @@ FORK_BRANCH="Playerbot"
 #   mod-junk-to-gold .............. auto-sell gray trash (less bag clutter for bots/players)
 #   mod-multibot-bridge ........... server half of the in-game "MultiBot" control addon
 #   mod-individual-progression .... per-character Vanilla→TBC→WotLK era progression (gated content/gear/difficulty)
+#   mod-questie-bridge ............ server half of the Questie-335 addon (live events, quest pools, resets, rates)
 MODULES=(
   "mod-playerbots|https://github.com/mod-playerbots/mod-playerbots.git"
   # mod-aoe-loot DISABLED 2026-06-21: its area-loot aggregation invalidates pending
@@ -28,6 +29,10 @@ MODULES=(
   # layer switch on automatically because those modules are present. Pinned in repo-pins.txt.
   # LOCAL: our fork (corang), so era patches regenerated for newer IP/core/playerbots pins live in our history.
   "mod-era-talents|https://github.com/corang/azerothcore-mod-era-talents.git"
+  # Questie-335's server bridge: lets the addon follow live holidays/fishing contests, quest pools, resets and the
+  # server's quest XP/rep/money rates. No SQL; QuestieBridge.conf comes from its .dist (all options on). Must match
+  # the Questie-335 addon version (same protocol): both pinned together (repo-pins.txt / fetch-client-addons.sh).
+  "mod-questie-bridge|https://github.com/Aldori15/mod-questie-bridge.git"
 )
 
 # Modules we author and ship from THIS repo (copied in, not git-cloned). Kept by the reconcile.
