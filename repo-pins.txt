@@ -31,10 +31,13 @@ mod-individual-progression 4933d455d2f611eed50c74c68c78832df4ed37a3
 # IsSelfBot(), which mod-playerbots ba46fcd lacked; b949b50 defines it, so the bridge now rides its
 # tip. Upstream REWROTE the bridge's main as an orphan history (no shared ancestry with 5e5ff75) —
 # patch 0022 was re-verified against it. Pinned like the others so an update can't outrun 0022.
-mod-multibot-bridge 1da05982e478cb00e0b6c87314afe7e0e9653ffb
+# 2026-10-25 (our upgrade, phase 2): upstream renamed the branch we followed to `old_main` (tip = 1da0598) and
+# continued on `main`. Pinned to main ebfa01a (+33 commits: config/strategy-rename compat, capabilities the current
+# MultiBot addon 060a2b2 needs). Needs era-talents 4a4df06 (bridge patch re-cut).
+mod-multibot-bridge ebfa01a129dd4c441b2527e42dcc37b6da95e6c2
 # era talents module (own repo: https://github.com/lathcf/azerothcore-mod-era-talents). The sha is a commit on the PUBLIC
 # GitHub history (an orphan branch; the private Gitea history has different shas) — production clones from
 # GitHub, so a private sha would never fetch. Bump after each public sync, after verifying a build.
 # Since 2026-10-25 cloned from OUR fork (corang/azerothcore-mod-era-talents, branch `instance` = our commits on top of
-# lathcf's main; setup.sh MODULES URL). d3d011b = 0dac15c + IP manual-advance patch re-cut for IP 4933d45.
-mod-era-talents d3d011bb3064522f6505123554d5113434b3b2f7
+# lathcf's main; setup.sh MODULES URL). d3d011b = 0dac15c + IP manual-advance patch re-cut for IP 4933d45; 4a4df06 = + bridge patch re-cut for bridge ebfa01a.
+mod-era-talents 4a4df06a072ad381682d294c8011b778a4680b26
