@@ -1,0 +1,17 @@
+diff --git a/modules/mod-playerbots/src/Ai/Base/Strategy/PullStrategy.cpp b/modules/mod-playerbots/src/Ai/Base/Strategy/PullStrategy.cpp
+index d705db57..18dec691 100644
+--- a/modules/mod-playerbots/src/Ai/Base/Strategy/PullStrategy.cpp
++++ b/modules/mod-playerbots/src/Ai/Base/Strategy/PullStrategy.cpp
+@@ -119,7 +119,11 @@ float PullStrategy::GetRange() const
+     std::string const spellName = GetSpellName();
+     if (bot && !spellName.empty())
+     {
+-        uint32 const spellId = botAI->GetAiObjectContext()->GetValue<uint32>("spell id", spellName)->Get();
++        uint32 spellId = botAI->GetAiObjectContext()->GetValue<uint32>("spell id", spellName)->Get();
++        // LOCAL: WotLK teaches one "Shoot" (3018) for bow/gun/crossbow, so "shoot bow" etc. resolve to 0
++        // and the pull range fell back to ShootDistance (5 yd) — warriors/rogues walked into melee.
++        if (!spellId && spellName != action)
++            spellId = botAI->GetAiObjectContext()->GetValue<uint32>("spell id", action)->Get();
+         if (SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(spellId))
+             return bot->GetSpellMaxRangeForTarget(GetTarget(), spellInfo) - CONTACT_DISTANCE;
+     }
