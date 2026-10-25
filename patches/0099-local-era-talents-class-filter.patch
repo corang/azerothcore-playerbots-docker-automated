@@ -1,0 +1,38 @@
+diff --git a/modules/mod-era-talents/src/EraTalents.cpp b/modules/mod-era-talents/src/EraTalents.cpp
+index b19f3ec..1c8d2d3 100644
+--- a/modules/mod-era-talents/src/EraTalents.cpp
++++ b/modules/mod-era-talents/src/EraTalents.cpp
+@@ -58,11 +58,32 @@ namespace
+                     "SELECT talentId, `rank` FROM era_character_talent WHERE guid={} AND eraId={}",
+                     p->GetGUID().GetCounter(), uint8(era)))
+             {
++                // LOCAL FIX: a row is only valid for the class that owns its node. Rows of another
++                // class are stale leftovers from a DELETED character whose GUID was reused (e.g.
++                // playerbots' DeleteRandomBotAccounts removes characters by raw SQL, so no hook ever
++                // cleans this table). Loading them made ReapplyOnLogin teach another class's talent
++                // spells and counted foreign ranks as spent points. Skip them and purge them.
++                std::string stale;
+                 do
+                 {
+                     Field* f = r->Fetch();
+-                    it->second[f[0].Get<uint32>()] = f[1].Get<uint8>();
++                    uint32 talentId = f[0].Get<uint32>();
++                    const EraTalentNode* n = sEraTalentContent->Node(talentId);
++                    if (n && n->classId != p->getClass())
++                    {
++                        stale += (stale.empty() ? "" : ",") + std::to_string(talentId);
++                        continue;
++                    }
++                    it->second[talentId] = f[1].Get<uint8>();
+                 } while (r->NextRow());
++                if (!stale.empty())
++                {
++                    CharacterDatabase.Execute(
++                        "DELETE FROM era_character_talent WHERE guid={} AND eraId={} AND talentId IN ({})",
++                        p->GetGUID().GetCounter(), uint8(era), stale);
++                    LOG_INFO("module", "[mod-era-talents] {} (class {}): ignored + purged stale other-class era rows: {}",
++                             p->GetName(), p->getClass(), stale);
++                }
+             }
+         }
+         return it->second;
