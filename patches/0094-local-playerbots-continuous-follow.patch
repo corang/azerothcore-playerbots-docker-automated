@@ -1,5 +1,5 @@
 diff --git a/modules/mod-playerbots/src/Ai/Base/Actions/FollowActions.cpp b/modules/mod-playerbots/src/Ai/Base/Actions/FollowActions.cpp
-index deeb19a8..14bc5160 100644
+index be44fd89..8b27ad54 100644
 --- a/modules/mod-playerbots/src/Ai/Base/Actions/FollowActions.cpp
 +++ b/modules/mod-playerbots/src/Ai/Base/Actions/FollowActions.cpp
 @@ -205,11 +205,47 @@ bool FollowAction::Execute(Event /*event*/)
@@ -58,10 +58,10 @@ index deeb19a8..14bc5160 100644
 +        return true;  // LOCAL (0094): let Execute hand the bot back to its formation slot when the master stops
 +
      if (botAI->HasStrategy("master fishing", BOT_STATE_NON_COMBAT))
-         return ServerFacade::instance().IsDistanceGreaterThan(distance, sPlayerbotAIConfig.fishingDistanceFromMaster);
+         return ServerFacade::instance().IsDistanceGreaterThan(distance, sPlayerbotAIConfig.FishingDistanceFromMaster);
  
 diff --git a/modules/mod-playerbots/src/Ai/Base/Actions/FollowActions.h b/modules/mod-playerbots/src/Ai/Base/Actions/FollowActions.h
-index 6c8e9b7e..ffc851d1 100644
+index e9e48812..ad2ddfad 100644
 --- a/modules/mod-playerbots/src/Ai/Base/Actions/FollowActions.h
 +++ b/modules/mod-playerbots/src/Ai/Base/Actions/FollowActions.h
 @@ -19,6 +19,9 @@ public:
@@ -73,4 +73,4 @@ index 6c8e9b7e..ffc851d1 100644
 +    bool runFollow = false;  // LOCAL (0094): this action started a run-follow of the master
  };
  
- class FleeToGroupLeaderAction : public FollowAction
+ #endif

@@ -12,7 +12,7 @@ index 161d31ec..a861310e 100644
 +    // sweeps run at ~100ms cadence with the accumulated diff instead: identical timing semantics,
 +    // up to ~90ms added latency on periodic ticks/expiry. Real player sessions are untouched, as
 +    // is everything above this line (current-spell bookkeeping is order-sensitive per tick).
-+    if (IsPlayer() && ToPlayer()->GetSession() && ToPlayer()->GetSession()->IsBot())
++    if (IsPlayer() && ToPlayer()->GetSession() && ToPlayer()->GetSession()->IsHeadless())
 +    {
 +        constexpr uint32 BOT_AURA_UPDATE_INTERVAL = 100;
 +        m_botAuraUpdateTimer += time;

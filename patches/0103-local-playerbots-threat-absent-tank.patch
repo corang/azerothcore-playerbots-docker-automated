@@ -1,17 +1,17 @@
 diff --git a/modules/mod-playerbots/src/Ai/Base/Value/ThreatValues.cpp b/modules/mod-playerbots/src/Ai/Base/Value/ThreatValues.cpp
-index 9afa164d..0be1b165 100644
+index fe31ca33..54226aaa 100644
 --- a/modules/mod-playerbots/src/Ai/Base/Value/ThreatValues.cpp
 +++ b/modules/mod-playerbots/src/Ai/Base/Value/ThreatValues.cpp
 @@ -54,7 +54,11 @@ uint8 ThreatValue::Calculate(Unit* target)
          if (!player || !player->IsAlive() || player == bot)
              continue;
  
--        if (botAI->IsTank(player))
+-        if (PlayerbotAI::IsTank(player))
 +        // LOCAL: only a tank that is near the fight counts — a group tank elsewhere (another zone, or just out of
 +        // sight) never gains threat on this mob, so "wait for the tank" returned 100 for the whole fight and the
 +        // threat strategy zeroed every heal/attack of bots away from the tank.
-+        if (botAI->IsTank(player) && player->GetMapId() == target->GetMapId() &&
-+            player->IsWithinDist(target, sPlayerbotAIConfig.sightDistance))
++        if (PlayerbotAI::IsTank(player) && player->GetMapId() == target->GetMapId() &&
++            player->IsWithinDist(target, sPlayerbotAIConfig.SightDistance))
          {
              hasTank = true;
              float threat = target->GetThreatMgr().GetThreat(player);

@@ -1,9 +1,9 @@
 diff --git a/src/server/game/Movement/MovementGenerators/TargetedMovementGenerator.cpp b/src/server/game/Movement/MovementGenerators/TargetedMovementGenerator.cpp
-index 582bd7685..8cff6ab2b 100644
+index 2c9f30957..86ea78ea0 100644
 --- a/src/server/game/Movement/MovementGenerators/TargetedMovementGenerator.cpp
 +++ b/src/server/game/Movement/MovementGenerators/TargetedMovementGenerator.cpp
-@@ -501,7 +501,9 @@ static Optional<float> GetVelocity(Unit* owner, Unit* target, G3D::Vector3 const
-     if (owner->IsInCombat() || owner->IsVehicle() || owner->HasUnitFlag(UNIT_FLAG_POSSESSED))
+@@ -495,7 +495,9 @@ static Optional<float> GetVelocity(Unit* owner, Unit* target, G3D::Vector3 const
+     if (owner->IsGuardian() && !owner->IsControllableGuardian())
          return speed;
  
 -    bool isPetLike = owner->IsPet() || owner->IsGuardian() || owner->GetGUID() == target->GetCritterGUID() || owner->GetCharmerOrOwnerGUID() == target->GetGUID();
@@ -13,7 +13,7 @@ index 582bd7685..8cff6ab2b 100644
  
      // For pets/guardians/critters or creature-to-creature follow: sync with target's speed
      if (isPetLike || (owner->IsCreature() && target->IsCreature()))
-@@ -648,7 +650,9 @@ bool FollowMovementGenerator<T>::DoUpdate(T* owner, uint32 time_diff)
+@@ -642,7 +644,9 @@ bool FollowMovementGenerator<T>::DoUpdate(T* owner, uint32 time_diff)
          ; // closes "bool forceDest", that way it is more appropriate, so we can comment out crap whenever we need to
  
      bool targetIsMoving = false;
@@ -24,7 +24,7 @@ index 582bd7685..8cff6ab2b 100644
      bool isFollowingPlayer = target->IsPlayer();
  
      if (PositionOkay(target, isPlayerPet, targetIsMoving, time_diff))
-@@ -745,7 +749,8 @@ bool FollowMovementGenerator<T>::DoUpdate(T* owner, uint32 time_diff)
+@@ -739,7 +743,8 @@ bool FollowMovementGenerator<T>::DoUpdate(T* owner, uint32 time_diff)
              init.SetWalk(target->IsWalking());
  
          if (_inheritSpeed)

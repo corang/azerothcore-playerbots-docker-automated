@@ -1,5 +1,5 @@
 diff --git a/modules/mod-playerbots/src/Ai/Base/Trigger/PullTriggers.cpp b/modules/mod-playerbots/src/Ai/Base/Trigger/PullTriggers.cpp
-index 15e59ccb..21c9a9ac 100644
+index 9ea230e2..0abdc237 100644
 --- a/modules/mod-playerbots/src/Ai/Base/Trigger/PullTriggers.cpp
 +++ b/modules/mod-playerbots/src/Ai/Base/Trigger/PullTriggers.cpp
 @@ -41,6 +41,11 @@ bool PullEndTrigger::IsActive()
@@ -13,4 +13,4 @@ index 15e59ccb..21c9a9ac 100644
 +
      float distanceToPullTarget = bot->GetDistance(target);
      if (distanceToPullTarget > ATTACK_DISTANCE && !target->IsNonMeleeSpellCast(false, false, true) &&
-         (!botAI->IsRanged(bot) || distanceToPullTarget > botAI->GetRange("spell")))
+         (!PlayerbotAI::IsRanged(bot) || distanceToPullTarget > botAI->GetRange("spell")))
