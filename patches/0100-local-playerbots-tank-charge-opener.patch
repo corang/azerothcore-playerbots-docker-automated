@@ -1,0 +1,56 @@
+diff --git a/modules/mod-playerbots/src/Ai/Class/Warrior/Strategy/TankWarriorStrategy.cpp b/modules/mod-playerbots/src/Ai/Class/Warrior/Strategy/TankWarriorStrategy.cpp
+index a2eed5cd..4b01b056 100644
+--- a/modules/mod-playerbots/src/Ai/Class/Warrior/Strategy/TankWarriorStrategy.cpp
++++ b/modules/mod-playerbots/src/Ai/Class/Warrior/Strategy/TankWarriorStrategy.cpp
+@@ -87,7 +87,7 @@ private:
+     {
+         return new ActionNode(
+             "charge",
+-            /*P*/ {},
++            /*P*/ { NextAction("battle stance") },
+             /*A*/ { NextAction("reach melee") },
+             /*C*/ {}
+         );
+diff --git a/modules/mod-playerbots/src/Ai/Class/Warrior/WarriorActions.cpp b/modules/mod-playerbots/src/Ai/Class/Warrior/WarriorActions.cpp
+index 092b423e..67dc9ba6 100644
+--- a/modules/mod-playerbots/src/Ai/Class/Warrior/WarriorActions.cpp
++++ b/modules/mod-playerbots/src/Ai/Class/Warrior/WarriorActions.cpp
+@@ -232,3 +232,20 @@ bool CastShatteringThrowAction::isPossible()
+     // If the minimal checks above pass, simply return true.
+     return true;
+ }
++
++// LOCAL: Charge needs Battle Stance and no combat (until Warbringer). From another stance the core rejects it as
++// ONLY_SHAPESHIFT, so the engine never reached the node's "battle stance" prerequisite. Out of combat, in charge
++// range and in sight, report it possible so the stance swap runs first; everything else keeps the normal check.
++bool CastChargeAction::isPossible()
++{
++    if (bot->IsInCombat() || botAI->HasAura("battle stance", bot) || botAI->HasAura("warbringer", bot))
++        return CastReachTargetSpellAction::isPossible();
++
++    Unit* target = GetTarget();
++    uint32 const spellId = AI_VALUE2(uint32, "spell id", "charge");
++    if (!target || !spellId || bot->HasSpellCooldown(spellId) || !bot->IsWithinLOSInMap(target))
++        return false;
++
++    float const distance = bot->GetDistance(target);
++    return distance >= 8.0f && distance <= 24.0f;
++}
+diff --git a/modules/mod-playerbots/src/Ai/Class/Warrior/WarriorActions.h b/modules/mod-playerbots/src/Ai/Class/Warrior/WarriorActions.h
+index 629335ca..84e00bb7 100644
+--- a/modules/mod-playerbots/src/Ai/Class/Warrior/WarriorActions.h
++++ b/modules/mod-playerbots/src/Ai/Class/Warrior/WarriorActions.h
+@@ -45,7 +45,12 @@ BUFF_ACTION(CastCommandingShoutAction, "commanding shout");
+ 
+ // arms
+ MELEE_ACTION(CastHeroicStrikeAction, "heroic strike");
+-REACH_ACTION(CastChargeAction, "charge", 8.0f);
++class CastChargeAction : public CastReachTargetSpellAction
++{
++public:
++    CastChargeAction(PlayerbotAI* botAI) : CastReachTargetSpellAction(botAI, "charge", 8.0f) {}
++    bool isPossible() override;
++};
+ DEBUFF_CHECKISOWNER_ACTION(CastRendAction, "rend");
+ // DEBUFF_ENEMY_ACTION(CastRendOnAttackerAction, "rend");
+ 
