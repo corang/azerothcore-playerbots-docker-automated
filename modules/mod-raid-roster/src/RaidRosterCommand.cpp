@@ -116,6 +116,27 @@ ChatCommandTable RaidRosterCommand::GetCommands() const
     return root;
 }
 
+// LOCAL: classic-race servers (Draenei/Blood Elf masked) have no Alliance shamans / Horde
+// paladins in the addclass pool. Swap such a slot for the classic-era same-role equivalent,
+// but only while that faction's pool for the class is genuinely EMPTY.
+static RaidCompSlot FactionLegalSlot(RaidCompSlot s, bool isAlliance)
+{
+    auto empty = [&](uint8 cls) {
+        return sRandomPlayerbotMgr.addclassCache[RandomPlayerbotMgr::GetTeamClassIdx(isAlliance, cls)].empty();
+    };
+    if (isAlliance && s.cls == CLASS_SHAMAN && empty(CLASS_SHAMAN))
+    {
+        s.cls = CLASS_PALADIN;
+        s.specTab = (s.role == 1) ? PALADIN_TAB_HOLY : PALADIN_TAB_RETRIBUTION;
+    }
+    else if (!isAlliance && s.cls == CLASS_PALADIN && empty(CLASS_PALADIN))
+    {
+        if (s.role == 0) { s.cls = CLASS_WARRIOR; s.specTab = WARRIOR_TAB_PROTECTION; }
+        else { s.cls = CLASS_SHAMAN; s.specTab = (s.role == 1) ? SHAMAN_TAB_RESTORATION : SHAMAN_TAB_ENHANCEMENT; }
+    }
+    return s;
+}
+
 bool RaidRosterCommand::HandleCreate(ChatHandler* handler)
 {
     if (!g_RaidRosterEnable) { handler->SendSysMessage("RaidRoster is disabled (set RaidRoster.Enable=1)."); return true; }
@@ -174,7 +195,7 @@ bool RaidRosterCommand::HandleCreate(ChatHandler* handler)
     std::map<uint8, std::vector<ObjectGuid>> avail;
     for (uint8 i : missing)
     {
-        RaidCompSlot const& slot = RAID_COMP[i];
+        RaidCompSlot const slot = FactionLegalSlot(RAID_COMP[i], isAlliance);
         if (avail.count(slot.cls)) continue;
         uint8 key = RandomPlayerbotMgr::GetTeamClassIdx(isAlliance, slot.cls);
         std::unordered_set<ObjectGuid> const& pool = sRandomPlayerbotMgr.addclassCache[key];
@@ -196,7 +217,7 @@ bool RaidRosterCommand::HandleCreate(ChatHandler* handler)
     rows.reserve(missing.size());
     for (uint8 i : missing)
     {
-        RaidCompSlot const& slot = RAID_COMP[i];
+        RaidCompSlot const slot = FactionLegalSlot(RAID_COMP[i], isAlliance);
         std::vector<ObjectGuid>& v = avail[slot.cls];
         if (v.empty())
         {
