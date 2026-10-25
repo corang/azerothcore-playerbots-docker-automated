@@ -1,0 +1,70 @@
+diff --git a/src/server/game/Loot/LootMgr.cpp b/src/server/game/Loot/LootMgr.cpp
+index a103aab09..b8ca106f7 100644
+--- a/src/server/game/Loot/LootMgr.cpp
++++ b/src/server/game/Loot/LootMgr.cpp
+@@ -29,6 +29,38 @@
+ #include "SpellMgr.h"
+ #include "Util.h"
+ #include "World.h"
++#include "Config.h"
++#include "Creature.h"
++#include "Map.h"
++#include <algorithm>
++
++namespace
++{
++    // LOCAL (boss loot): extra loot rolls for dungeon/raid bosses. Chosen once per kill in Loot::FillLoot and applied
++    // to the top-level gear rolls in LootTemplate::Process (reference counts and plain group amounts). 1 = stock.
++    // Settings (worldserver.conf, read per boss kill so "reload config" applies them): BossLoot.Enable,
++    // BossLoot.Dungeon.MinRolls/MaxRolls, BossLoot.Raid.MinRolls/MaxRolls (clamped to 1..10).
++    thread_local uint32 s_bossLootRolls = 1;
++
++    uint32 BossLootRolls(WorldObject const* source)
++    {
++        Creature const* creature = source ? source->ToCreature() : nullptr;
++        if (!creature || !creature->GetMap() || !creature->GetMap()->IsDungeon())
++            return 1;
++        if (!creature->IsDungeonBoss() && !creature->isWorldBoss())
++            return 1;
++        if (!sConfigMgr->GetOption<bool>("BossLoot.Enable", false, false))
++            return 1;
++
++        bool const raid = creature->GetMap()->IsRaid();
++        uint32 const lo = sConfigMgr->GetOption<uint32>(raid ? "BossLoot.Raid.MinRolls" : "BossLoot.Dungeon.MinRolls",
++                                                        2, false);
++        uint32 const hi = sConfigMgr->GetOption<uint32>(raid ? "BossLoot.Raid.MaxRolls" : "BossLoot.Dungeon.MaxRolls",
++                                                        raid ? 2 : 4, false);
++        uint32 const minRolls = std::clamp<uint32>(lo, 1, 10);
++        return urand(minRolls, std::clamp<uint32>(hi, minRolls, 10));
++    }
++}
+ 
+ ServerConfigs const qualityToRate[] =
+ {
+@@ -558,7 +590,9 @@ bool Loot::FillLoot(uint32 lootId, LootStore const& store, Player* lootOwner, bo
+     quest_items.reserve(MAX_NR_QUEST_ITEMS);
+ 
+     // Initial group is 0, top level set to True
++    s_bossLootRolls = BossLootRolls(lootSource);                       // LOCAL (boss loot)
+     tab->Process(*this, store, lootMode, lootOwner, 0, true);          // Processing is done there, callback via Loot::AddItem()
++    s_bossLootRolls = 1;
+ 
+     sScriptMgr->OnAfterLootTemplateProcess(this, tab, store, lootOwner, personal, noEmptyError, lootMode);
+ 
+@@ -1704,6 +1738,8 @@ void LootTemplate::Process(Loot& loot, LootStore const& store, uint16 lootMode,
+                 continue;                                       // Error message already printed at loading stage
+ 
+             uint32 maxcount = uint32(float(item->maxcount) * sWorld->getRate(RATE_DROP_ITEM_REFERENCED_AMOUNT));
++            if (isTopLevel)
++                maxcount *= s_bossLootRolls;                    // LOCAL (boss loot): e.g. Ragnaros' gear pools
+             sScriptMgr->OnAfterRefCount(player, loot, rate, lootMode, item, maxcount, store);
+             for (uint32 loop = 0; loop < maxcount; ++loop)      // Ref multiplicator
+                 // we're no longer in the top level, so isTopLevel is false
+@@ -1725,6 +1761,7 @@ void LootTemplate::Process(Loot& loot, LootStore const& store, uint16 lootMode,
+             if (isTopLevel)
+             {
+                 uint32 groupAmount = sWorld->getRate(RATE_DROP_ITEM_GROUP_AMOUNT);
++                groupAmount *= s_bossLootRolls;                 // LOCAL (boss loot): e.g. VanCleef's one-of-four gear group
+                 sScriptMgr->OnAfterCalculateLootGroupAmount(player, loot, lootMode, groupAmount, store);
+                 group->Process(loot, player, store, lootMode, groupAmount);
+             }
