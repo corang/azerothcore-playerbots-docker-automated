@@ -1,0 +1,15 @@
+diff --git a/modules/mod-multibot-bridge/src/MultiBotBridge.cpp b/modules/mod-multibot-bridge/src/MultiBotBridge.cpp
+index 74e7fed..2da37af 100644
+--- a/modules/mod-multibot-bridge/src/MultiBotBridge.cpp
++++ b/modules/mod-multibot-bridge/src/MultiBotBridge.cpp
+@@ -1489,7 +1489,9 @@ std::string BuildTalentLinkPointSummary(std::string const& link)
+ 
+ std::string GetPremadeSpecConfigString(std::string const& key)
+ {
+-    return Trim(sConfigMgr->GetOption<std::string>(key, ""));
++    // LOCAL: the spec list probes every premade index/level; unset keys are expected, so don't log
++    // "Missing property" for each probe (it flooded the console whenever the talent window opened).
++    return Trim(sConfigMgr->GetOption<std::string>(key, "", false));
+ }
+ 
+ std::string GetPremadeSpecLink(uint8 classId, uint32 specIndex, uint32 botLevel)
