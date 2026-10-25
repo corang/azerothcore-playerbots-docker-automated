@@ -26,7 +26,8 @@ MODULES=(
   "mod-individual-progression|https://github.com/ZhengPeiRu21/mod-individual-progression.git"
   # Era talents (own repo since 2026-09-07): requires IP above; its playerbots/bridge patches and bot
   # layer switch on automatically because those modules are present. Pinned in repo-pins.txt.
-  "mod-era-talents|https://github.com/lathcf/azerothcore-mod-era-talents.git"
+  # LOCAL: our fork (corang), so era patches regenerated for newer IP/core/playerbots pins live in our history.
+  "mod-era-talents|https://github.com/corang/azerothcore-mod-era-talents.git"
 )
 
 # Modules we author and ship from THIS repo (copied in, not git-cloned). Kept by the reconcile.
