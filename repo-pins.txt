@@ -39,5 +39,6 @@ mod-multibot-bridge ebfa01a129dd4c441b2527e42dcc37b6da95e6c2
 # GitHub history (an orphan branch; the private Gitea history has different shas) — production clones from
 # GitHub, so a private sha would never fetch. Bump after each public sync, after verifying a build.
 # Since 2026-10-25 cloned from OUR fork (corang/azerothcore-mod-era-talents, branch `instance` = our commits on top of
-# lathcf's main; setup.sh MODULES URL). d3d011b = 0dac15c + IP manual-advance patch re-cut for IP 4933d45; 4a4df06 = + bridge patch re-cut for bridge ebfa01a.
-mod-era-talents 4a4df06a072ad381682d294c8011b778a4680b26
+# lathcf's main; setup.sh MODULES URL). d3d011b = 0dac15c + IP manual-advance patch re-cut for IP 4933d45; 4a4df06 = + bridge patch re-cut for bridge ebfa01a;
+# e7be009 = + MultiBot TALENT_SPEC_APPLY routed through era talents.
+mod-era-talents e7be0097755560bd1ba34184413f6f475f9b7f26
