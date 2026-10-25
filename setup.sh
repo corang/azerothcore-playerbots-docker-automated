@@ -185,11 +185,15 @@ apply_ip_optional_sql () {
 extract_ip_server_dbc () {
   local modopt="$AC_DIR/modules/mod-individual-progression/optional"
   local out="$AC_DIR/ip-dbc"
-  rm -rf "$out"
-  [[ "${IP_ENABLE:-1}" == "1" ]] || return 0
-  { [[ "${IP_CLIENT_PATCH_V:-1}" == "1" || "${IP_CLIENT_DBC:-1}" == "1" ]]; } || return 0
-  command -v 7z >/dev/null || { echo "    IP DBC overlay: '7z' (p7zip) not found — skipping server DBC overlay"; return 0; }
-  [[ -d "$modopt" ]] || { echo "    IP DBC overlay: $modopt missing (module not cloned yet) — skipping"; return 0; }
+  # LOCAL: build into a staging dir and only swap it in when the DBCs actually changed. Docker Desktop
+  # (WSL2) pins single-file bind mounts to the original inode, so needlessly deleting + re-extracting
+  # identical files breaks the running container's mounts (next start fails "error mounting ... .dbc").
+  local stage="$AC_DIR/ip-dbc.new"
+  rm -rf "$stage"
+  { [[ "${IP_ENABLE:-1}" == "1" ]] && { [[ "${IP_CLIENT_PATCH_V:-1}" == "1" || "${IP_CLIENT_DBC:-1}" == "1" ]]; }; } || { rm -rf "$out"; return 0; }
+  command -v 7z >/dev/null || { rm -rf "$out"; echo "    IP DBC overlay: '7z' (p7zip) not found — skipping server DBC overlay"; return 0; }
+  [[ -d "$modopt" ]] || { rm -rf "$out"; echo "    IP DBC overlay: $modopt missing (module not cloned yet) — skipping"; return 0; }
+  local final="$out"; out="$stage"
   mkdir -p "$out"
   local tmp; tmp="$(mktemp -d)"
   [[ "${IP_CLIENT_PATCH_V:-1}" == "1" && -f "$modopt/patch-V.7z" ]] && 7z x -y -o"$tmp/v" "$modopt/patch-V.7z" >/dev/null
@@ -197,6 +201,13 @@ extract_ip_server_dbc () {
   # Copy ONLY *.dbc (the server halves); archives may nest them in subdirs.
   find "$tmp" -type f -iname '*.dbc' -exec cp -f {} "$out/" \;
   rm -rf "$tmp"
+  if [[ -d "$final" ]] && diff -rq "$stage" "$final" >/dev/null 2>&1; then
+    rm -rf "$stage"
+    out="$final"
+    echo "    IP DBC overlay: unchanged ($(ls "$out"/*.dbc 2>/dev/null | wc -l) server DBC(s) in ip-dbc/)"
+    return 0
+  fi
+  rm -rf "$final"; mv "$stage" "$final"; out="$final"
   if compgen -G "$out"/*.dbc >/dev/null 2>&1; then
     echo "    IP DBC overlay: staged $(ls "$out"/*.dbc | wc -l) server DBC(s) into ip-dbc/"
   fi
