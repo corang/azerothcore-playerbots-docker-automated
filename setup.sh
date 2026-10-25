@@ -525,12 +525,15 @@ set_conf "Rate.Honor"           "${HONOR_RATE:-5}"      "$WS_CONF"
 set_conf "Rate.Rest.InGame"                 "${REST_INGAME_RATE:-3}"             "$WS_CONF"
 set_conf "Rate.Rest.Offline.InTavernOrCity" "${REST_OFFLINE_TAVERN_RATE:-3}"     "$WS_CONF"
 set_conf "Rate.Rest.Offline.InWilderness"   "${REST_OFFLINE_WILDERNESS_RATE:-3}" "$WS_CONF"
-# Respawn timers: stock dynamic-respawn defaults. The dynamic system already scales respawn
-# time down as a zone's player+bot count rises (bots count as players), which with 1500 bots
-# is plenty fast on its own — making it more aggressive (rate < 1 / lower minimum) caused
-# near-instant respawns. Pinned to defaults explicitly so re-running setup.sh restores them.
-set_conf "Respawn.DynamicRateCreature"      "1"  "$WS_CONF"
-set_conf "Respawn.DynamicMinimumCreature"   "10" "$WS_CONF"
+# Respawn timers. Dynamic respawn scales a mob's respawn delay by rate/zonePlayerCount once a
+# zone holds more than `rate` players — bots count as players. rate = 1 disables it entirely
+# (Map::ApplyDynamicModeRespawnScaling early-returns); rate < 1 scales even a lone player down
+# to the minimum. LOCAL: creature rate 40 + 60 s floor: stock timers until a zone has >40
+# players+bots, then e.g. 125 -> 40/125 of the delay (5 min -> ~96 s), never below 60 s.
+# (Rate 5 + 10 s floor put nearly every zone at 10-25 s respawns with 3500 bots online.)
+# Gameobjects (herbs/ore/chests) stay at stock 1 (disabled).
+set_conf "Respawn.DynamicRateCreature"      "40" "$WS_CONF"
+set_conf "Respawn.DynamicMinimumCreature"   "60" "$WS_CONF"
 set_conf "Respawn.DynamicRateGameObject"    "1"  "$WS_CONF"  # herbs/ore/chests
 set_conf "Respawn.DynamicMinimumGameObject" "10" "$WS_CONF"
 # Save characters every 5 min (default 15) so a power loss costs less progress.
