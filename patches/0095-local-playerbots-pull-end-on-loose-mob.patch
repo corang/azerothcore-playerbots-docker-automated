@@ -1,0 +1,16 @@
+diff --git a/modules/mod-playerbots/src/Ai/Base/Trigger/PullTriggers.cpp b/modules/mod-playerbots/src/Ai/Base/Trigger/PullTriggers.cpp
+index 15e59ccb..21c9a9ac 100644
+--- a/modules/mod-playerbots/src/Ai/Base/Trigger/PullTriggers.cpp
++++ b/modules/mod-playerbots/src/Ai/Base/Trigger/PullTriggers.cpp
+@@ -41,6 +41,11 @@ bool PullEndTrigger::IsActive()
+     if (secondsSincePullStarted >= PullStrategy::GetMaxPullTime())
+         return true;
+ 
++    // LOCAL: the pulled mob went for someone else (player/healer/another bot picked it up) — end the
++    // pull so the tank engages instead of idling (attacks are suppressed until the pull ends).
++    if (target->GetVictim() && target->GetVictim() != bot)
++        return true;
++
+     float distanceToPullTarget = bot->GetDistance(target);
+     if (distanceToPullTarget > ATTACK_DISTANCE && !target->IsNonMeleeSpellCast(false, false, true) &&
+         (!botAI->IsRanged(bot) || distanceToPullTarget > botAI->GetRange("spell")))
