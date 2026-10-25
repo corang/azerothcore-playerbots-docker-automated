@@ -1,5 +1,5 @@
 diff --git a/modules/mod-playerbots/src/Ai/Base/Actions/ChangeTalentsAction.cpp b/modules/mod-playerbots/src/Ai/Base/Actions/ChangeTalentsAction.cpp
-index 02c7170d..170be686 100644
+index 0a8a5228..7b730353 100644
 --- a/modules/mod-playerbots/src/Ai/Base/Actions/ChangeTalentsAction.cpp
 +++ b/modules/mod-playerbots/src/Ai/Base/Actions/ChangeTalentsAction.cpp
 @@ -13,6 +13,7 @@
@@ -20,7 +20,7 @@ index 02c7170d..170be686 100644
 +{
 +    for (int level = MAX_LEVEL - 1; level >= 0; --level)
 +    {
-+        std::vector<std::vector<uint32>> const& picks = sPlayerbotAIConfig.parsedSpecLinkOrder[cls][specNo][level];
++        std::vector<std::vector<uint32>> const& picks = sPlayerbotAIConfig.ParsedSpecLinkOrder[cls][specNo][level];
 +        if (picks.empty())
 +            continue;
 +
@@ -38,7 +38,7 @@ index 02c7170d..170be686 100644
      int cls = bot->getClass();
 @@ -143,7 +163,13 @@ std::string ChangeTalentsAction::SpecPick(std::string param)
          }
-         if (sPlayerbotAIConfig.premadeSpecName[cls][specNo] == param)
+         if (sPlayerbotAIConfig.PremadeSpecName[cls][specNo] == param)
          {
 -            PlayerbotFactory::InitTalentsBySpecNo(bot, specNo, true);
 +            // LOCAL: an era-managed bot (Vanilla/TBC band, mod-era-talents) keeps its talents in
