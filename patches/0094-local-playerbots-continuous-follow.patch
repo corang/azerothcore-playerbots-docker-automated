@@ -1,0 +1,76 @@
+diff --git a/modules/mod-playerbots/src/Ai/Base/Actions/FollowActions.cpp b/modules/mod-playerbots/src/Ai/Base/Actions/FollowActions.cpp
+index deeb19a8..14bc5160 100644
+--- a/modules/mod-playerbots/src/Ai/Base/Actions/FollowActions.cpp
++++ b/modules/mod-playerbots/src/Ai/Base/Actions/FollowActions.cpp
+@@ -205,11 +205,47 @@ bool FollowAction::Execute(Event /*event*/)
+     }
+     // end unified transport handling
+ 
++    // LOCAL: while the master is running (forward/back/strafe; jumping or turning in place don't count), follow it
++    // with the core follow generator (which patch 0092 gives the pet treatment: target prediction + speed sync), aimed
++    // at the bot's own formation slot (distance + angle relative to the master's facing), so running and standing
++    // positions match. When the master stops, the run-follow is dropped and the formation places the bot again (the
++    // generator would otherwise stay on top, park the bot at its own follow spot and ignore turns/formation changes).
++    bool const masterRunning = target.empty() && master && master->IsInWorld() &&
++                               botAI->GetState() != BOT_STATE_COMBAT && !bot->InBattleground() &&
++                               master->GetMapId() == bot->GetMapId() &&
++                               master->HasUnitMovementFlag(MOVEMENTFLAG_FORWARD | MOVEMENTFLAG_BACKWARD |
++                                                           MOVEMENTFLAG_STRAFE_LEFT | MOVEMENTFLAG_STRAFE_RIGHT);
++    if (runFollow && !masterRunning)
++    {
++        runFollow = false;
++        MotionMaster* mm = bot->GetMotionMaster();
++        if (mm->GetCurrentMovementGeneratorType() == FOLLOW_MOTION_TYPE)
++            mm->Clear();
++        AI_VALUE(LastMovement&, "last movement").lastdelayTime = 0.0f;
++    }
++
+     bool moved = false;
+     if (!target.empty())
+     {
+         moved = Follow(AI_VALUE(Unit*, target));
+     }
++    else if (masterRunning)
++    {
++        WorldLocation const slot = formation->GetLocation();
++        if (Formation::IsNullLocation(slot) || slot.GetMapId() != bot->GetMapId())
++            return false;
++
++        // A follow left by another action (flee to leader, after combat, ...) has a stale distance/angle, and
++        // Follow() leaves an existing follow of the same target alone: start a fresh one for this run.
++        MotionMaster* mm = bot->GetMotionMaster();
++        if (!runFollow && mm->GetCurrentMovementGeneratorType() == FOLLOW_MOTION_TYPE)
++            mm->Clear();
++        runFollow = true;
++
++        float const slotDistance = master->GetExactDist2d(slot.GetPositionX(), slot.GetPositionY());
++        moved = Follow(master, std::max(0.0f, slotDistance - bot->GetCombatReach()),
++                       master->GetRelativeAngle(slot.GetPositionX(), slot.GetPositionY()));
++    }
+     else
+     {
+         WorldLocation loc = formation->GetLocation();
+@@ -284,6 +320,9 @@ bool FollowAction::isUseful()
+ 
+         distance = bot->GetDistance(loc.GetPositionX(), loc.GetPositionY(), loc.GetPositionZ());
+     }
++    if (runFollow)
++        return true;  // LOCAL (0094): let Execute hand the bot back to its formation slot when the master stops
++
+     if (botAI->HasStrategy("master fishing", BOT_STATE_NON_COMBAT))
+         return ServerFacade::instance().IsDistanceGreaterThan(distance, sPlayerbotAIConfig.fishingDistanceFromMaster);
+ 
+diff --git a/modules/mod-playerbots/src/Ai/Base/Actions/FollowActions.h b/modules/mod-playerbots/src/Ai/Base/Actions/FollowActions.h
+index 6c8e9b7e..ffc851d1 100644
+--- a/modules/mod-playerbots/src/Ai/Base/Actions/FollowActions.h
++++ b/modules/mod-playerbots/src/Ai/Base/Actions/FollowActions.h
+@@ -19,6 +19,9 @@ public:
+     bool Execute(Event event) override;
+     bool isUseful() override;
+     bool CanDeadFollow(Unit* target);
++
++private:
++    bool runFollow = false;  // LOCAL (0094): this action started a run-follow of the master
+ };
+ 
+ class FleeToGroupLeaderAction : public FollowAction
