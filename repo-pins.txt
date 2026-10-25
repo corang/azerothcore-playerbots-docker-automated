@@ -22,8 +22,8 @@
 # retired 0002 and dropped mod-player-bot-level-brackets — see git history of this file.
 # To take upstream later: comment out the pin(s), run ./update.sh, regenerate any patch that
 # aborts, test, then re-pin at new tips.
-azerothcore-wotlk 7f12e89ee5f467a50e62eba1d525eac7dc953d03
-mod-playerbots 7bae1b5c58c76a0aa20381155edc08096d1485b2
+azerothcore-wotlk 3f2969ddb0da42b48b4fca050c02b19163ba1e20
+mod-playerbots e88cc4099e69f35126b28942a412ca702d20453b
 # 2026-10-25 (our upgrade, phase 1): IP 0180b91 -> 4933d45 (5 commits: War Effort progress report, Vek'lor
 # immunity, Scarab Gong, PvP rank achievements, account-lookup cache). Needs era-talents d3d011b (below).
 mod-individual-progression 4933d455d2f611eed50c74c68c78832df4ed37a3
@@ -41,4 +41,4 @@ mod-multibot-bridge ebfa01a129dd4c441b2527e42dcc37b6da95e6c2
 # Since 2026-10-25 cloned from OUR fork (corang/azerothcore-mod-era-talents, branch `instance` = our commits on top of
 # lathcf's main; setup.sh MODULES URL). d3d011b = 0dac15c + IP manual-advance patch re-cut for IP 4933d45; 4a4df06 = + bridge patch re-cut for bridge ebfa01a;
 # e7be009 = + MultiBot TALENT_SPEC_APPLY routed through era talents.
-mod-era-talents e7be0097755560bd1ba34184413f6f475f9b7f26
+mod-era-talents e0e659adf6dcedaf3a63c83f5c67e62c0e9da380
