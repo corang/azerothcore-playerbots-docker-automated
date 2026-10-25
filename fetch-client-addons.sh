@@ -15,8 +15,10 @@ command -v curl  >/dev/null || { echo "ERROR: 'curl' is required (e.g. apt insta
 command -v unzip >/dev/null || { echo "ERROR: 'unzip' is required (e.g. apt install unzip)"; exit 1; }
 command -v zip   >/dev/null || { echo "ERROR: 'zip' is required (e.g. apt install zip)";     exit 1; }
 
-# staging dir name | source URL
-#   *.git -> cloned, then refreshed with git fetch/reset on re-run
+# staging dir name | source URL [| commit]
+#   *.git -> cloned, then refreshed with git fetch/reset on re-run (the clone's origin follows the URL listed here)
+#   *.git with a commit -> pinned: always checked out at exactly that commit (use for an addon that must match a
+#            pinned server module, e.g. Questie-335 <-> mod-questie-bridge in repo-pins.txt)
 #   *.zip -> downloaded + extracted; the dir is wiped and re-extracted on re-run
 # Single-folder addons (one .toc at the folder root) need the dir named to match
 # the .toc — MultiBot's .toc requires exactly "MultiBot"; Questie-335 likewise.
@@ -27,8 +29,10 @@ ADDONS=(
   "MultiBot|https://github.com/Wishmaster117/MultiBot-Chatless.git"
   "PlayerBotManager|https://github.com/Lichborne-AC/PlayerbotManager.git"
   # Questing: Questie shows quest givers/objectives on the map+minimap
-  # (quest data aligned to AzerothCore).
-  "Questie-335|https://github.com/sloan-008/Questie-335.git"
+  # (quest data aligned to AzerothCore). Aldori15's Questie-335 (since 2026-10-25, was sloan-008/Questie-335): it pairs
+  # with the server module mod-questie-bridge and includes the fix for the 3.3.5 client freeze from long animation
+  # timers. PINNED to the version matching the bridge pin in repo-pins.txt (protocol 15) — bump the two together.
+  "Questie-335|https://github.com/Aldori15/Questie.git|d695e9048e6df8b48d36a6db9436d82ca3bbbd87"
   # Dungeon/raid maps for Vanilla + TBC + WotLK instances, plus boss loot tables.
   # Atlas (the maps addon) has no clean dedicated 3.3.5a git repo, so it comes
   # from a curated 3.3.5a addon pack as a zip; AtlasLoot is its loot companion.
@@ -45,7 +49,7 @@ ADDONS=(
 )
 
 for entry in "${ADDONS[@]}"; do
-  name="${entry%%|*}"; url="${entry#*|}"
+  IFS='|' read -r name url pin <<< "$entry"
   dir="$DEST/$name"
   if [[ "$url" == *.zip ]]; then
     echo "==> Downloading $name (zip)"
@@ -54,8 +58,16 @@ for entry in "${ADDONS[@]}"; do
     rm -rf "$dir"; mkdir -p "$dir"
     unzip -q "$tmp/addon.zip" -d "$dir"
     rm -rf "$tmp"
+  elif [[ -n "$pin" ]]; then
+    echo "==> $name @ ${pin:0:7} (pinned)"
+    [[ -d "$dir/.git" ]] || git clone --depth 1 "$url" "$dir"
+    git -C "$dir" remote set-url origin "$url"
+    git -C "$dir" fetch --depth 1 origin "$pin"
+    git -C "$dir" -c advice.detachedHead=false checkout -q --force FETCH_HEAD
+    git -C "$dir" clean -qfd
   elif [[ -d "$dir/.git" ]]; then
     echo "==> Updating $name"
+    git -C "$dir" remote set-url origin "$url"
     branch="$(git -C "$dir" rev-parse --abbrev-ref HEAD)"
     git -C "$dir" fetch --depth 1 origin "$branch"
     git -C "$dir" reset --hard "origin/$branch"
