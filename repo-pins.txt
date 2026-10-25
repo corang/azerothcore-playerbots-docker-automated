@@ -22,6 +22,11 @@
 # retired 0002 and dropped mod-player-bot-level-brackets — see git history of this file.
 # To take upstream later: comment out the pin(s), run ./update.sh, regenerate any patch that
 # aborts, test, then re-pin at new tips.
+# 2026-10-25 (our upgrade, phase 3+4): core 7f12e89 -> 3f2969d and mpb 7bae1b5 -> e88cc40, moved together again (core
+# #27533 headless sessions removed WorldSession's is_bot ctor arg and IsBot(); mpb counterpart #2792). mpb #2854
+# renamed config members and EVERY conf key AiPlayerbot.* -> Playerbots.* (setup.sh picks the prefix from the .dist
+# and migrates playerbots.conf once). Re-cut: 0004 0005 0019 0092 0094 0095; renames: 0011 0012 0102 0103 + era
+# playerbots/01; dropped 0020 (upstream BWL #2736) and 0098 (upstream #2872). Needs era-talents e0e659a (below).
 azerothcore-wotlk 3f2969ddb0da42b48b4fca050c02b19163ba1e20
 mod-playerbots e88cc4099e69f35126b28942a412ca702d20453b
 # 2026-10-25 (our upgrade, phase 1): IP 0180b91 -> 4933d45 (5 commits: War Effort progress report, Vek'lor
@@ -40,5 +45,6 @@ mod-multibot-bridge ebfa01a129dd4c441b2527e42dcc37b6da95e6c2
 # GitHub, so a private sha would never fetch. Bump after each public sync, after verifying a build.
 # Since 2026-10-25 cloned from OUR fork (corang/azerothcore-mod-era-talents, branch `instance` = our commits on top of
 # lathcf's main; setup.sh MODULES URL). d3d011b = 0dac15c + IP manual-advance patch re-cut for IP 4933d45; 4a4df06 = + bridge patch re-cut for bridge ebfa01a;
-# e7be009 = + MultiBot TALENT_SPEC_APPLY routed through era talents.
+# e7be009 = + MultiBot TALENT_SPEC_APPLY routed through era talents; e0e659a = + playerbots patches re-cut for mpb e88cc40
+# and IsHeadless() for core 3f2969d.
 mod-era-talents e0e659adf6dcedaf3a63c83f5c67e62c0e9da380
