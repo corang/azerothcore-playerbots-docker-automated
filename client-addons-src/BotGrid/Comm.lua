@@ -143,11 +143,101 @@ function C.rawSend(message)
   return true
 end
 
+-- Decode the bridge's field encoding (%XX for '%', '~', CR, LF — see urlEncode).
+function C.urlDecode(value)
+  return (tostring(value or ""):gsub("%%(%x%x)", function(h)
+    return string.char(tonumber(h, 16))
+  end))
+end
+
+-- ---- framed STATES (bridge STATE_FRAMING_V1) -------------------------------
+-- LOCAL: a legacy "GET~STATES" makes the bridge send ONE packet per bot (name~combat~normal);
+-- any bot whose strategy lists push that past the 255-byte addon-message limit is dropped
+-- server-side ("MultiBotBridge STATE TX rejected"). The tokened form streams the reply as
+-- STATES_BEGIN, then per bot STATE_BEGIN / STATE_ITEM (one strategy each) / STATE_END, then
+-- STATES_END (or STATE_ABORT). Replies arrive on the shared MBOT prefix, so MultiBot's own
+-- framed replies are visible here too — the token filter keeps them apart.
+C.STATES_TIMEOUT = 10.0
+
+function C.newStateAssembler()
+  return { token = nil, sentAt = 0, bots = nil }
+end
+
+-- A new STATES request may go out when none is in flight, or the last one timed out.
+function C.canRequestStates(asm, now)
+  return asm.token == nil or (now - (asm.sentAt or 0)) >= C.STATES_TIMEOUT
+end
+
+function C.beginStatesRequest(asm, now)
+  local token = "bg" .. C.nextToken()
+  asm.token, asm.sentAt, asm.bots = token, now, nil
+  return token
+end
+
+-- Split the first n-1 '~' fields; the n-th keeps any remainder.
+local function splitFields(payload, n)
+  local out, rest = {}, payload or ""
+  for i = 1, n - 1 do
+    out[i], rest = C.splitOnce(rest, "~")
+  end
+  out[n] = rest
+  return out
+end
+
+-- Join an index->strategy map in index order, tolerating gaps (a lost frame).
+local function joinIndexed(t)
+  local max = 0
+  for k in pairs(t) do if k > max then max = k end end
+  local out = {}
+  for i = 1, max do if t[i] then out[#out + 1] = t[i] end end
+  return table.concat(out, ", ")   -- same ", " join as the legacy STATE payload
+end
+
+-- Feed one framed reply. Returns a { [name] = {name, combat, normal} } map when OUR batch
+-- completes (STATES_END), false when it was aborted, nil otherwise (incl. foreign tokens).
+function C.applyStateFrame(asm, opcode, payload)
+  local token = C.splitOnce(payload or "", "~")
+  if asm.token == nil or token ~= asm.token then return nil end
+
+  if opcode == "STATES_BEGIN" then
+    asm.bots = {}
+  elseif opcode == "STATE_BEGIN" then
+    local f = splitFields(payload, 4)
+    if asm.bots then asm.bots[C.urlDecode(f[2])] = { c = {}, n = {} } end
+  elseif opcode == "STATE_ITEM" then
+    local f = splitFields(payload, 5)
+    local b = asm.bots and asm.bots[C.urlDecode(f[2])]
+    local idx = tonumber(f[4])
+    if b and idx then
+      local list = (f[3] == "C" and b.c) or (f[3] == "N" and b.n) or nil
+      if list then list[idx] = C.urlDecode(f[5]) end
+    end
+  elseif opcode == "STATES_END" then
+    local done = {}
+    for name, b in pairs(asm.bots or {}) do
+      done[name] = { name = name, combat = joinIndexed(b.c), normal = joinIndexed(b.n) }
+    end
+    asm.token, asm.bots = nil, nil
+    return done
+  elseif opcode == "STATE_ABORT" then
+    asm.token, asm.bots = nil, nil
+    return false
+  end
+  return nil
+end
+
+C.statesAsm = C.newStateAssembler()
+
 function C.send(opcode, payload) return C.rawSend(C.buildMessage(opcode, payload)) end
 function C.sendHello() return C.send("HELLO", C.version) end
 function C.sendPing()  return C.send("PING", tostring(C.nextToken())) end
 function C.requestRoster()  return C.send("GET", "ROSTER") end
-function C.requestStates()  return C.send("GET", "STATES") end
+function C.requestStates()
+  local asm = C.statesAsm
+  local now = (GetTime and GetTime()) or 0
+  if not C.canRequestStates(asm, now) then return false end   -- one batch in flight at a time
+  return C.send("GET", "STATES~" .. C.beginStatesRequest(asm, now))
+end
 function C.requestDetails() return C.send("GET", "DETAILS") end
 
 -- Issue a playerbot command to a set of bots (one BOT-scoped message each).

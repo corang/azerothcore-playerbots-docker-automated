@@ -47,6 +47,14 @@ local function onAddonMessage(prefix, message)
     -- the bridge streams one STATE per bot (not just the STATES batch)
     local s = C.parseState(payload); if s then store.states[s.name] = s end
     NS.Rebuild()
+  elseif opcode == "STATES_BEGIN" or opcode == "STATE_BEGIN" or opcode == "STATE_ITEM"
+      or opcode == "STATE_END" or opcode == "STATES_END" or opcode == "STATE_ABORT" then
+    -- LOCAL: framed STATES reply (see Comm.applyStateFrame); foreign tokens are ignored
+    local done = C.applyStateFrame(C.statesAsm, opcode, payload)
+    if done then
+      for name, s in pairs(done) do store.states[name] = s end
+      NS.Rebuild()
+    end
   elseif opcode == "DETAIL" then
     -- the bridge streams one DETAIL per bot (not just the DETAILS batch)
     local d = C.parseDetail(payload); if d then store.details[d.name] = d end
