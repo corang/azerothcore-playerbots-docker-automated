@@ -1,0 +1,25 @@
+diff --git a/modules/mod-playerbots/src/Bot/PlayerbotAI.cpp b/modules/mod-playerbots/src/Bot/PlayerbotAI.cpp
+index 308efb7..67d4b3f 100644
+--- a/modules/mod-playerbots/src/Bot/PlayerbotAI.cpp
++++ b/modules/mod-playerbots/src/Bot/PlayerbotAI.cpp
+@@ -39,6 +39,7 @@
+ #include "PlayerbotAIConfig.h"
+ #include "PlayerbotGuildMgr.h"
+ #include "PlayerbotMgr.h"
++#include "PlayerbotRepository.h"  // LOCAL: alt-bot strategy reload on master change
+ #include "PlayerbotTextMgr.h"
+ #include "Playerbots.h"
+ #include "PositionValue.h"
+@@ -466,6 +467,12 @@ void PlayerbotAI::UpdateAIGroupMaster()
+             master = newMaster;
+             botAI->SetMaster(newMaster);
+             botAI->ResetStrategies();
++            // LOCAL: alt-bots (the player's own characters, not rndbot/addclass accounts) keep their
++            // saved co/nc strategies across a master change — otherwise e.g. a server restart that
++            // regroups them under another leader resets them to class defaults, and the next save
++            // overwrites the player's custom set. Random/addclass bots keep the default reset.
++            if (!sPlayerbotAIConfig.IsInRandomAccountList(bot->GetSession()->GetAccountId()))
++                PlayerbotRepository::instance().Load(botAI);
+ 
+             if (!bot->InBattleground())
+             {
