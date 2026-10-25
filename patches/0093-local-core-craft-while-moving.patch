@@ -1,0 +1,35 @@
+diff --git a/src/server/game/Spells/SpellInfoCorrections.cpp b/src/server/game/Spells/SpellInfoCorrections.cpp
+index d5e5fd025..2b9733e7c 100644
+--- a/src/server/game/Spells/SpellInfoCorrections.cpp
++++ b/src/server/game/Spells/SpellInfoCorrections.cpp
+@@ -5433,6 +5433,30 @@ void SpellMgr::LoadSpellInfoCorrections()
+     LockEntry* key = const_cast<LockEntry*>(sLockStore.LookupEntry(36)); // 3366 Opening, allows to open without proper key
+     key->Type[2] = LOCK_KEY_NONE;
+ 
++    // LOCAL: profession crafting (create item, enchant, disenchant, prospect, mill) no longer breaks on movement;
++    // gathering, fishing and other profession spells keep it. The client enforces its own Spell.dbc too, so this only
++    // takes effect for clients whose patch-V Spell.dbc carries the same change.
++    uint32 craftWhileMoving = 0;
++    for (SkillLineAbilityEntry const* ability : sSkillLineAbilityStore)
++    {
++        if (!IsProfessionSkill(ability->SkillLine) || ability->SkillLine == SKILL_FISHING)
++            continue;
++
++        SpellInfo* spellInfo = _GetSpellInfo(ability->Spell);
++        if (!spellInfo || !(spellInfo->InterruptFlags & SPELL_INTERRUPT_FLAG_MOVEMENT))
++            continue;
++
++        if (spellInfo->HasEffect(SPELL_EFFECT_CREATE_ITEM) || spellInfo->HasEffect(SPELL_EFFECT_CREATE_ITEM_2) ||
++            spellInfo->HasEffect(SPELL_EFFECT_ENCHANT_ITEM) || spellInfo->HasEffect(SPELL_EFFECT_DISENCHANT) ||
++            spellInfo->HasEffect(SPELL_EFFECT_PROSPECTING) || spellInfo->HasEffect(SPELL_EFFECT_MILLING))
++        {
++            spellInfo->InterruptFlags &= ~SPELL_INTERRUPT_FLAG_MOVEMENT;
++            ++craftWhileMoving;
++        }
++    }
++    LOG_INFO("server.loading", ">> Craft while moving: cleared movement interrupt on {} profession spells",
++        craftWhileMoving);
++
+     LOG_INFO("server.loading", ">> Loading spell dbc data corrections  in {} ms", GetMSTimeDiffToNow(oldMSTime));
+     LOG_INFO("server.loading", " ");
+ }
