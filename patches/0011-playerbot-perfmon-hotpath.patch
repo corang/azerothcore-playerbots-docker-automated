@@ -13,7 +13,7 @@ index db00394..c3a57a0 100644
 +    // The label costs a WorldPosition + std::to_string + string concat per bot per AI tick —
 +    // only pay it when the perf monitor is actually collecting.
 +    PerfMonitorOperation* pmo = nullptr;
-+    if (sPlayerbotAIConfig.perfMonEnabled)
++    if (sPlayerbotAIConfig.PerfMonEnabled)
 +    {
 +        std::string const mapString = WorldPosition(bot).isOverworld() ? std::to_string(bot->GetMapId()) : "I";
 +        pmo = sPerfMonitor.start(PERF_MON_TOTAL, "PlayerbotAI::UpdateAIInternal " + mapString);
