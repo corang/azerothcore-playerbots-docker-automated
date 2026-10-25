@@ -51,3 +51,6 @@ mod-era-talents e0e659adf6dcedaf3a63c83f5c67e62c0e9da380
 # mod-junk-to-gold (noisiver): pinned 2026-10-25 at its tip (unchanged since 2025-02-22) so a fresh clone can't pull
 # an untested version. No patches touch it.
 mod-junk-to-gold 2134690bb03899e5c9e44d0682e8e6abf0bbbaf2
+# mod-questie-bridge (Aldori15): added 2026-10-25 at its tip, matching the Questie-335 addon d695e90 (10.0.1-335) that
+# fetch-client-addons.sh pins (both protocol 15). Bump the two together.
+mod-questie-bridge ad6ebd8fd70270992d0d843f0dc8c73ba924be30
