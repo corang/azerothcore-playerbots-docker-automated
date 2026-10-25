@@ -427,7 +427,19 @@ fi
 # --remove-orphans: the override was just rewritten above WITHOUT ac-webreg (it's appended
 # later, once its secrets exist), so a webreg container from a prior run looks orphaned here
 # and Compose warns. Drop it now; the ac-webreg step below recreates it from the fresh config.
+# LOCAL: remember what the worldserver will have loaded, so stage 9 only restarts it when this run
+# actually changed its config (avoids a second full bot-login cycle on code-only rebuilds).
+conf_fingerprint () {
+  { find env/dist/etc -type f -name '*.conf' -print0 2>/dev/null | sort -z | xargs -0 -r sha256sum
+    sha256sum .env 2>/dev/null; } | sha256sum | cut -d' ' -f1
+}
+WS_STARTED_BEFORE="$(docker inspect -f '{{.State.StartedAt}}' ac-worldserver 2>/dev/null || true)"
+CONF_FP_BEFORE="$(conf_fingerprint)"
+CONF_FP_STATE="$AC_DIR/.setup-applied-config.sha256"
+
 docker compose up -d --build --remove-orphans
+
+WS_STARTED_AFTER="$(docker inspect -f '{{.State.StartedAt}}' ac-worldserver 2>/dev/null || true)"
 
 echo "==> 5/10 Waiting for generated config files"
 # The entrypoint creates worldserver.conf (the app config) directly in env/dist/etc, and copies
@@ -1403,7 +1415,24 @@ if ! _ws_ready; then
 fi
 # -t 120: on a re-run against a live server the bots need time to save (same grace as stop.sh);
 # the default 10s SIGKILLs them mid-save.
-docker compose restart -t 120 ac-worldserver
+# LOCAL: recreate instead of restart. setup.sh re-extracts ip-dbc/*.dbc every run, and Docker
+# Desktop (WSL2) keeps single-file bind mounts pinned to the deleted originals, so a plain
+# restart fails with "error mounting ... SkillLine.dbc: no such file or directory".
+# LOCAL: restart only if the running worldserver loaded a different config than the one now on disk.
+# If stage 4 (re)started it, it loaded the pre-stage-5 state; otherwise whatever the last run applied.
+CONF_FP_NOW="$(conf_fingerprint)"
+if [[ "$WS_STARTED_AFTER" != "$WS_STARTED_BEFORE" ]]; then
+  CONF_FP_LOADED="$CONF_FP_BEFORE"
+else
+  CONF_FP_LOADED="$(cat "$CONF_FP_STATE" 2>/dev/null || true)"
+fi
+if [[ -n "$CONF_FP_LOADED" && "$CONF_FP_LOADED" == "$CONF_FP_NOW" ]]; then
+  echo "    worldserver config unchanged since it started — skipping restart."
+else
+  docker compose stop -t 120 ac-worldserver
+  docker compose up -d --force-recreate ac-worldserver
+fi
+echo "$CONF_FP_NOW" > "$CONF_FP_STATE"
 
 echo "==> 10/10 Installing nightly database-backup cron job"
 # Idempotent: a marked line is replaced on re-run. Skip with BACKUP_CRON=0.
