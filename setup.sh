@@ -615,7 +615,8 @@ echo "    EraTalents: $([[ "${ERATALENTS_ENABLE:-1}" == "1" ]] && echo ON || ech
 set_conf "GameType"                   "1" "$WS_CONF"
 # Keep the noisy playerbot INFO logging (BG-queue spam, etc.) OFF the live console so the
 # worldserver console stays usable for admin commands; route warnings to Playerbots.log.
-set_conf "Logger.playerbots"    "3,Playerbots" "$WS_CONF"
+# LOCAL: overridable via .env PLAYERBOTS_LOG (e.g. "4,Console Playerbots" to show bot logins).
+set_conf "Logger.playerbots"    "${PLAYERBOTS_LOG:-3,Playerbots}" "$WS_CONF"
 # mod-multibot-bridge has no .conf of its own, so it logs a "Missing property
 # MultiBotBridge.EnableConsoleLogs" notice on every console-log call until the property is
 # defined somewhere it reads (worldserver.conf is accepted). Define it as 0: silences that
