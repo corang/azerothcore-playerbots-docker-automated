@@ -48,3 +48,6 @@ mod-multibot-bridge ebfa01a129dd4c441b2527e42dcc37b6da95e6c2
 # e7be009 = + MultiBot TALENT_SPEC_APPLY routed through era talents; e0e659a = + playerbots patches re-cut for mpb e88cc40
 # and IsHeadless() for core 3f2969d.
 mod-era-talents e0e659adf6dcedaf3a63c83f5c67e62c0e9da380
+# mod-junk-to-gold (noisiver): pinned 2026-10-25 at its tip (unchanged since 2025-02-22) so a fresh clone can't pull
+# an untested version. No patches touch it.
+mod-junk-to-gold 2134690bb03899e5c9e44d0682e8e6abf0bbbaf2
